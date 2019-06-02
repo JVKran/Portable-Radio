@@ -1,0 +1,17 @@
+*.o
+*.project
+*.exe
+main.exe
+*.html
+*.png
+*.css
+*.js
+Makefil*
+Doxyfile
+*.ld
+*.elf
+*.bin
+*.map
+bmptk_fixed_size_stack.c
+*.hex
+
