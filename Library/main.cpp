@@ -12,7 +12,14 @@ int main( void ){
 	auto radio = TEA5767(i2c_bus);
 	radio.setFrequency(100.7);
 	hwlib::wait_ms(5000);
-	radio.setFrequency(102.7);
+	hwlib::cout << radio.signalStrength() << hwlib::endl;
+	hwlib::wait_ms(5000);
+	radio.setFrequency(98.9);
+	hwlib::wait_ms(5000);
+	hwlib::cout << radio.signalStrength() << hwlib::endl;
+	radio.setFrequency(100.7);
+	hwlib::wait_ms(5000);
+	hwlib::cout << radio.signalStrength() << hwlib::endl;
  	
 
 }
