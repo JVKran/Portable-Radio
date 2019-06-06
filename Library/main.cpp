@@ -2,7 +2,7 @@
 #include "TEA5767.hpp"
 
 int main( void ){
-	hwlib::wait_ms(1000);
+	hwlib::wait_ms(2000);
     namespace target = hwlib::target; 
     
     auto scl = target::pin_oc( target::pins::d8 );
@@ -14,13 +14,17 @@ int main( void ){
 	hwlib::wait_ms(5000);
 	hwlib::cout << radio.signalStrength() << hwlib::endl;
 	hwlib::wait_ms(5000);
-	radio.setFrequency(101.2);
+	radio.setFrequency(96.8);
 	hwlib::wait_ms(5000);
 	hwlib::cout << radio.signalStrength() << hwlib::endl;
 	hwlib::wait_ms(5000);
 	radio.setFrequency(100.7);
 	hwlib::wait_ms(5000);
 	hwlib::cout << radio.signalStrength() << hwlib::endl;
+	for(;;){
+		hwlib::cout << radio.signalStrength() << hwlib::endl;
+		hwlib::wait_ms(2000);
+	}
  	
 
 }
