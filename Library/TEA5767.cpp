@@ -15,22 +15,23 @@ void TEA5767::getStatus(){
 }
 
 int TEA5767::testHiLo(float frequency){
-	//data[0] |= 1UL << 7; 				//Mute
 	int pllFrequency = (float(4) * (frequency + 0.255) / 0.032768);
 	data[0] = pllFrequency >> 8;
 	data[1] = pllFrequency & 0xFF;
 	data[2] |= 1UL << 4;				//High Side Injection
 	setData();
-	hwlib::wait_ms(200);
+	hwlib::wait_ms(30);
 	int highStrentgh = signalStrength();
+	hwlib::cout << "Hi: " << highStrentgh << hwlib::endl;
 	pllFrequency = (float(4) * (frequency - 0.255) / 0.032768);
 	data[0] = pllFrequency >> 8;
 	data[1] = pllFrequency & 0xFF;
 	data[2] &= ~(1UL << 4);			//Low side injection
 	setData();
-	hwlib::wait_ms(200);
+	hwlib::wait_ms(30);
 	int lowStrentgh = signalStrength();
-	if (highStrentgh > lowStrentgh){
+	hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
+	if (highStrentgh >= lowStrentgh){
 		return 1;
 	} else {
 		return 0;
@@ -39,27 +40,13 @@ int TEA5767::testHiLo(float frequency){
 
 
 void TEA5767::setFrequency(float frequency){
-	int pllFrequency = (float(4) * (frequency + 0.255) / 0.032768);
-	data[0] = pllFrequency >> 8;
-	data[1] = pllFrequency & 0xFF;
-	setData();
-	hwlib::wait_ms(20);
-	int highStrentgh = signalStrength();
-	pllFrequency = (float(4) * (frequency - 0.255) / 0.032768);
-	data[0] = pllFrequency >> 8;
-	data[1] = pllFrequency & 0xFF;
-	setData();
-	hwlib::wait_ms(20);
-	int lowStrentgh = signalStrength();
-	if(lowStrentgh < highStrentgh){
+	if(testHiLo(frequency) == 1){	//Already ends low so only needs to be set high if that's better
 		int pllFrequency = (float(4) * (frequency + 0.255) / 0.032768);
 		data[0] = pllFrequency >> 8;
 		data[1] = pllFrequency & 0xFF;
-		setData();
+		data[2] |= 1UL << 4;
 	}
-	hwlib::cout << "data[0] = " << int(data[0]) << hwlib::endl;
-	hwlib::cout << "data[1] = " << int(data[1]) << hwlib::endl;
-	bus.write(address).write(data, 5);
+	setData();
 }
 
 int TEA5767::signalStrength(){

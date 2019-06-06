@@ -23,7 +23,7 @@ int main( void ){
 	hwlib::cout << radio.signalStrength() << hwlib::endl;
 	for(;;){
 		hwlib::cout << radio.signalStrength() << hwlib::endl;
-		hwlib::wait_ms(2000);
+		hwlib::wait_ms(10000);
 	}
  	
 
