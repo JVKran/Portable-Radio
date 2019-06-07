@@ -14,7 +14,7 @@ int main( void ){
 	hwlib::wait_ms(5000);
 	hwlib::cout << radio.signalStrength() << hwlib::endl;
 	hwlib::wait_ms(5000);
-	radio.setFrequency(96.8);
+	radio.setFrequency(89.7);
 	hwlib::wait_ms(5000);
 	hwlib::cout << radio.signalStrength() << hwlib::endl;
 	hwlib::wait_ms(5000);

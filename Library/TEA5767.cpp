@@ -26,6 +26,7 @@ void TEA5767::setHiLo(float frequency, int hilo){
 	}
 	data[0] = pllFrequency >> 8;
 	data[1] = pllFrequency & 0xFF;
+	setMute(false);
 	setData();
 }
 
@@ -45,12 +46,13 @@ int TEA5767::testHiLo(float frequency){
 	}
 }
 
-void TEA5767::setPrefrence(int hilo){
+void TEA5767::setHiLoPrefrence(int hilo){
 	hiLoPrefrence = hilo;
 }
 
 
 void TEA5767::setFrequency(float frequency){
+	setMute(true);
 	if(hiLoPrefrence == -1){
 		setHiLo(frequency, testHiLo(frequency));
 	} else {
@@ -58,7 +60,32 @@ void TEA5767::setFrequency(float frequency){
 	}
 }
 
+float TEA5767::getFrequency(){
+	getStatus();
+	int pllFrequency;
+	int frequency;
+	if((data[2] >> 4) & 1){//If High side injection is set
+		pllFrequency = (data[0] << 8) + data[1];
+		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
+	} else {
+		pllFrequency = (data[0] << 8) + data[1];
+		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
+	}
+	return frequency;
+}
+
+void TEA5767::setMute(bool mute){
+	if(mute){
+		data[0] |= (1UL << 7);
+		data[2] |= (3 << 1);
+	} else {
+		data[0] &= ~(1UL << 7);
+		data[2] &= ~(3 << 1);
+	}
+}
+
 int TEA5767::signalStrength(){
+	setData();
 	getStatus();
 	return status[3];
 }

@@ -15,8 +15,10 @@ class TEA5767{
 	public:
 		TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x60, int hiLoPrefrence = -1);
 		void setFrequency(float frequency);
+		float getFrequency();
 		int signalStrength();
-		void setPrefrence(int hilo);
+		void setHiLoPrefrence(int hilo);
+		void setMute(bool mute = true);
 };
 
 #endif //__TEA5767_HPP
