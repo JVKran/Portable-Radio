@@ -1,10 +1,10 @@
 #include "hwlib.hpp"
 #include "TEA5767.hpp"
 
-TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, int hiLoPrefrence):
+TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, bool bandLimit):
 	bus(bus),
 	address(address),
-	hiLoPrefrence(hiLoPrefrence)
+	bandLimit(bandLimit)
 {}
 
 void TEA5767::setData(){
@@ -15,11 +15,20 @@ void TEA5767::getStatus(){
 	bus.read(address).read(status, 5);
 }
 
+void TEA5767::setBandLimit(bool limit){
+	bandLimit = limit;
+	if(limit){
+		data[3] |= (1UL << 5);
+	} else {
+		data[3] &= ~(1UL << 5);
+	}
+}
+
 void TEA5767::setHiLo(float frequency, int hilo){
 	int pllFrequency;
 	if(hilo == 1){
 		pllFrequency = (float(4) * (frequency + 0.255) / 0.032768);
-		data[2] |= 1UL << 4;
+		data[2] |= (1UL << 4);
 	} else {
 		pllFrequency = (float(4) * (frequency - 0.255) / 0.032768);
 		data[2] &= ~(1UL << 4);
@@ -46,17 +55,13 @@ int TEA5767::testHiLo(float frequency){
 	}
 }
 
-void TEA5767::setHiLoPrefrence(int hilo){
-	hiLoPrefrence = hilo;
-}
 
-
-void TEA5767::setFrequency(float frequency){
+void TEA5767::setFrequency(float frequency, int hiLoForce){
 	setMute(true);
-	if(hiLoPrefrence == -1){
+	if(hiLoForce == -1){
 		setHiLo(frequency, testHiLo(frequency));
-	} else {
-		setHiLo(frequency, hiLoPrefrence);
+	} else if(hiLoForce == 0 || hiLoForce == 1){
+		setHiLo(frequency, hiLoForce);
 	}
 }
 
@@ -81,6 +86,14 @@ void TEA5767::setMute(bool mute){
 	} else {
 		data[0] &= ~(1UL << 7);
 		data[2] &= ~(3 << 1);
+	}
+}
+
+void TEA5767::standBy(bool sleep){
+	if(sleep){
+		data[3] |= (1UL << 6);
+	} else {
+		data[3] &= ~(1UL << 6);
 	}
 }
 

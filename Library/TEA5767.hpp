@@ -7,18 +7,19 @@ class TEA5767{
 		uint8_t address;
 		uint8_t data[5] = {0x30, 0x1F, 0x10, 0x10, 0xC0};
 		uint8_t status[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
-		int hiLoPrefrence;
+		bool bandLimit;
 		void setData();
 		void getStatus();
 		int testHiLo(float frequency);
 		void setHiLo(float frequency, int hilo);
 	public:
-		TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x60, int hiLoPrefrence = -1);
-		void setFrequency(float frequency);
+		TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x60, bool bandLimit = false);
+		void setBandLimit(bool limit = true);
+		void setFrequency(float frequency, int hiLoForce = -1);
 		float getFrequency();
 		int signalStrength();
-		void setHiLoPrefrence(int hilo);
 		void setMute(bool mute = true);
+		void standBy(bool sleep = true);
 };
 
 #endif //__TEA5767_HPP
