@@ -15,11 +15,12 @@ class TEA5767{
 	public:
 		TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x60, bool bandLimit = false);
 		void setBandLimit(bool limit = true);
-		void setFrequency(float frequency, int hiLoForce = -1);
+		void setFrequency(float frequency = -1, int hiLoForce = -1);
 		float getFrequency();
 		int signalStrength();
 		void setMute(bool mute = true);
 		void standBy(bool sleep = true);
+		void searchMode(bool enable = true, float nextFrequency = -1);
 };
 
 #endif //__TEA5767_HPP

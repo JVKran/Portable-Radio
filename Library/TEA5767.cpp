@@ -12,6 +12,7 @@ void TEA5767::setData(){
 }
 
 void TEA5767::getStatus(){
+	setData();	//Read first according to datasheet
 	bus.read(address).read(status, 5);
 }
 
@@ -35,7 +36,6 @@ void TEA5767::setHiLo(float frequency, int hilo){
 	}
 	data[0] = pllFrequency >> 8;
 	data[1] = pllFrequency & 0xFF;
-	setMute(false);
 	setData();
 }
 
@@ -57,12 +57,20 @@ int TEA5767::testHiLo(float frequency){
 
 
 void TEA5767::setFrequency(float frequency, int hiLoForce){
-	if((bandLimit && frequency <= 91) || !bandLimit){
+	if((((bandLimit && frequency <= 91) || (bandLimit && frequency >= 76) || ((!bandLimit && frequency <= 108) || (!bandLimit && frequency >= 87.5))) && frequency != -1)){
+		searchMode(false);
 		setMute(true);
 		if(hiLoForce == -1){
 			setHiLo(frequency, testHiLo(frequency));
 		} else if(hiLoForce == 0 || hiLoForce == 1){
 			setHiLo(frequency, hiLoForce);
+		}
+		setMute(false);
+	} else {
+		if(bandLimit){
+			setFrequency(76);
+		} else {
+			setFrequency(87.5);
 		}
 	}
 }
@@ -89,6 +97,7 @@ void TEA5767::setMute(bool mute){
 		data[0] &= ~(1UL << 7);
 		data[2] &= ~(3 << 1);
 	}
+	setData();
 }
 
 void TEA5767::standBy(bool sleep){
@@ -97,12 +106,24 @@ void TEA5767::standBy(bool sleep){
 	} else {
 		data[3] &= ~(1UL << 6);
 	}
+	setData();
 }
 
 int TEA5767::signalStrength(){
-	setData();
 	getStatus();
 	return status[3];
+}
+
+void TEA5767::searchMode(bool enable, float nextFrequency){			//Frequency for desired startfrequency. Use '0' for first legal frequency. Leave empty for current tuned frequency
+	if(nextFrequency != -1){
+		setFrequency(nextFrequency);
+	}
+	if(enable){
+		data[0] |= (1UL << 6);
+	} else {
+		data[0] &= ~(1UL << 6);
+	}
+	setData();
 }
 
 
