@@ -57,11 +57,13 @@ int TEA5767::testHiLo(float frequency){
 
 
 void TEA5767::setFrequency(float frequency, int hiLoForce){
-	setMute(true);
-	if(hiLoForce == -1){
-		setHiLo(frequency, testHiLo(frequency));
-	} else if(hiLoForce == 0 || hiLoForce == 1){
-		setHiLo(frequency, hiLoForce);
+	if((bandLimit && frequency <= 91) || !bandLimit){
+		setMute(true);
+		if(hiLoForce == -1){
+			setHiLo(frequency, testHiLo(frequency));
+		} else if(hiLoForce == 0 || hiLoForce == 1){
+			setHiLo(frequency, hiLoForce);
+		}
 	}
 }
 
