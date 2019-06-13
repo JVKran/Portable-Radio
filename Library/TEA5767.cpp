@@ -12,7 +12,6 @@ void TEA5767::setData(){
 }
 
 void TEA5767::getStatus(){
-	setData();	//Read first according to datasheet
 	bus.read(address).read(status, 5);
 }
 
@@ -58,7 +57,7 @@ int TEA5767::testHiLo(float frequency){
 
 void TEA5767::setFrequency(float frequency, int hiLoForce){
 	if((((bandLimit && frequency <= 91) || (bandLimit && frequency >= 76) || ((!bandLimit && frequency <= 108) || (!bandLimit && frequency >= 87.5))) && frequency != -1)){
-		searchMode(false);
+		setSearchMode(false);
 		setMute(true);
 		if(hiLoForce == -1){
 			setHiLo(frequency, testHiLo(frequency));
@@ -76,7 +75,6 @@ void TEA5767::setFrequency(float frequency, int hiLoForce){
 }
 
 float TEA5767::getFrequency(){
-	getStatus();
 	int pllFrequency;
 	int frequency;
 	if((data[2] >> 4) & 1){//If High side injection is set
@@ -110,20 +108,56 @@ void TEA5767::standBy(bool sleep){
 }
 
 int TEA5767::signalStrength(){
+	setData(); //Update values 
 	getStatus();
 	return status[3];
 }
 
-void TEA5767::searchMode(bool enable, float nextFrequency){			//Frequency for desired startfrequency. Use '0' for first legal frequency. Leave empty for current tuned frequency
-	if(nextFrequency != -1){
-		setFrequency(nextFrequency);
-	}
+void TEA5767::setSearchMode(bool enable, int qualityTreshold){
 	if(enable){
 		data[0] |= (1UL << 6);
+		if(qualityTreshold >= 1 && qualityTreshold <= 3){
+			data[2] |= (qualityTreshold << 5);
+		} else {
+			data[2] |= (2 << 5);
+		}
 	} else {
 		data[0] &= ~(1UL << 6);
 	}
 	setData();
+}
+
+void TEA5767::search(int direction){
+	if(direction == 1){
+		//Search Up Enabled
+		data[2] |= (1UL << 7);
+	} else if (direction == 0){
+		//Search Down Enabled
+		data[2] &= ~(1UL << 7);
+	}
+	//SSL Highest Quality
+	data[2] |= (3 << 5);
+	//Mute Volume
+	data[0] |= (1UL << 7);
+	data[2] |= (3 << 1);
+	//Search Mode On
+	data[0] |= (1UL << 6);
+	setData();
+	hwlib::wait_ms(20);
+	for(;;){
+		if((data[0] >> 7) & 1){
+			break;
+		}
+		if(direction == 1){
+			setHiLo(getFrequency() + 1.0, testHiLo(getFrequency() + 1.0));
+		} else if (direction == 0){
+			setHiLo(getFrequency() - 1.0, testHiLo(getFrequency() - 1.0));
+		}
+		hwlib::wait_ms(20);
+	}
+	setMute(false);
+	setSearchMode(false);
+	setFrequency(getFrequency());
 }
 
 
