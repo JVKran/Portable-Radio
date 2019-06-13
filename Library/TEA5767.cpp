@@ -12,6 +12,7 @@ void TEA5767::setData(){
 }
 
 void TEA5767::getStatus(){
+	setData();
 	bus.read(address).read(status, 5);
 }
 
@@ -128,6 +129,7 @@ void TEA5767::setSearchMode(bool enable, int qualityTreshold){
 }
 
 void TEA5767::search(int direction){
+	float frequency = 100.7;
 	if(direction == 1){
 		//Search Up Enabled
 		data[2] |= (1UL << 7);
@@ -136,7 +138,7 @@ void TEA5767::search(int direction){
 		data[2] &= ~(1UL << 7);
 	}
 	//SSL Highest Quality
-	data[2] |= (3 << 5);
+	data[2] |= (1 << 5);
 	//Mute Volume
 	data[0] |= (1UL << 7);
 	data[2] |= (3 << 1);
@@ -145,14 +147,17 @@ void TEA5767::search(int direction){
 	setData();
 	hwlib::wait_ms(20);
 	for(;;){
-		if((data[0] >> 7) & 1){
+		getStatus();
+		if((status[0] >> 7) & 1){
 			break;
 		}
 		if(direction == 1){
-			setHiLo(getFrequency() + 1.0, testHiLo(getFrequency() + 1.0));
+			frequency += 0.05;
 		} else if (direction == 0){
-			setHiLo(getFrequency() - 1.0, testHiLo(getFrequency() - 1.0));
+			frequency -= 0.05;
 		}
+		setHiLo(frequency, testHiLo(frequency));
+		hwlib::cout << int(frequency) << hwlib::endl;
 		hwlib::wait_ms(20);
 	}
 	setMute(false);
