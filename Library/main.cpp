@@ -18,6 +18,8 @@ int main( void ){
 		hwlib::wait_ms(5000);
 
 	}
+	radio.setFrequency(107.5);
+
 
 }
 

@@ -12,7 +12,6 @@ void TEA5767::setData(){
 }
 
 void TEA5767::getStatus(){
-	setData();
 	bus.read(address).read(status, 5);
 }
 
@@ -23,6 +22,7 @@ void TEA5767::setBandLimit(bool limit){
 	} else {
 		data[3] &= ~(1UL << 5);
 	}
+	setData();
 }
 
 void TEA5767::setHiLo(float frequency, int hilo){
@@ -43,11 +43,11 @@ int TEA5767::testHiLo(float frequency){
 	setHiLo(frequency, 1);
 	hwlib::wait_ms(30);
 	int highStrentgh = signalStrength();
-	hwlib::cout << "Hi: " << highStrentgh << hwlib::endl;
+	//hwlib::cout << "Hi: " << highStrentgh << hwlib::endl;
 	setHiLo(frequency, 0);
 	hwlib::wait_ms(30);
 	int lowStrentgh = signalStrength();
-	hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
+	//hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
 	if (highStrentgh >= lowStrentgh){
 		return 1;
 	} else {
@@ -76,14 +76,15 @@ void TEA5767::setFrequency(float frequency, int hiLoForce){
 }
 
 float TEA5767::getFrequency(){
+	getStatus();
 	int pllFrequency;
 	int frequency;
 	if((data[2] >> 4) & 1){//If High side injection is set
-		pllFrequency = (data[0] << 8) + data[1];
+		pllFrequency = (status[0] << 8) + status[1];
 		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
 	} else {
-		pllFrequency = (data[0] << 8) + data[1];
-		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
+		pllFrequency = (status[0] << 8) + status[1];
+		frequency = (((pllFrequency / 4.0) * 32768.0) + 225000.0) / 1000000.0;
 	}
 	return frequency;
 }
@@ -129,7 +130,6 @@ void TEA5767::setSearchMode(bool enable, int qualityTreshold){
 }
 
 void TEA5767::search(int direction){
-	float frequency = 100.7;
 	if(direction == 1){
 		//Search Up Enabled
 		data[2] |= (1UL << 7);
@@ -138,7 +138,7 @@ void TEA5767::search(int direction){
 		data[2] &= ~(1UL << 7);
 	}
 	//SSL Highest Quality
-	data[2] |= (1 << 5);
+	data[2] |= (3 << 5);
 	//Mute Volume
 	data[0] |= (1UL << 7);
 	data[2] |= (3 << 1);
@@ -151,18 +151,12 @@ void TEA5767::search(int direction){
 		if((status[0] >> 7) & 1){
 			break;
 		}
-		if(direction == 1){
-			frequency += 0.05;
-		} else if (direction == 0){
-			frequency -= 0.05;
-		}
-		setHiLo(frequency, testHiLo(frequency));
-		hwlib::cout << int(frequency) << hwlib::endl;
 		hwlib::wait_ms(20);
 	}
 	setMute(false);
-	setSearchMode(false);
-	setFrequency(getFrequency());
+	data[0] &= ~(1UL << 6);
+	setHiLo(getFrequency(), 0);
+	hwlib::cout << int(getFrequency()) << hwlib::endl;
 }
 
 
