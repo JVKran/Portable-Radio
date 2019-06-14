@@ -10,16 +10,20 @@ int main( void ){
 	auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
 	auto radio = TEA5767(i2c_bus);
-	radio.setFrequency(100.7);
-	hwlib::wait_ms(2000);
+	radio.setFrequency(96.8, 1);
+	hwlib::wait_ms(5000);
 	for(;;){
-		radio.search(0);
-		//hwlib::cout << int(radio.getFrequency()) << hwlib::endl;
+		radio.search(1);
 		hwlib::wait_ms(5000);
-
 	}
-	radio.setFrequency(107.5);
-
+	for(;;){
+		radio.setFrequency(100.7);
+		hwlib::cout << radio.signalStrength() << ", freq = " << int(radio.getFrequency()) << hwlib::endl;
+		hwlib::wait_ms(5000);
+		radio.setFrequency(107.5);
+		hwlib::cout << radio.signalStrength() << ", freq = " << int(radio.getFrequency()) << hwlib::endl;
+		hwlib::wait_ms(5000);
+	}
 
 }
 

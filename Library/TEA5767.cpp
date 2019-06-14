@@ -43,11 +43,11 @@ int TEA5767::testHiLo(float frequency){
 	setHiLo(frequency, 1);
 	hwlib::wait_ms(30);
 	int highStrentgh = signalStrength();
-	//hwlib::cout << "Hi: " << highStrentgh << hwlib::endl;
+	hwlib::cout << "Hi: " << highStrentgh << hwlib::endl;
 	setHiLo(frequency, 0);
 	hwlib::wait_ms(30);
 	int lowStrentgh = signalStrength();
-	//hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
+	hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
 	if (highStrentgh >= lowStrentgh){
 		return 1;
 	} else {
@@ -77,13 +77,11 @@ void TEA5767::setFrequency(float frequency, int hiLoForce){
 
 float TEA5767::getFrequency(){
 	getStatus();
-	int pllFrequency;
+	int pllFrequency = (status[0] << 8) + status[1];
 	int frequency;
 	if((data[2] >> 4) & 1){//If High side injection is set
-		pllFrequency = (status[0] << 8) + status[1];
 		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
 	} else {
-		pllFrequency = (status[0] << 8) + status[1];
 		frequency = (((pllFrequency / 4.0) * 32768.0) + 225000.0) / 1000000.0;
 	}
 	return frequency;
@@ -130,6 +128,8 @@ void TEA5767::setSearchMode(bool enable, int qualityTreshold){
 }
 
 void TEA5767::search(int direction){
+	float oldFrequency = getFrequency() + 0.98304;
+	setHiLo(oldFrequency, testHiLo(oldFrequency));
 	if(direction == 1){
 		//Search Up Enabled
 		data[2] |= (1UL << 7);
@@ -151,12 +151,12 @@ void TEA5767::search(int direction){
 		if((status[0] >> 7) & 1){
 			break;
 		}
-		hwlib::wait_ms(20);
+		hwlib::wait_ms(50);
 	}
 	setMute(false);
 	data[0] &= ~(1UL << 6);
-	setHiLo(getFrequency(), 0);
-	hwlib::cout << int(getFrequency()) << hwlib::endl;
+	setData();
+	float foundFrequency = getFrequency() * 1.01725260417;
+	setHiLo(foundFrequency, testHiLo(foundFrequency));
+	hwlib::cout << int(getFrequency()) << "    "  << signalStrength() << hwlib::endl;
 }
-
-
