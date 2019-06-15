@@ -21,6 +21,9 @@ class TEA5767{
 		void setMute(bool mute = true);
 		void standBy(bool sleep = true);
 		float search(int direction, int qualityThreshold = 3);
+		void setStereo(bool stereo = true);
+		bool stereoReception();
+		void audioSettings(bool SNC, bool HCC, bool SM);
 };
 
 #endif //__TEA5767_HPP

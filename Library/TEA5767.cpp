@@ -51,8 +51,10 @@ int TEA5767::testHiLo(float frequency){
 	int lowStrentgh = signalStrength();
 	hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
 	if (highStrentgh >= lowStrentgh){
+		hwlib::cout << "Selected High Side Injection" << hwlib::endl;
 		return 1;
 	} else {
+		hwlib::cout << "Selected Low Side Injection" << hwlib::endl;
 		return 0;
 	}
 }
@@ -112,6 +114,37 @@ int TEA5767::signalStrength(){
 	setData(); //Update values 
 	getStatus();
 	return status[3];
+}
+
+void TEA5767::setStereo(bool stereo){
+	if (stereo){
+		data[2] &= ~(1UL << 3);
+	} else {
+		data[2] |= (1UL << 3);
+	}
+}
+
+bool TEA5767::stereoReception(){
+	getStatus();
+	return (status[2] >> 7) & 1;
+}
+
+void TEA5767::audioSettings(bool SNC, bool HCC, bool SM){
+	if (SNC){
+		data[3] |= (1UL << 1);
+	} else {
+		data[3] &= ~(1UL << 1);
+	}
+	if (HCC){
+		data[3] |= (1UL << 2);
+	} else {
+		data[3] &= ~(1UL << 2);
+	}
+	if (SM){
+		data[3] |= (1UL << 3);
+	} else {
+		data[3] &= ~(1UL << 3);
+	}
 }
 
 float TEA5767::search(int direction, int qualityThreshold){
