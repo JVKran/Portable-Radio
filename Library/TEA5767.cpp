@@ -9,10 +9,12 @@ TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, bool 
 
 void TEA5767::setData(){
 	bus.write(address).write(data, 5);
+	hwlib::wait_ms(30);
 }
 
 void TEA5767::getStatus(){
 	bus.read(address).read(status, 5);
+	hwlib::wait_ms(30);
 }
 
 void TEA5767::setBandLimit(bool limit){
@@ -58,7 +60,6 @@ int TEA5767::testHiLo(float frequency){
 
 void TEA5767::setFrequency(float frequency, int hiLoForce){
 	if((((bandLimit && frequency <= 91) || (bandLimit && frequency >= 76) || ((!bandLimit && frequency <= 108) || (!bandLimit && frequency >= 87.5))) && frequency != -1)){
-		setSearchMode(false);
 		setMute(true);
 		if(hiLoForce == -1){
 			setHiLo(frequency, testHiLo(frequency));
@@ -77,9 +78,9 @@ void TEA5767::setFrequency(float frequency, int hiLoForce){
 
 float TEA5767::getFrequency(){
 	getStatus();
-	int pllFrequency = (status[0] << 8) + status[1];
+	int pllFrequency = ((status[0]&0x3F) << 8) + status[1];
 	int frequency;
-	if((data[2] >> 4) & 1){//If High side injection is set
+	if(!(data[2] >> 4) & 1){//If High side injection is set
 		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
 	} else {
 		frequency = (((pllFrequency / 4.0) * 32768.0) + 225000.0) / 1000000.0;
@@ -113,50 +114,35 @@ int TEA5767::signalStrength(){
 	return status[3];
 }
 
-void TEA5767::setSearchMode(bool enable, int qualityTreshold){
-	if(enable){
-		data[0] |= (1UL << 6);
-		if(qualityTreshold >= 1 && qualityTreshold <= 3){
-			data[2] |= (qualityTreshold << 5);
-		} else {
-			data[2] |= (2 << 5);
-		}
-	} else {
-		data[0] &= ~(1UL << 6);
-	}
-	setData();
-}
-
-void TEA5767::search(int direction){
-	float oldFrequency = getFrequency() + 0.98304;
-	setHiLo(oldFrequency, testHiLo(oldFrequency));
+float TEA5767::search(int direction, int qualityThreshold){
+	getStatus();
 	if(direction == 1){
-		//Search Up Enabled
+		setFrequency(getFrequency() + 0.1);
 		data[2] |= (1UL << 7);
 	} else if (direction == 0){
-		//Search Down Enabled
+		setFrequency(getFrequency() - 0.1);
 		data[2] &= ~(1UL << 7);
 	}
+	//Search Mode On
+	data[0] |= (1UL << 6);
 	//SSL Highest Quality
-	data[2] |= (3 << 5);
+	data[2] |= (qualityThreshold << 5);
 	//Mute Volume
 	data[0] |= (1UL << 7);
 	data[2] |= (3 << 1);
-	//Search Mode On
-	data[0] |= (1UL << 6);
+	//Unset search indicator
+	data[3] &= ~(1);
 	setData();
-	hwlib::wait_ms(20);
+	float foundFrequency;
+	hwlib::wait_ms(100);
 	for(;;){
 		getStatus();
 		if((status[0] >> 7) & 1){
+			foundFrequency = getFrequency();
 			break;
 		}
-		hwlib::wait_ms(50);
 	}
-	setMute(false);
 	data[0] &= ~(1UL << 6);
-	setData();
-	float foundFrequency = getFrequency() * 1.01725260417;
-	setHiLo(foundFrequency, testHiLo(foundFrequency));
-	hwlib::cout << int(getFrequency()) << "    "  << signalStrength() << hwlib::endl;
+	setMute(false);
+	return foundFrequency;
 }

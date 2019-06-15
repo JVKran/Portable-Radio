@@ -20,8 +20,7 @@ class TEA5767{
 		int signalStrength();
 		void setMute(bool mute = true);
 		void standBy(bool sleep = true);
-		void setSearchMode(bool enable = true, int qualityThreshold = 3);
-		void search(int direction);
+		float search(int direction, int qualityThreshold = 3);
 };
 
 #endif //__TEA5767_HPP
