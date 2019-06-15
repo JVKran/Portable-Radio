@@ -1,5 +1,6 @@
 #include "hwlib.hpp"
 #include "TEA5767.hpp"
+#include "KY040.hpp"
 
 int main( void ){
     namespace target = hwlib::target; 
@@ -13,12 +14,27 @@ int main( void ){
    	auto display = hwlib::terminal_from(oled, font);  
 	auto radio = TEA5767(i2c_bus);
 
+	auto CLK = hwlib::target::pin_in( hwlib::target::pins::d22 );
+	auto DT = hwlib::target::pin_in( hwlib::target::pins::d24 );
+	auto SW = hwlib::target::pin_in( hwlib::target::pins::d26 );
+	auto button = KY040(CLK, DT, SW);
+
 	oled.clear();
    	
 
 	radio.setStereo(true);
 	radio.audioSettings(true, true, true);
 	radio.setFrequency(100.7);
+
+	for(;;){
+		button.update();
+		hwlib::cout << button.getPos() << hwlib::endl;
+		while(button.isPressed()){
+			button.update();
+			hwlib::wait_ms(5);
+			hwlib::cout << "Pressed" << hwlib::endl;
+		}
+	}
 	for(;;){
 		radio.setFrequency(100.7);
 		display << "\f" << int(radio.getFrequency()) << "          " << radio.signalStrength() << hwlib::flush;

@@ -4,7 +4,7 @@
 class TEA5767{
 	private:
 		hwlib::i2c_bus & bus;
-		uint8_t address;
+		const uint8_t address;
 		uint8_t data[5] = {0x30, 0x1F, 0x10, 0x10, 0xC0};
 		uint8_t status[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
 		bool bandLimit;
