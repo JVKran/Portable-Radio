@@ -82,7 +82,7 @@ float TEA5767::getFrequency(){
 	getStatus();
 	int pllFrequency = ((status[0]&0x3F) << 8) + status[1];
 	int frequency;
-	if(!(data[2] >> 4) & 1){//If High side injection is set
+	if((data[2] >> 4) & 1){//If High side injection is set
 		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
 	} else {
 		frequency = (((pllFrequency / 4.0) * 32768.0) + 225000.0) / 1000000.0;
