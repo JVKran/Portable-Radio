@@ -14,6 +14,8 @@ int main( void ){
 
 	char data[]={"Hey"};
 	memory.write(0, data);
-	hwlib::cout << char(memory.readByte(0)) << hwlib::endl;
+	for(unsigned int i = 0; i < 3; i++){
+		hwlib::cout << char(memory.readByte(i));
+	}
 
 }
