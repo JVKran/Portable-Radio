@@ -12,7 +12,8 @@ int main( void ){
 
 	auto memory = A24C256(i2c_bus);
 
-	memory.writeByte(0, 'z');
-	hwlib::cout << memory.readByte(0) << hwlib::endl;
+	char data[]={"Hey"};
+	memory.write(0, data);
+	hwlib::cout << char(memory.readByte(0)) << hwlib::endl;
 
 }
