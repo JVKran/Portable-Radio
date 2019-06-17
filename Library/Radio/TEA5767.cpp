@@ -1,10 +1,8 @@
 #include "hwlib.hpp"
 #include "TEA5767.hpp"
 
-TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, bool bandLimit):
-	bus(bus),
-	address(address),
-	bandLimit(bandLimit)
+TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit, uint8_t address):
+	Radio(bus, bandLimit, address)
 {}
 
 void TEA5767::setData(){
@@ -17,9 +15,9 @@ void TEA5767::getStatus(){
 	hwlib::wait_ms(30);
 }
 
-void TEA5767::setBandLimit(bool limit){
+void TEA5767::setBandLimit(int limit){
 	bandLimit = limit;
-	if(limit){
+	if(limit > 0){
 		data[3] |= (1UL << 5);
 	} else {
 		data[3] &= ~(1UL << 5);
