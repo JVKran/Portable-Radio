@@ -36,10 +36,32 @@ void A24C256::write(unsigned int location, char* value){
 	}
 	data[0] = location >> 8;
 	data[1] = location & 0xFF;
-	for(unsigned int i = 0; i < length; i++){
-		data[i+2] = uint8_t(value[i]);
+	if(length + (location % 32) <= 31){
+		for(unsigned int i = 0; i < length; i++){
+			data[i+2] = uint8_t(value[i]);
+		}
+		bus.write(address).write(data, length+2);
+	} else {
+		unsigned int cycles = 0;
+		if(float((float(length) + (float(location % 32)) / 32) - length) > 0.0){
+			cycles = ((length + (location % 32)) / 32)  + 1;
+		} else {
+			cycles = (length + (location % 32)) / 32;
+		}
+		for(unsigned int i = 0; i < cycles; i++){
+			if(cycles != i){
+				for(unsigned int j = 0; j < 31; j++){
+					data[j+2] = uint8_t(value[j*i]);
+				}
+				bus.write(address).write(data, 32);
+			} else {
+				for(unsigned int j = 0; j < length % 32; j++){
+					data[j+2] = uint8_t(value[j*i]);
+				}
+				bus.write(address).write(data, (length % 32 + 2));
+			}
+		}
 	}
-	bus.write(address).write(data, length+2);
-	hwlib::cout << length << hwlib::endl;
 	hwlib::wait_ms(5);
 }
+
