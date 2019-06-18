@@ -11,9 +11,14 @@ int main( void ){
 
 	auto memory = A24C256(i2c_bus);
 
-	char data[]={"Hello-1234567890-and-abcdefghijklmnopqrstuvwxyz-Goodbye\n"};
+	char data[]={"Hello-1234567890-and-abcdefghijklmnopqrstuvwxyz-Goodbye-abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz"};
 	memory.write(0, data);
-	for(unsigned int i = 0; i < 120; i++){
-		hwlib::cout << char(memory.readByte(i)) << hwlib::endl;
+	for(unsigned int i = 0; i < 163; i++){
+		hwlib::cout << char(memory.readByte(i));
 	}
+	/*
+	for(unsigned int i = 0; i < 120; i++){
+		hwlib::cout << char(memory.readByte(i));
+	}
+	*/
 }
