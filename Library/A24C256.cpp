@@ -63,10 +63,10 @@ void A24C256::write(unsigned int location, char* value, bool largeBuffer){
 					data[j+2] = uint8_t(value[j+(i * pageSize)]);
 				}
 				location+=pageSize;
-				bus.write(address).write(data, pageSize);
+				bus.write(address).write(data, pageSize + 2);
 				hwlib::wait_ms(5);
 			} else {
-				for(unsigned int j = 1; j <= length % pageSize; j++){
+				for(unsigned int j = 0; j < length % pageSize; j++){
 					data[j+2] = uint8_t(value[j+(cycles * pageSize)]);
 				}
 				location += length % pageSize;
@@ -78,9 +78,10 @@ void A24C256::write(unsigned int location, char* value, bool largeBuffer){
 	hwlib::wait_ms(5);
 }
 
-/*
-char* A24C256::read(unsigned int location, unsigned int length){
+uint8_t A24C256::read(unsigned int location, unsigned int length, uint8_t receivedData[]){
 	data[0] = location >> 8;
 	data[1] = location & 0xFF;
+	bus.write(address).write(data, 2);
+	bus.read(address).read(receivedData, length);
+	return *receivedData;
 }
-*/

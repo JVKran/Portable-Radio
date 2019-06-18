@@ -11,7 +11,7 @@ class A24C256{
 		void writeByte(unsigned int location, uint8_t value);
 		void write(unsigned int location, char* value, bool largeBuffer = true); 		//Should be 32 or 64
 		uint8_t readByte(unsigned int location);
-		//char* read(unsigned int location, unsigned int length);
+		uint8_t read(unsigned int location, unsigned int length, uint8_t receivedData[] = {});
 };
 
 #endif //__A24C256_HPP
