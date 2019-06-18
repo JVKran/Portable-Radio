@@ -14,8 +14,8 @@ int main( void ){
 	memory.write(40000, 'c');
 	hwlib::cout << "Invalid location protection prevents writing on non-existing places: " << hwlib::boolalpha << (int(memory.read(40000)) == 0) << hwlib::endl;
 
-	//largeMemory.write(50000, 'c');
-	//hwlib::cout << "Chips with larger memory have more addresses: " << hwlib::boolalpha << (char(largeMemory.read(50000)) == 'c') << hwlib::endl;
+	largeMemory.write(50000, 'c');
+	hwlib::cout << "Chips with larger memory have more addresses: " << hwlib::boolalpha << (char(largeMemory.read(50000)) == 'c') << hwlib::endl;
 
 	char data[]={"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio."};
 	memory.write(0, data);
