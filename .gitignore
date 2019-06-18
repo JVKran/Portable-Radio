@@ -14,4 +14,6 @@ Doxyfile
 *.map
 bmptk_fixed_size_stack.c
 *.hex
+Doxyfile
+html
 

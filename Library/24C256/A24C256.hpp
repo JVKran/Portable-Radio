@@ -1,3 +1,10 @@
+/// @file
+
+/// \brief
+/// 24C EEPROM Interface
+/// \details
+/// This is an interface that simplifies writing to and reading from 24C EEPROM chips.
+/// Compatible with 24C24C32, 24C64, 24C65, 24C128, 24C256, 24C512 and 24C1024.
 #ifndef __A24C256_HPP
 #define __A24C256_HPP
 

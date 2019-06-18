@@ -1,12 +1,27 @@
+/// @file
+
 #include "hwlib.hpp"
 #include "A24C256.hpp"
 
+/// \brief
+/// Constuctor
+/// \details
+/// This constructor has one mandatory parameter; the I2C bus. Address defaults to 0x50.
+/// The memorysize defaults to 256Kb. Changing this makes the use of other 24C chips possible.
 A24C256::A24C256(hwlib::i2c_bus_bit_banged_scl_sda & bus, unsigned int memorySize, uint8_t address):
 	bus(bus),
 	memorySize(memorySize*128),							//Verify how many addresses are available
 	address(address)
 {}
 
+/// \brief
+/// Single Byte write
+/// \details
+/// This function takes two mandatory parameters; location and value.
+/// The location has to be valid for the value to be written. The location
+/// is divided in two parts; MSB and LSB. The location and value are writting 
+/// at the same time. It takes 5ms for the EEPROM to become responsive again. 
+/// Waiting these 5ms prevents weird things from happening.
 void A24C256::write(unsigned int location, uint8_t value){
 	if(location >= 0 && location < memorySize){
 		data[0] = location >> 8;						//MSB Location
@@ -17,6 +32,11 @@ void A24C256::write(unsigned int location, uint8_t value){
 	hwlib::wait_ms(5); 									//Datasheet states it can take up to 5ms for the chip to become responsive again.
 }
 
+/// \brief
+/// Single Byte read
+/// \details
+/// This function takes one mandatory parameter; the location. If the location 
+/// is valid, it returns the value that is currently saved at the desired position.
 uint8_t A24C256::read(unsigned int location){
 	if(location >= 0 && location < memorySize){
 		uint8_t receivedData;
@@ -30,6 +50,13 @@ uint8_t A24C256::read(unsigned int location){
 	}
 }
 
+/// \brief
+/// Multi Byte write
+/// \details
+/// This function takes a couple of arguments. The location is the address where the start
+/// of the value to be saved is going to be written. The value is going to be saved (beginning
+/// at location) and largeBuffer defines if the buffer is 64 or 32 bytes. If the location
+/// is valid, the data will be written.
 void A24C256::write(unsigned int location, char* value, bool largeBuffer){
 	if(location >= 0 && location < memorySize){
 		unsigned int pageSize;
@@ -97,6 +124,13 @@ void A24C256::write(unsigned int location, char* value, bool largeBuffer){
 	}
 }
 
+
+/// \brief
+/// Multi Byte read
+/// \details
+/// This function takes a couple of arguments. The location is the address where to start
+/// reading from. The length is the amount of bytes to read and receivedData is the variable
+/// to store data in. If the location is valid, the data will be returned.
 uint8_t A24C256::read(unsigned int location, unsigned int length, uint8_t receivedData[]){
 	if(location >= 0 && location < memorySize){
 		data[0] = location >> 8;
