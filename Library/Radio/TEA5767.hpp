@@ -36,6 +36,7 @@ class TEA5767 : public Radio{
 		bool stereoReception() override;
 		void audioSettings(bool SNC = false, bool HCC = true, bool SM = true);
 		void setPort(bool portOne, bool portTwo, bool searchIndicator = false);
+		void test();
 };
 
 #endif //__TEA5767_HPP

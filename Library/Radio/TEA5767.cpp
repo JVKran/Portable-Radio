@@ -413,3 +413,27 @@ void TEA5767::search(float startFrequency, unsigned int direction, int qualityTh
 	setFrequency(startFrequency, 1);
 	search(direction, qualityThreshold);
 }
+
+void TEA5767::test(){
+	//set HiLo
+	data[2] |= (1UL << 4);
+		setPLL(getFrequency() + 0.05, 1);
+		data[2] |= (1UL << 7);
+	//Search Mode On
+	data[0] |= (1UL << 6);
+	//SSL Highest Quality
+	data[2] |= (3UL << 5); 		//3 has proven to be the only usable option
+	//Mute Volume
+	data[0] |= (1UL << 7);
+	data[2] |= (3UL << 1);
+	//Unset search indicator
+	data[3] &= ~(1);
+	//Set XTAL to 1 and PLLREF to 0 for 32768kHz Clock Frequency
+	data[3] |= (1UL << 4);
+	data[4] &= ~(1UL << 7);
+	setData();
+    hwlib::wait_ms(100);
+    getStatus();
+    float foundFrequency = getFrequency();
+    setFrequency(foundFrequency, 1);
+}

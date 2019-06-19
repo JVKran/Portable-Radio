@@ -13,26 +13,13 @@ int main( void ){
 	radio.setStereo(true);
 	radio.audioSettings(false, true, true);
 	hwlib::cout << "Tuning to 100.7" << hwlib::endl;
-	radio.setFrequency(100.7);
-	for(unsigned int i = 0; i < 5; i++){
-		hwlib::wait_ms(2000);
-		hwlib::cout << radio.signalStrength() << hwlib::endl;
-	}
-
-	hwlib::cout << "Auto Search Test Procedure is Starting" << hwlib::endl;
 	radio.setFrequency(88);
-	for(unsigned int i = 0; i < 10; i++){
-		radio.search(1, 3);
-		hwlib::cout << hwlib::setw(25) << "Frequency: " << hwlib::setw(8) << int(radio.getFrequency()) << hwlib::endl;
-		hwlib::cout << hwlib::setw(25) << "Signal Strength: " << hwlib::setw(8) << radio.signalStrength() << hwlib::endl << hwlib::endl;
-		hwlib::wait_ms(10000);
-	}
-
-	radio.setFrequency(100.7);
-
+	hwlib::wait_ms(2000);
 	for(;;){
+		radio.test();
+		hwlib::cout << int(radio.getFrequency()) << hwlib::endl;
 		hwlib::wait_ms(2000);
-		hwlib::cout << radio.signalStrength() << hwlib::endl;
 	}
+	radio.test();
 
 }
