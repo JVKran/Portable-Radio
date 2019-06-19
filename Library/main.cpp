@@ -12,10 +12,11 @@ int main( void ){
 	auto radio = TEA5767(i2c_bus);
 	radio.setStereo(true);
 	radio.audioSettings(true, true, true);
-	radio.setFrequency(100.7);
+	radio.setFrequency(88);
+	hwlib::wait_ms(6000);
 	for(;;){
 		radio.search(1, 3);
-		hwlib::cout << int(radio.getFrequency()) << hwlib::endl;
-		hwlib::wait_ms(2000);
+		//hwlib::cout << int(radio.getFrequency()) << hwlib::endl;
+		hwlib::wait_ms(6000);
 	}
 }
