@@ -26,25 +26,26 @@ void TEA5767::setBandLimit(int limit){
 }
 
 void TEA5767::setHiLo(float frequency, int hilo){
-	int pllFrequency;
+	unsigned int pllFrequency;
 	if(hilo == 1){
-		pllFrequency = (float(4) * (frequency + 0.255) / 0.032768);
+		pllFrequency = (4 * (frequency * 1000000 + 225000) / 32768);
 		data[2] |= (1UL << 4);
 	} else {
-		pllFrequency = (float(4) * (frequency - 0.255) / 0.032768);
+		pllFrequency = (4 * (frequency * 1000000 - 225000) / 32768);
 		data[2] &= ~(1UL << 4);
 	}
 	data[0] = pllFrequency >> 8;
 	data[1] = pllFrequency & 0xFF;
-	setData();
 }
 
 int TEA5767::testHiLo(float frequency){
 	setHiLo(frequency, 1);
+	setData();
 	hwlib::wait_ms(30);
 	int highStrentgh = signalStrength();
 	hwlib::cout << "Hi: " << highStrentgh << hwlib::endl;
 	setHiLo(frequency, 0);
+	setData();
 	hwlib::wait_ms(30);
 	int lowStrentgh = signalStrength();
 	hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
@@ -74,18 +75,17 @@ void TEA5767::setFrequency(float frequency, int hiLoForce){
 			setFrequency(87.5);
 		}
 	}
+	setData();
 }
 
 float TEA5767::getFrequency(){
 	getStatus();
 	int pllFrequency = ((status[0]&0x3F) << 8) + status[1];
-	int frequency;
 	if((data[2] >> 4) & 1){//If High side injection is set
-		frequency = (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
+		return (((pllFrequency / 4.0) * 32768.0) - 225000.0) / 1000000.0;
 	} else {
-		frequency = (((pllFrequency / 4.0) * 32768.0) + 225000.0) / 1000000.0;
+		return (((pllFrequency / 4.0) * 32768.0) + 225000.0) / 1000000.0;
 	}
-	return frequency;
 }
 
 void TEA5767::setMute(bool mute){
@@ -145,13 +145,16 @@ void TEA5767::audioSettings(bool SNC, bool HCC, bool SM){
 	}
 }
 
-float TEA5767::search(int direction, int qualityThreshold){
+void TEA5767::search(int direction, int qualityThreshold){
 	getStatus();
+	float startFrequency = getFrequency();
+	//set HiLo
+	data[2] |= (1UL << 4);
 	if(direction == 1){
-		setFrequency(getFrequency() + 0.1);
+		setHiLo(getFrequency() + 0.1, 1);
 		data[2] |= (1UL << 7);
 	} else if (direction == 0){
-		setFrequency(getFrequency() - 0.1);
+		setHiLo(getFrequency() - 0.1, 1);
 		data[2] &= ~(1UL << 7);
 	}
 	//Search Mode On
@@ -163,17 +166,47 @@ float TEA5767::search(int direction, int qualityThreshold){
 	data[2] |= (3 << 1);
 	//Unset search indicator
 	data[3] &= ~(1);
+	//Set XTAL to 1 and PLLREF to 0 for 32768kHz Clock Frequency
+	//data[3] |= (1UL << 4);
+	//data[4] &= ~(1UL << 7);
 	setData();
-	float foundFrequency;
+	float foundFrequency = startFrequency;
 	hwlib::wait_ms(100);
 	for(;;){
 		getStatus();
-		if((status[0] >> 7) & 1){
+		//If Station has been Found, BandLimit has not been reached and another frequency is found; tune to that.
+		if((status[0] >> 7) & 1 && (getFrequency() > startFrequency + 0.1 || getFrequency() < startFrequency - 0.1)){
+			data[2] |= (1UL << 4);
 			foundFrequency = getFrequency();
 			break;
+		} else if ((status[0] >> 6) & 1){		//If bandlimit has been reached
+			if(direction == 1){
+				if(bandLimit){
+					setHiLo(76, 1);
+				} else {
+					setHiLo(88, 1);
+				}
+				setData();
+			} else {
+				if(bandLimit){
+					setHiLo(91, 1);
+				} else {
+					setHiLo(108, 1);
+				}
+				setData();
+			}
+		} else {
+			if(direction == 1){
+				setHiLo(getFrequency() + 0.1, 1);
+			} else if (direction == 0){
+				setHiLo(getFrequency() - 0.1, 1);
+			}
+			setData();
 		}
+		hwlib::cout << int(getFrequency()) << ", " << int(foundFrequency) << hwlib::endl;
 	}
 	data[0] &= ~(1UL << 6);
 	setMute(false);
-	return foundFrequency;
+	getStatus();
+	setFrequency(foundFrequency);
 }
