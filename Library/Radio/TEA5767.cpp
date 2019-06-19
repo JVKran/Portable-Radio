@@ -401,7 +401,7 @@ void TEA5767::search(unsigned int direction, int qualityThreshold){
 	}
 	setPLL(bestFrequency, testHiLo(bestFrequency));
 	setData();
-	if(signalStrength() < qualityThreshold * 40 || (direction == 1 && bestFrequency <= startFrequency - 0.3) || (direction == 0 && bestFrequency < startFrequency - 0.3)){
+	if(signalStrength() < qualityThreshold * 40 || (direction == 1 && bestFrequency <= startFrequency - 0.4) || (direction == 0 && bestFrequency < startFrequency - 0.4)){
 		//If the audio quality is not good enough; keep searching.
 		search(direction, qualityThreshold);
 	} else {
