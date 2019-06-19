@@ -28,7 +28,7 @@ class TEA5767 : public Radio{
 		int signalStrength() override;
 		void setMute(bool mute = true) override;
 		void standBy(bool sleep = true);
-		void search(int direction, int qualityThreshold = 1);
+		void search(unsigned int direction, int qualityThreshold = 1);
 		void setStereo(bool stereo = true) override;
 		bool stereoReception() override;
 		void audioSettings(bool SNC = false, bool HCC = true, bool SM = true);

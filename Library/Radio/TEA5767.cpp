@@ -21,6 +21,7 @@ TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit, uint8_t
 /// to the TEA5767 chip.
 void TEA5767::setData(){
 	bus.write(address).write(data, 5);
+	hwlib::wait_ms(30);		//Necessary to prevent strange things from happening
 }
 
 /// \brief
@@ -30,6 +31,7 @@ void TEA5767::setData(){
 /// interpreted by other functions, from the TEA5767 chip.
 void TEA5767::getStatus(){
 	bus.read(address).read(status, 5);
+	hwlib::wait_ms(30);		//Necessary to prevent strange things from happening
 }
 
 
@@ -85,17 +87,13 @@ int TEA5767::testHiLo(float frequency){
 	setData();
 	hwlib::wait_ms(30);
 	int highStrentgh = signalStrength();
-	hwlib::cout << "Hi: " << highStrentgh << hwlib::endl;
 	setPLL(frequency, 0);
 	setData();
 	hwlib::wait_ms(30);
 	int lowStrentgh = signalStrength();
-	hwlib::cout << "Lo: " << lowStrentgh << hwlib::endl;
 	if (highStrentgh >= lowStrentgh){
-		hwlib::cout << "Selected High Side Injection" << hwlib::endl;
 		return 1;
 	} else {
-		hwlib::cout << "Selected Low Side Injection" << hwlib::endl;
 		return 0;
 	}
 }
@@ -103,8 +101,8 @@ int TEA5767::testHiLo(float frequency){
 /// \brief
 /// Set Frequency
 /// \details
-/// This function tunes to the given frequency. That is also the only mandatory parameter. The user
-/// can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
+/// This function tunes to the given frequency. If no frequency is provided, the chip will tune to the first
+/// legal frequency The user can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
 /// testHiLo() will be called to determine the best option. During the tuning, the audio is muted
 /// to prevent loud pops.
 void TEA5767::setFrequency(float frequency, int hiLoForce){
@@ -234,23 +232,34 @@ void TEA5767::audioSettings(bool SNC, bool HCC, bool SM){
 /// Search Stations
 /// \details
 /// This function takes two parameters; the direction to search in (1:up, 0:down) and the Quality Threshold. The 
-/// Quality Threshold determines how good the audio has to be for the chip to really tune to it (0-3: equal to signal-
-/// strength of 0-129).
-void TEA5767::search(int direction, int qualityThreshold){
+/// Quality Threshold determines how good the Signal Strength has to be for the chip to really tune to it (0-5: equal to signal-
+/// strength of 0-200. 3 is a good average, 4 will skip most, 2 will give false positives). This function uses the Built-In Auto Search Mode of the 
+/// TEA5767. This requires the Microcontroller to keep incrementing or decrementing the Frequency. The TEA5767 will check 
+/// if the Signal is clear enough; It will then raise the RF (Ready Flag).
+/// If a Band Limit is reached the BLF (Band Limit Flag) will be raised. This function will then set the frequency back to the lowest
+/// possible one (in case of search up) or highest one (in case of search down) so a circulair search is performed until the loop is complete.
+/// If after one loop no valid Frequency has been found, the loop will exit and the chip will tune back to the Start Frequency.
+/// It can occur that one Frequency gets found more than once. This is often the case near broadcasters. It can also happen a Frequency gets found
+/// in one search, but not in another one (~1 in 8 chance).
+
+void TEA5767::search(unsigned int direction, int qualityThreshold){
+	if(qualityThreshold > 5){
+		qualityThreshold = 5;
+	}
 	float startFrequency = getFrequency();
 	//set HiLo
 	data[2] |= (1UL << 4);
 	if(direction == 1){
-		setPLL(getFrequency() + 0.1, 1);
+		setPLL(getFrequency() + 0.05, 1);
 		data[2] |= (1UL << 7);
 	} else if (direction == 0){
-		setPLL(getFrequency() - 0.1, 1);
+		setPLL(getFrequency() - 0.05, 1);
 		data[2] &= ~(1UL << 7);
 	}
 	//Search Mode On
 	data[0] |= (1UL << 6);
 	//SSL Highest Quality
-	data[2] |= (qualityThreshold << 5);
+	data[2] |= (3 << 5); 		//3 has proven to be the only usable option
 	//Mute Volume
 	data[0] |= (1UL << 7);
 	data[2] |= (3 << 1);
@@ -262,7 +271,14 @@ void TEA5767::search(int direction, int qualityThreshold){
 	setData();
 	float foundFrequency = startFrequency;
 	hwlib::wait_ms(100);
-	for(;;){
+	unsigned int totalBandFrequencies;
+	unsigned int loops = 0;
+	if(bandLimit){
+		totalBandFrequencies = 170;				//Little more to be sure every frequency has been searched.
+	} else {
+		totalBandFrequencies = 215;	
+	}
+	while(loops < totalBandFrequencies){
 		getStatus();
 		//If Station has been Found, BandLimit has not been reached and another frequency is found; tune to that.
 		if((status[0] >> 7) & 1 ){
@@ -288,13 +304,15 @@ void TEA5767::search(int direction, int qualityThreshold){
 		} else {
 			if(direction == 1){
 				setPLL(getFrequency() + 0.1, 1);
+				loops++;
 			} else if (direction == 0){
 				setPLL(getFrequency() - 0.1, 1);
+				loops++;
 			}
 			setData();
 		}
-		hwlib::cout << int(getFrequency()) << ", " << int(foundFrequency) << hwlib::endl;
 	}
+	//Unset Search Mode
 	data[0] &= ~(1UL << 6);
 	getStatus();
 	float bestFrequency = 0.0;
@@ -311,7 +329,8 @@ void TEA5767::search(int direction, int qualityThreshold){
 		}
 	}
 	setFrequency(bestFrequency);
-	if(signalStrength() < qualityThreshold * 43){
+	if(signalStrength() < qualityThreshold * 40){
+		//If the audio quality is not good enough; keep searching.
 		search(direction, qualityThreshold);
 	} else {
 		setMute(false);

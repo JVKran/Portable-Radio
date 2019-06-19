@@ -11,12 +11,33 @@ int main( void ){
 
 	auto radio = TEA5767(i2c_bus);
 	radio.setStereo(true);
-	radio.audioSettings(true, true, true);
-	radio.setFrequency(88);
-	hwlib::wait_ms(6000);
-	for(;;){
-		radio.search(1, 3);
-		//hwlib::cout << int(radio.getFrequency()) << hwlib::endl;
-		hwlib::wait_ms(6000);
+	radio.audioSettings(false, true, true);
+
+	hwlib::cout << "Tuning to 100.7" << hwlib::endl;
+	radio.setFrequency(100.7);
+	for(unsigned int i = 0; i < 5; i++){
+		hwlib::wait_ms(2000);
+		hwlib::cout << radio.signalStrength() << hwlib::endl;
 	}
+
+	hwlib::cout << "Auto Search Test Procedure is Starting" << hwlib::endl;
+	radio.setFrequency(86);
+	hwlib::wait_ms(2000);
+	std::array<float, 10> stations = {};
+	for(unsigned int i = 0; i < 10; i++){
+		radio.search(1, 3);
+		stations[i] = int(radio.getFrequency());
+		hwlib::cout << hwlib::setw(25) << "Frequency: " << hwlib::setw(8) << int(stations[i]) << hwlib::endl;
+		hwlib::cout << hwlib::setw(25) << "Signal Strength: " << hwlib::setw(8) << radio.signalStrength() << hwlib::endl << hwlib::endl;
+		hwlib::wait_ms(2000);
+	}
+
+	for(const float & element : stations){
+		hwlib::cout << int(element) << hwlib::endl;
+		radio.setFrequency(element);
+		hwlib::wait_ms(2000);
+	}
+
+	radio.setFrequency(100.7);
+
 }
