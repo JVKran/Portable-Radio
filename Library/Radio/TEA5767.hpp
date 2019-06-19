@@ -22,16 +22,20 @@ class TEA5767 : public Radio{
 		void setPLL(float frequency, int hilo);
 	public:
 		TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit = 0, uint8_t address = 0x60);
+		void setClockFrequency(int frequency = 32);
 		void setBandLimit(int limit = 1) override;
 		void setFrequency(float frequency = -1, int hiLoForce = -1);
 		float getFrequency();
 		int signalStrength() override;
 		void setMute(bool mute = true) override;
+		void setMute(char side, bool mute = true);
 		void standBy(bool sleep = true);
 		void search(unsigned int direction, int qualityThreshold = 1);
+		void search(float startFrequency, unsigned int direction, int qualityThreshold = 1);
 		void setStereo(bool stereo = true) override;
 		bool stereoReception() override;
 		void audioSettings(bool SNC = false, bool HCC = true, bool SM = true);
+		void setPort(bool portOne, bool portTwo, bool searchIndicator = false);
 };
 
 #endif //__TEA5767_HPP

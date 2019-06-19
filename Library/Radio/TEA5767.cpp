@@ -53,6 +53,26 @@ void TEA5767::setBandLimit(int limit){
 }
 
 /// \brief
+/// Change Clock Frequency
+/// \details
+/// This function is used to change the Clock Frequeny. The parameter can be 6, 13 or 32. However,
+/// in almost all cases there is no reason to change the standard value 32 (32768kHz). It is also possible
+/// to use an external clock which can be connected to XTAL2. This library only support 32768kHz tuning.
+void TEA5767::setClockFrequency(int frequency){
+	if (frequency == 13){
+		data[3] &= ~(1UL << 4);		//XTAL
+		data[4] &= ~(1UL << 7);		//PLLref
+	} else if (frequency == 6){
+		data[3] &= ~(1UL << 4);
+		data[4] |= (1UL << 7);	
+	} else {
+		data[3] |= (1UL << 4);
+		data[4] &= ~(1UL << 7);
+	}
+	setData();
+}
+
+/// \brief
 /// Calculate And Set PLL
 /// \details
 /// This function handles the calculation of the PLL word. PLL is the system used for tuning. In
@@ -70,6 +90,7 @@ void TEA5767::setPLL(float frequency, int hilo){
 	}
 	data[0] = pllFrequency >> 8;
 	data[1] = pllFrequency & 0xFF;
+	//No update to registers for flexibility.
 }
 
 /// \brief
@@ -141,18 +162,44 @@ float TEA5767::getFrequency(){
 }
 
 /// \brief
-/// Mute Unmute
+/// Mute Unmute L and R
 /// \details
 /// This function takes one parameter that determines if the audio has to be muted or unmuted.
 void TEA5767::setMute(bool mute){
 	if(mute){
 		data[0] |= (1UL << 7);
-		data[2] |= (3 << 1);
+		data[2] |= (3UL << 1);
 	} else {
 		data[0] &= ~(1UL << 7);
-		data[2] &= ~(3 << 1);
+		data[2] &= ~(3UL << 1);
 	}
 	setData();
+}
+
+/// \brief
+/// Mute Unmute L or R
+/// \details
+/// This function takes two parameters which define what side has to be muted or unmuted. If L or R
+/// is muted, the audio signal will be mono. Otherwise it will be automatically set to stereo.
+void TEA5767::setMute(char side, bool mute){
+	if(side == 'l'){
+		if(mute){
+			data[2] |= (1UL << 1);
+		} else {
+			data[2] &= ~(1UL << 1);
+		}
+	} else if(side == 'r'){
+		if(mute){
+			data[2] |= (1UL << 2);
+		} else {
+			data[2] &= ~(1UL << 2);
+		}
+	}
+	if((data[2] >> 1) & 1 && (data[2] >> 2) & 1){
+		setStereo(true);
+	} else {
+		setStereo(false);
+	}
 }
 
 /// \brief
@@ -229,6 +276,29 @@ void TEA5767::audioSettings(bool SNC, bool HCC, bool SM){
 }
 
 /// \brief
+/// Set Programmable Ports
+/// \details
+/// This function takes two mandatory parameters; two booleans representing the state of two Software Programmable Ports.
+/// Software Programmable Port 1 can also be used as Search Indicator. Therefore you have to set searchIndicator to true.
+void TEA5767::setPort(bool portOne, bool portTwo, bool searchIndicator){
+	if(portOne && !searchIndicator){
+		data[2] |= 1UL;
+	} else {
+		data[2] &= ~1UL;
+	}
+	if(searchIndicator){
+		data[3] |= 1UL;
+	} else {
+		data[3] &= ~1UL;
+	}
+	if(portTwo){
+		data[3] |= (1UL << 7);
+	} else {
+		data[3] &= ~(1UL << 7);
+	}
+}
+
+/// \brief
 /// Search Stations
 /// \details
 /// This function takes two parameters; the direction to search in (1:up, 0:down) and the Quality Threshold. The 
@@ -243,6 +313,7 @@ void TEA5767::audioSettings(bool SNC, bool HCC, bool SM){
 /// in one search, but not in another one (~1 in 8 chance).
 
 void TEA5767::search(unsigned int direction, int qualityThreshold){
+	setMute(true);
 	if(qualityThreshold > 5){
 		qualityThreshold = 5;
 	}
@@ -259,10 +330,10 @@ void TEA5767::search(unsigned int direction, int qualityThreshold){
 	//Search Mode On
 	data[0] |= (1UL << 6);
 	//SSL Highest Quality
-	data[2] |= (3 << 5); 		//3 has proven to be the only usable option
+	data[2] |= (3UL << 5); 		//3 has proven to be the only usable option
 	//Mute Volume
 	data[0] |= (1UL << 7);
-	data[2] |= (3 << 1);
+	data[2] |= (3UL << 1);
 	//Unset search indicator
 	data[3] &= ~(1);
 	//Set XTAL to 1 and PLLREF to 0 for 32768kHz Clock Frequency
@@ -328,11 +399,17 @@ void TEA5767::search(unsigned int direction, int qualityThreshold){
 			bestStrength = currentStrength;
 		}
 	}
-	setFrequency(bestFrequency);
-	if(signalStrength() < qualityThreshold * 40){
+	setPLL(bestFrequency, testHiLo(bestFrequency));
+	setData();
+	if(signalStrength() < qualityThreshold * 40 || (direction == 1 && bestFrequency <= startFrequency - 0.3) || (direction == 0 && bestFrequency < startFrequency - 0.3)){
 		//If the audio quality is not good enough; keep searching.
 		search(direction, qualityThreshold);
 	} else {
 		setMute(false);
 	}
+}
+
+void TEA5767::search(float startFrequency, unsigned int direction, int qualityThreshold){
+	setFrequency(startFrequency, 1);
+	search(direction, qualityThreshold);
 }
