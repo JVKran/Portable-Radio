@@ -47,6 +47,7 @@ class TEA5767 : public Radio{
 		bool isStandBy();
 		unsigned int clockFrequency();
 		bool hasBandLimit();
+		bool stereo();
 };
 
 #endif //__TEA5767_HPP

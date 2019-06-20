@@ -681,3 +681,12 @@ bool TEA5767::hasBandLimit(){
 	return(data[0] >> 6) & 1;
 }
 
+/// \brief
+/// Get Stereo Prefrence
+/// \details
+/// This function returns true if the TEA5767's stereo bit is set. This does not
+/// mean it is also receiving stereo audio. This can be determined with function
+/// stereoReception().
+bool TEA5767::stereo(){
+	return (data[2] >> 3) & 0;		//Yes, 0 is stereo
+}
