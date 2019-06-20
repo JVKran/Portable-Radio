@@ -10,10 +10,10 @@ class Radio{
 		virtual void getStatus() = 0;
 	public:
 		Radio(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit = 0, uint8_t address = 0x60);
-		virtual int signalStrength() = 0;
-		virtual void setMute(bool mute) = 0;
-		virtual void setBandLimit(int limit = 0) = 0;
-		virtual void setStereo(bool stereo = true) = 0;
+		virtual unsigned int signalStrength() = 0;
+		virtual void setMute(const bool mute) = 0;
+		virtual void setBandLimit(const unsigned int limit = 0) = 0;
+		virtual void setStereo(const bool stereo = true) = 0;
 		virtual bool stereoReception() = 0;
 };
 

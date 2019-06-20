@@ -50,7 +50,7 @@ void TEA5767::getStatus(){
 /// no Band Limit. If the Band Limit is set, the chip will only be able to tune 76 MHz to 91 MHz.
 /// If the Band Limit is not set, the entire range from 87.5 MHz to 108 MHz will be available to 
 /// tune to.
-void TEA5767::setBandLimit(int limit){
+void TEA5767::setBandLimit(const unsigned int limit){
 	bandLimit = limit;
 	if(limit > 0){
 		data[3] |= (1UL << 5);
@@ -66,7 +66,7 @@ void TEA5767::setBandLimit(int limit){
 /// This function is used to change the Clock Frequeny. The parameter can be 6, 13 or 32. However,
 /// in almost all cases there is no reason to change the standard value 32 (32768kHz). It is also possible
 /// to use an external clock which can be connected to XTAL2. This library only support 32768kHz tuning.
-void TEA5767::setClockFrequency(int frequency){
+void TEA5767::setClockFrequency(const unsigned int frequency){
 	if (frequency == 13){
 		data[3] &= ~(1UL << 4);		//XTAL
 		data[4] &= ~(1UL << 7);		//PLLref
@@ -87,7 +87,7 @@ void TEA5767::setClockFrequency(int frequency){
 /// combination with the PLLref and XTAL bits, this is the technique to tune the chip with. It can be
 /// calculated in two ways for two different approaches; High or Low Side Injection. The result
 /// of this function is that the PLL word has been stored in the buffer; the data array.
-void TEA5767::setPLL(float frequency, int hilo){
+void TEA5767::setPLL(const float frequency, unsigned int hilo){
 	unsigned int pllFrequency;
 	if(hilo == 1){
 		pllFrequency = (4 * (frequency * 1000000 + 225000) / 32768);
@@ -111,7 +111,7 @@ void TEA5767::setPLL(float frequency, int hilo){
 /// done by tuning to the frequency with High Side Injection, measuring the Signal Strength,
 /// tuning to the frequeny with Low Side Injection and then comparing the Singnal Strength.
 /// The best kind of injection is returned; low (0), or high (1).
-int TEA5767::testHiLo(float frequency){
+int TEA5767::testHiLo(const float frequency){
 	setPLL(frequency, 1);
 	setData();
 	hwlib::wait_ms(30);
@@ -134,7 +134,7 @@ int TEA5767::testHiLo(float frequency){
 /// legal frequency The user can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
 /// testHiLo() will be called to determine the best option. During the tuning, the audio is muted
 /// to prevent loud pops.
-void TEA5767::setFrequency(float frequency, int hiLoForce){
+void TEA5767::setFrequency(const float frequency, const int hiLoForce){
 	if((((bandLimit && frequency <= 91) || (bandLimit && frequency >= 76) || ((!bandLimit && frequency <= 108) || (!bandLimit && frequency >= 87.5))) && frequency != -1)){
 		setMute(true);
 		if(hiLoForce == -1){
@@ -173,7 +173,7 @@ float TEA5767::getFrequency(){
 /// Mute Unmute L and R
 /// \details
 /// This function takes one parameter that determines if the audio has to be muted or unmuted.
-void TEA5767::setMute(bool mute){
+void TEA5767::setMute(const bool mute){
 	if(mute){
 		data[0] |= (1UL << 7);
 		data[2] |= (3UL << 1);
@@ -189,7 +189,7 @@ void TEA5767::setMute(bool mute){
 /// \details
 /// This function takes two parameters which define what side has to be muted or unmuted. If L or R
 /// is muted, the audio signal will be mono. Otherwise it will be automatically set to stereo.
-void TEA5767::setMute(char side, bool mute){
+void TEA5767::setMute(const char side, const bool mute){
 	if(side == 'l'){
 		if(mute){
 			data[2] |= (1UL << 1);
@@ -215,7 +215,7 @@ void TEA5767::setMute(char side, bool mute){
 /// \details
 /// This function takes one parameter that determines if the chip has to wake-up or go to Stand-By mode.
 /// While Stand-By the chip can still communicate, though it only draws 26uA in comparison when it is in use (26mA).
-void TEA5767::standBy(bool sleep){
+void TEA5767::standBy(const bool sleep){
 	if(sleep){
 		data[3] |= (1UL << 6);
 		setMute(true);
@@ -230,7 +230,7 @@ void TEA5767::standBy(bool sleep){
 /// \details
 /// This function returns the currently Signal Strength of the current tuned Frequency. It has to overwrite the
 /// values for them to update. The Signal Strength is the only value for which this is needed.
-int TEA5767::signalStrength(){
+unsigned int TEA5767::signalStrength(){
 	setData(); //According to datasheet: Overwrite values to update
 	getStatus();
 	return status[3];
@@ -240,7 +240,7 @@ int TEA5767::signalStrength(){
 /// Set Mono/Stereo
 /// \details
 /// This function takes one parameter that determines if the chip has to output Mono or Stereo sound.
-void TEA5767::setStereo(bool stereo){
+void TEA5767::setStereo(const bool stereo){
 	if (stereo){
 		data[2] &= ~(1UL << 3);
 	} else {
@@ -265,7 +265,7 @@ bool TEA5767::stereoReception(){
 /// This function takes three boolean parameters; Stereo Noise Cancelling (switches to mono in case of a weak signal),
 /// High Cut Control (reduces high frequencies) and Soft Mute (reduces crisps in the signal) where true means they should
 /// be turned on.
-void TEA5767::audioSettings(bool SNC, bool HCC, bool SM){
+void TEA5767::audioSettings(const bool SNC, const bool HCC, const bool SM){
 	if (SNC){
 		data[3] |= (1UL << 1);
 	} else {
@@ -288,7 +288,7 @@ void TEA5767::audioSettings(bool SNC, bool HCC, bool SM){
 /// \details
 /// This function takes two mandatory parameters; two booleans representing the state of two Software Programmable Ports.
 /// Software Programmable Port 1 can also be used as Search Indicator. Therefore you have to set searchIndicator to true.
-void TEA5767::setPort(bool portOne, bool portTwo, bool searchIndicator){
+void TEA5767::setPort(const bool portOne, const bool portTwo, const bool searchIndicator){
 	if(portOne && !searchIndicator){
 		data[2] |= 1UL;
 	} else {
@@ -322,7 +322,7 @@ void TEA5767::setPort(bool portOne, bool portTwo, bool searchIndicator){
 /// timings. If you decide to do so be advised this takes large amounts of tuning.
 /// Somehow, this function is very unreliable with HWLIB, but not with Wire.h.
 
-void TEA5767::searchLoop(unsigned int direction, int qualityThreshold){
+void TEA5767::searchLoop(const unsigned int direction, const unsigned int qualityThreshold){
 	setMute(true);
 	float startFrequency = getFrequency();
 	if(direction == 1){
@@ -407,7 +407,7 @@ void TEA5767::searchLoop(unsigned int direction, int qualityThreshold){
 /// possible one (in case of search up) or highest one (in case of search down) to prevent tuning out of range. This function only searches once
 /// without communicating with the TEA5767. After 200ms the chip is asked wether it found a station, reached a band limit or has not found a station.
 /// If a station is found, the chip will tune to that frequency. Otherwise it will remain tuned to the start frequency.
-void TEA5767::singleSearch(unsigned int direction, int qualityThreshold){
+void TEA5767::singleSearch(const unsigned int direction, const unsigned int qualityThreshold){
 	setMute(true);
 	float startFrequency = getFrequency();
 	if(direction == 1){
@@ -482,10 +482,13 @@ void TEA5767::singleSearch(unsigned int direction, int qualityThreshold){
 /// It can occur that one Frequency gets found more than once. This is often the case near broadcasters. It can also happen a Frequency gets found
 /// in one search, but not in another one (~1 in 8 chance).
 
-void TEA5767::altSearch(unsigned int direction, int qualityThreshold, float distance){
+void TEA5767::altSearch(const unsigned int direction, const unsigned int inQualityThreshold, const float distance){
 	setMute(true);
-	if(qualityThreshold > 5){
+	unsigned int qualityThreshold;
+	if(inQualityThreshold > 5){
 		qualityThreshold = 5;
+	} else {
+		qualityThreshold = inQualityThreshold;
 	}
 	float startFrequency = getFrequency();
 	//set HiLo
@@ -493,7 +496,7 @@ void TEA5767::altSearch(unsigned int direction, int qualityThreshold, float dist
 	if(direction == 1){
 		setPLL(getFrequency() + 0.05, 1);
 		data[2] |= (1UL << 7);
-	} else if (direction == 0){
+	} else {
 		setPLL(getFrequency() - 0.05, 1);
 		data[2] &= ~(1UL << 7);
 	}
@@ -583,7 +586,7 @@ void TEA5767::altSearch(unsigned int direction, int qualityThreshold, float dist
 /// Search Stations Loop with Startfrequency
 /// \details
 /// This function does the same as searchLoop() but first tunes to a given startFrequency.
-void TEA5767::searchLoop(float startFrequency, unsigned int direction, int qualityThreshold){
+void TEA5767::searchLoop(const float startFrequency, const unsigned int direction, const unsigned int qualityThreshold){
 	setPLL(startFrequency, 1);
 	searchLoop(direction, qualityThreshold);
 }
@@ -592,7 +595,7 @@ void TEA5767::searchLoop(float startFrequency, unsigned int direction, int quali
 /// Search Stations Single with Startfrequency
 /// \details
 /// This function does the same as singleSearch() but first tunes to a given startFrequency.
-void TEA5767::singleSearch(float startFrequency, unsigned int direction, int qualityThreshold){
+void TEA5767::singleSearch(const float startFrequency, const unsigned int direction, const unsigned int qualityThreshold){
 	setPLL(startFrequency, 1);
 	singleSearch(direction, qualityThreshold);
 }
@@ -601,7 +604,80 @@ void TEA5767::singleSearch(float startFrequency, unsigned int direction, int qua
 /// Alternative Station Search with Startfrequency
 /// \details
 /// This function does the same as altSearch() but first tunes to a given startFrequency.
-void TEA5767::altSearch(float startFrequency, unsigned int direction, int qualityThreshold, float distance){
+void TEA5767::altSearch(const float startFrequency, const unsigned int direction, const unsigned int qualityThreshold, const float distance){
 	setPLL(startFrequency, 1);
 	altSearch(direction, qualityThreshold, distance);
 }
+
+/// \brief
+/// Get Port State
+/// \details
+/// This function returns the state of the given port; Software Programmable Port 1 or 2.
+bool TEA5767::getPort(const unsigned int port){
+	if(port == 1){
+		return (data[2] & 1);
+	} else {
+		return ((data[3] >> 7) & 1);
+	}
+}
+
+/// \brief
+/// Get Search State
+/// \details
+/// This function returns true if the TEA5767 is in Search Mode.
+bool TEA5767::inSearch(){
+	return (data[0] >> 6) & 1;
+}
+
+/// \brief
+/// Get Mute State
+/// \details
+/// This function returns true if the given speaker 'l', 'r' or 'a' (all) is muted.
+bool TEA5767::isMuted(const char side){
+	if(side == 'l'){
+		return (data[2] >> 1) & 1;
+	} else if (side == 'r'){
+		return (data[2] >> 2) & 1;
+	} else {
+		return (data[2] >> 1) & 1 && (data[2] >> 2) & 1;
+	}
+}
+
+/// \brief
+/// Get High Side Injection
+/// \details
+/// This function returns true if the TEA5767 is tuned with High Side Injection.
+bool TEA5767::highSide(){
+	return (data[2] >> 4) & 1;
+}
+
+/// \brief
+/// Get StandBy State
+/// \details
+/// This function returns true if the TEA5767 is muted.
+bool TEA5767::isStandBy(){
+	return (data[3] >> 6) & 1;
+}
+
+/// \brief
+/// Get Clock Frequency
+/// \details
+/// This function returns the Clock Frequency of the TEA5767
+unsigned int TEA5767::clockFrequency(){
+	if ((data[3] >> 5) & 0 && (data[4] >> 7) & 0){
+		return 13;
+	} else if ((data[3] >> 5) & 1 && (data[4] >> 7) & 0){
+		return 32;
+	} else {
+		return 6;
+	}
+}
+
+/// \brief
+/// Get Band Limit
+/// \details
+/// This function returns true if the TEA5767's FM-range is limited.
+bool TEA5767::hasBandLimit(){
+	return(data[0] >> 6) & 1;
+}
+

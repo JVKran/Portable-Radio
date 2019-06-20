@@ -16,7 +16,7 @@ int main( void ){
 	radio.setFrequency(88);
 	hwlib::wait_ms(2000);
 	for(;;){
-		radio.altSearch(1, 2, 0.2);
+		radio.searchLoop(1);
 		hwlib::cout << int(radio.getFrequency()) << hwlib::endl;
 		hwlib::wait_ms(2000);
 	}
