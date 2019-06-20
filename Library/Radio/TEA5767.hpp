@@ -30,13 +30,16 @@ class TEA5767 : public Radio{
 		void setMute(bool mute = true) override;
 		void setMute(char side, bool mute = true);
 		void standBy(bool sleep = true);
-		void search(unsigned int direction, int qualityThreshold = 1);
-		void search(float startFrequency, unsigned int direction, int qualityThreshold = 1);
+		void searchLoop(unsigned int direction, int qualityThreshold = 1);
+		void singleSearch(unsigned int direction, int qualityThreshold = 1);
+		void altSearch(unsigned int direction = 1, int qualityThreshold = 3, float distance = 0.4);
+		void searchLoop(float startFrequency, unsigned int direction, int qualityThreshold);
+		void singleSearch(float startFrequency, unsigned int direction, int qualityThreshold);
+		void altSearch(float startFrequency, unsigned int direction, int qualityThreshold, float distance = 0.4);
 		void setStereo(bool stereo = true) override;
 		bool stereoReception() override;
 		void audioSettings(bool SNC = false, bool HCC = true, bool SM = true);
 		void setPort(bool portOne, bool portTwo, bool searchIndicator = false);
-		void test();
 };
 
 #endif //__TEA5767_HPP

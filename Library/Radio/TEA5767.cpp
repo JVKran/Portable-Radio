@@ -3,6 +3,14 @@
 #include "hwlib.hpp"
 #include "TEA5767.hpp"
 
+float floor(float input){
+    if(input < 0){
+        return float(int(input - 1));   
+    } else {
+        return float(int(input));
+    }
+}
+
 /// \brief
 /// Constuctor
 /// \details
@@ -299,11 +307,173 @@ void TEA5767::setPort(bool portOne, bool portTwo, bool searchIndicator){
 }
 
 /// \brief
-/// Search Stations
+/// Search Stations Loop
 /// \details
 /// This function takes two parameters; the direction to search in (1:up, 0:down) and the Quality Threshold. The 
 /// Quality Threshold determines how good the Signal Strength has to be for the chip to really tune to it (0-5: equal to signal-
 /// strength of 0-200. 3 is a good average, 4 will skip most, 2 will give false positives). This function uses the Built-In Auto Search Mode of the 
+/// TEA5767. This makes it automatically add 100kHz to the frequency until it has found one with a good enough quality. It will then raise the RF
+/// (Ready Flag).
+/// If a Band Limit is reached the BLF (Band Limit Flag) will be raised. This function will then set the frequency back to the lowest
+/// possible one (in case of search up) or highest one (in case of search down) so a circulair search is performed until the loop is complete.
+/// If after one band loop no valid Frequency has been found, the loop will exit and the chip will tune back to the Start Frequency.
+/// It can occur that one Frequency gets found more than once in one single search or a specific Frequency is found in one search, but not in another.
+/// This can occur because this function asks for realtime info every loop and thus, requires precise timing; You Absolutely should not change any
+/// timings. If you decide to do so be advised this takes large amounts of tuning.
+/// Somehow, this function is very unreliable with HWLIB, but not with Wire.h.
+
+void TEA5767::searchLoop(unsigned int direction, int qualityThreshold){
+	setMute(true);
+	float startFrequency = getFrequency();
+	if(direction == 1){
+		setPLL(getFrequency() + 0.098304, 1);
+		data[2] |= (1UL << 7);
+	} else if (direction == 0){
+		setPLL(getFrequency() - 0.098304, 1);
+		data[2] &= ~(1UL << 7);
+	}
+	//set HiLo and Frequency
+	data[2] |= (1UL << 4);
+	//Search Mode On
+	data[0] |= (1UL << 6);
+	//SSL Highest Quality
+	data[2] |= (qualityThreshold << 5);
+	//Unset search indicator
+	data[3] &= ~(1);
+	//Set XTAL to 1 and PLLREF to 0 for 32768kHz Clock Frequency
+	data[3] |= (1UL << 4);
+	data[4] &= ~(1UL << 7);
+	setData();
+	hwlib::wait_ms(50);
+	float foundFrequency = 0.0;
+	unsigned int totalBandFrequencies;
+	unsigned int loops = 0;
+	if(bandLimit){
+		totalBandFrequencies = 170;				//Little more to be sure every frequency has been searched.
+	} else {
+		totalBandFrequencies = 215;	
+	}
+	while(loops < totalBandFrequencies){
+		//If Station has been Found, BandLimit has not been reached and another frequency is found; tune to that.
+		if((status[0] >> 7) & 1 && (status[0] >> 6) & 0){
+			foundFrequency = getFrequency();		//Calling funciton isn't fast enough
+			//Unset Search Mode
+			data[0] &= ~(1UL << 6);
+			break;
+		} else if ((status[0] >> 6) & 1){		//If bandlimit has been reached
+			if(direction == 1){
+				if(bandLimit){
+					setPLL(76, 1);
+				} else {
+					setPLL(88, 1);
+				}
+			} else {
+				if(bandLimit){
+					setPLL(91, 1);
+				} else {
+					setPLL(108, 1);
+				}
+			}
+			setData();
+		}
+		bus.read(address).read(status, 5);
+		if(data[0] > 0x2D){
+			// Allmost all stations under 96MHz get found with this delay
+			hwlib::wait_ns(30000);
+		} else {
+			// Allmost all stations above 96MHz get found with this delay
+			hwlib::wait_ns(50000);
+		}
+		loops++;
+	}
+	foundFrequency = getFrequency();
+	if(foundFrequency != startFrequency){
+		setFrequency(foundFrequency);
+	} else {
+		setFrequency(startFrequency);
+	}
+	setMute(false);
+}
+
+/// \brief
+/// Search Stations Once
+/// \details
+/// This function takes two parameters; the direction to search in (1:up, 0:down) and the Quality Threshold. The 
+/// Quality Threshold determines how good the Signal Strength has to be for the chip to really tune to it (0-5: equal to signal-
+/// strength of 0-200. 3 is a good average, 4 will skip most, 2 will give false positives). This function uses the Built-In Auto Search Mode of the 
+/// TEA5767. This makes it automatically add 100kHz to the frequency until it has found one with a good enough quality. It will then raise the RF
+/// (Ready Flag).
+/// If a Band Limit is reached the BLF (Band Limit Flag) will be raised. This function will then set the frequency back to the lowest
+/// possible one (in case of search up) or highest one (in case of search down) to prevent tuning out of range. This function only searches once
+/// without communicating with the TEA5767. After 200ms the chip is asked wether it found a station, reached a band limit or has not found a station.
+/// If a station is found, the chip will tune to that frequency. Otherwise it will remain tuned to the start frequency.
+void TEA5767::singleSearch(unsigned int direction, int qualityThreshold){
+	setMute(true);
+	float startFrequency = getFrequency();
+	if(direction == 1){
+		setPLL(getFrequency() + 0.098304, 1);
+		data[2] |= (1UL << 7);
+	} else if (direction == 0){
+		setPLL(getFrequency() - 0.098304, 1);
+		data[2] &= ~(1UL << 7);
+	}
+	//set HiLo and Frequency
+	data[2] |= (1UL << 4);
+	//Search Mode On
+	data[0] |= (1UL << 6);
+	//SSL Highest Quality
+	data[2] |= (qualityThreshold << 5);
+	//Unset search indicator
+	data[3] &= ~(1);
+	//Set XTAL to 1 and PLLREF to 0 for 32768kHz Clock Frequency
+	data[3] |= (1UL << 4);
+	data[4] &= ~(1UL << 7);
+	setData();
+	hwlib::wait_ms(200);
+	float foundFrequency = 0.0;
+	getStatus();
+	//If Station has been Found, BandLimit has not been reached and another frequency is found; tune to that.
+	if((status[0] >> 7) & 1 && (status[0] >> 6) & 0){
+		foundFrequency = getFrequency();		//Calling funciton isn't fast enough
+		//Unset Search Mode
+		data[0] &= ~(1UL << 6);
+	} else if ((status[0] >> 6) & 1){		//If bandlimit has been reached
+		if(direction == 1){
+			if(bandLimit){
+				setPLL(76, 1);
+			} else {
+				setPLL(88, 1);
+			}
+		} else {
+			if(bandLimit){
+				setPLL(91, 1);
+			} else {
+				setPLL(108, 1);
+			}
+		}
+		setData();
+	} else {
+		foundFrequency = startFrequency;
+	}
+	foundFrequency = getFrequency();
+	float tunableFrequency = foundFrequency;
+	setFrequency(tunableFrequency);
+	setMute(false);
+}
+
+/// \brief
+/// Alternative Station Search
+/// \details
+/// This function largely does the same as searchLoop(). However, some chips are partially faulty resulting in the inability to auto search. This
+/// function enables those chips to search as well. Despite faulty chips, this function is also usefull for users who want more control over their radio. 
+/// The quality threshold is more effictive and a larger accuracy can be achieved. The user can also select what distance has to be in between searches to
+/// prevent stations from getting found twice; thus the user can chose if he wants a bigger chance of finding all stations or he wants to find stations only once.
+/// The user has to let go of some performance though; its totally software-based.
+/// The default value (0.4) is a nice average (most stations will get found without doubles). With 0.2 you should are able to find all stations (minimum FM-frequency spacing).
+/// In short: This function always finds all stations and the best signal strengths; though it really is slow (2.5s).
+/// This function takes two parameters; the direction to search in (1:up, 0:down) and the Quality Threshold. The 
+/// Quality Threshold determines how good the Signal Strength has to be for the chip to really tune to it (0-5: equal to signal-
+/// strength of 0-200. 3 is a good average, 4 will skip most, 2 will give false positives). This function partially uses the Built-In Auto Search Mode of the 
 /// TEA5767. This requires the Microcontroller to keep incrementing or decrementing the Frequency. The TEA5767 will check 
 /// if the Signal is clear enough; It will then raise the RF (Ready Flag).
 /// If a Band Limit is reached the BLF (Band Limit Flag) will be raised. This function will then set the frequency back to the lowest
@@ -312,7 +482,7 @@ void TEA5767::setPort(bool portOne, bool portTwo, bool searchIndicator){
 /// It can occur that one Frequency gets found more than once. This is often the case near broadcasters. It can also happen a Frequency gets found
 /// in one search, but not in another one (~1 in 8 chance).
 
-void TEA5767::search(unsigned int direction, int qualityThreshold){
+void TEA5767::altSearch(unsigned int direction, int qualityThreshold, float distance){
 	setMute(true);
 	if(qualityThreshold > 5){
 		qualityThreshold = 5;
@@ -351,12 +521,12 @@ void TEA5767::search(unsigned int direction, int qualityThreshold){
 	}
 	while(loops < totalBandFrequencies){
 		getStatus();
-		//If Station has been Found, BandLimit has not been reached and another frequency is found; tune to that.
-		if((status[0] >> 7) & 1 ){
+		//If Station has been Found and another frequency is found; tune to that.
+		if((status[0] >> 7) & 1){
 			data[2] |= (1UL << 4);
 			foundFrequency = getFrequency();
 			break;
-		} else if ((status[0] >> 6) & 1){		//If bandlimit has been reached
+		} else if ((status[0] >> 6) & 1 && (status[0] >> 6) & 0){		//If bandlimit has been reached
 			if(direction == 1){
 				if(bandLimit){
 					setPLL(76, 1);
@@ -401,39 +571,37 @@ void TEA5767::search(unsigned int direction, int qualityThreshold){
 	}
 	setPLL(bestFrequency, testHiLo(bestFrequency));
 	setData();
-	if(signalStrength() < qualityThreshold * 40 || (direction == 1 && bestFrequency <= startFrequency - 0.4) || (direction == 0 && bestFrequency < startFrequency - 0.4)){
+	if(signalStrength() < qualityThreshold * 40 || (direction == 1 && bestFrequency <= startFrequency - distance) || (direction == 0 && bestFrequency < startFrequency - distance)){
 		//If the audio quality is not good enough; keep searching.
-		search(direction, qualityThreshold);
+		altSearch(direction, qualityThreshold);
 	} else {
 		setMute(false);
 	}
 }
 
-void TEA5767::search(float startFrequency, unsigned int direction, int qualityThreshold){
-	setFrequency(startFrequency, 1);
-	search(direction, qualityThreshold);
+/// \brief
+/// Search Stations Loop with Startfrequency
+/// \details
+/// This function does the same as searchLoop() but first tunes to a given startFrequency.
+void TEA5767::searchLoop(float startFrequency, unsigned int direction, int qualityThreshold){
+	setPLL(startFrequency, 1);
+	searchLoop(direction, qualityThreshold);
 }
 
-void TEA5767::test(){
-	//set HiLo
-	data[2] |= (1UL << 4);
-		setPLL(getFrequency() + 0.05, 1);
-		data[2] |= (1UL << 7);
-	//Search Mode On
-	data[0] |= (1UL << 6);
-	//SSL Highest Quality
-	data[2] |= (3UL << 5); 		//3 has proven to be the only usable option
-	//Mute Volume
-	data[0] |= (1UL << 7);
-	data[2] |= (3UL << 1);
-	//Unset search indicator
-	data[3] &= ~(1);
-	//Set XTAL to 1 and PLLREF to 0 for 32768kHz Clock Frequency
-	data[3] |= (1UL << 4);
-	data[4] &= ~(1UL << 7);
-	setData();
-    hwlib::wait_ms(100);
-    getStatus();
-    float foundFrequency = getFrequency();
-    setFrequency(foundFrequency, 1);
+/// \brief
+/// Search Stations Single with Startfrequency
+/// \details
+/// This function does the same as singleSearch() but first tunes to a given startFrequency.
+void TEA5767::singleSearch(float startFrequency, unsigned int direction, int qualityThreshold){
+	setPLL(startFrequency, 1);
+	singleSearch(direction, qualityThreshold);
+}
+
+/// \brief
+/// Alternative Station Search with Startfrequency
+/// \details
+/// This function does the same as altSearch() but first tunes to a given startFrequency.
+void TEA5767::altSearch(float startFrequency, unsigned int direction, int qualityThreshold, float distance){
+	setPLL(startFrequency, 1);
+	altSearch(direction, qualityThreshold, distance);
 }
