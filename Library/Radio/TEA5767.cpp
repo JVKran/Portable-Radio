@@ -169,6 +169,9 @@ float TEA5767::getFrequency(){
 	}
 }
 
+unsigned int TEA5767::getIntFrequency(){
+	return int(getFrequency() * 10);
+}
 /// \brief
 /// Mute Unmute L and R
 /// \details
@@ -344,7 +347,6 @@ void TEA5767::searchLoop(const unsigned int direction, const unsigned int qualit
 	data[3] |= (1UL << 4);
 	data[4] &= ~(1UL << 7);
 	setData();
-	hwlib::wait_ms(50);
 	float foundFrequency = 0.0;
 	unsigned int totalBandFrequencies;
 	unsigned int loops = 0;
@@ -376,7 +378,7 @@ void TEA5767::searchLoop(const unsigned int direction, const unsigned int qualit
 			}
 			setData();
 		}
-		bus.read(address).read(status, 5);
+		bus.read(address).read(status, 2);
 		if(data[0] > 0x2D){
 			// Allmost all stations under 96MHz get found with this delay
 			hwlib::wait_ns(30000);
@@ -385,6 +387,7 @@ void TEA5767::searchLoop(const unsigned int direction, const unsigned int qualit
 			hwlib::wait_ns(50000);
 		}
 		loops++;
+
 	}
 	foundFrequency = getFrequency();
 	if(foundFrequency != startFrequency){
@@ -429,7 +432,7 @@ void TEA5767::singleSearch(const unsigned int direction, const unsigned int qual
 	data[3] |= (1UL << 4);
 	data[4] &= ~(1UL << 7);
 	setData();
-	hwlib::wait_ms(200);
+	hwlib::wait_ms(70);				//Key to succes = 50
 	float foundFrequency = 0.0;
 	getStatus();
 	//If Station has been Found, BandLimit has not been reached and another frequency is found; tune to that.

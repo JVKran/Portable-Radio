@@ -12,7 +12,7 @@
 /// and setting of Frequencies are some possibilities. It is compatible with the module
 /// and breakout, though the breakout has hardwareproblems. It doesn't support searching
 /// for channels that well.
-class TEA5767 : public Radio{
+class TEA5767 : public Radio {
 	private:
 		uint8_t data[5] = {0x30, 0x1F, 0x10, 0x10, 0xC0};
 		uint8_t status[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
@@ -26,6 +26,7 @@ class TEA5767 : public Radio{
 		void setBandLimit(const unsigned int limit = 1) override;
 		void setFrequency(const float frequency = -1, const int hiLoForce = -1);
 		float getFrequency();
+		unsigned int getIntFrequency();
 		unsigned int signalStrength() override;
 		void setMute(const bool mute = true) override;
 		void setMute(const char side, const bool mute = true);

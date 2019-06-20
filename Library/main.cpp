@@ -10,7 +10,7 @@ int main( void ){
 	auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
 	auto radio = TEA5767(i2c_bus);
-
+	/*
 	hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
 	radio.setFrequency(100.7);
 	hwlib::cout << "DONE" << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
@@ -19,6 +19,19 @@ int main( void ){
 		hwlib::cout << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
 		hwlib::wait_ms(1000);
 	}
+
+	hwlib::cout << "Turning All Audio Optimizers On 1 by 1: ";
+	radio.audioSettings(true, false, false);
+	hwlib::cout << "SNC" << hwlib::endl;
+	hwlib::wait_ms(2000);
+	radio.audioSettings(true, true, false);
+	hwlib::cout << "HCC" << hwlib::endl;
+	hwlib::wait_ms(2000);
+	radio.audioSettings(true, true, true);
+	hwlib::cout << "SM" << hwlib::endl;
+	hwlib::wait_ms(2000);
+	hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.stereo() << hwlib::endl << hwlib::endl;
+	hwlib::wait_ms(2000);
 
 	hwlib::cout << "Setting Mono Signal: ";
 	radio.setStereo(false);
@@ -60,5 +73,37 @@ int main( void ){
 	radio.standBy(false);
 	hwlib::cout << hwlib::boolalpha << !radio.isStandBy() << hwlib::endl << hwlib::endl;
 	hwlib::wait_ms(2000);
+
+	*/
+	hwlib::cout << "Starting Circulair Search-Up: ";
+	radio.searchLoop(88, 1, 3);
+	hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+	hwlib::wait_ms(2000);
+	for(unsigned int i = 0; i < 10; i++){
+		radio.searchLoop(1, 3);
+		hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+		hwlib::wait_ms(4000);
+	}
+	
+	hwlib::cout << "Starting Search-Up: ";
+	radio.singleSearch(88, 1, 2);
+	hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+	hwlib::wait_ms(2000);
+	for(unsigned int i = 0; i < 15; i++){
+		radio.singleSearch(1, 3);
+		hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+		hwlib::wait_ms(4000);
+	}
+
+	hwlib::cout << "Starting Alternative Search-Up: ";
+	radio.altSearch(88, 1, 3, 0.4);
+	hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+	hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+	hwlib::wait_ms(4000);
+	for(unsigned int i = 0; i < 10; i++){
+		radio.altSearch(1, 3, 0.4);
+		hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+		hwlib::wait_ms(4000);
+	}
 
 }
