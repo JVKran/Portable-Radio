@@ -5,44 +5,49 @@ RDA5807::RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, int b
 	Radio(bus, address, bandLimit),
 	indexAddress(address + 1),
 	channelSpacing(channelSpacing)
-{
-	setData();
-}
+{}
 
 
 //Done
 void RDA5807::setData(){
 	auto transaction = bus.write(address); 	//0x10 for sequential access
-	for(unsigned int i = 2; i < 11; i++){
+	for(unsigned int i = 0; i < 6; i++){
 		transaction.write(data[i]);
 	}
 	hwlib::wait_ms(30);
 }
 
 void RDA5807::setData(const int regNumber){
-	auto transaction = bus.write(address + 1); 	//0x11 for random access
+	auto transaction = bus.write(indexAddress); 	//0x11 for random access
 	transaction.write(regNumber);
-	transaction.write(static_cast<uint8_t>((data[regNumber] & 0xFF00) >> 8));
-	transaction.write(static_cast<uint8_t>(data[regNumber] & 0x00FF));
-	hwlib::wait_ms(30);
+	transaction.write(data[regNumber] >> 8);
+	transaction.write(data[regNumber] & 0xff);;
 }
 
 void RDA5807::setRegister(const int regNumber, const uint16_t value){
 	data[regNumber] = value;
-	auto transaction = bus.write(address + 1); 	//0x11 for random access
+	auto transaction = bus.write(indexAddress); 	//0x11 for random access
 	transaction.write(regNumber);
 	transaction.write(static_cast<uint8_t>((value & 0xFF00) >> 8));
 	transaction.write(static_cast<uint8_t>(value & 0x00FF));
 	hwlib::wait_ms(30);
 }
 
-int RDA5807::getStatus(const int regNumber){
-	bus.write(address + 1).write(regNumber + 10);
-	auto transaction = bus.read(address + 1);
+void RDA5807::getStatus(const int regNumber){
+	bus.write(indexAddress).write(regNumber);
+	auto transaction = bus.read(indexAddress);
 	auto b1 = transaction.read_byte();
 	auto b2 = transaction.read_byte();
 	status[regNumber] = ( b1 << 8 ) | ( b2 );
-	return ( b1 << 8 ) | ( b2 );
+}
+
+void RDA5807::getStatus(){
+	auto transaction = bus.read(address);
+	for(unsigned int i = 0; i < 6; i++){
+		auto b1 = transaction.read_byte();
+      	auto b2 = transaction.read_byte();
+		status[i] = ( b1 << 8 ) | ( b2 );
+	}
 }
 
 //Done
@@ -67,15 +72,7 @@ void RDA5807::setBandLimit(const unsigned int limit){
 	} else {
 		data[3] |= (3UL << 2);
 	}
-	shortData[0] = 0x02;
-	shortData[1] = 0xC0;
-	shortData[2] = 0x03;
-	bus.write(0x11).write(shortData, 3);
-	hwlib::wait_ms(200);
-	shortData[0] = 0x02;
-	shortData[1] = 0xC0;
-	shortData[2] = 0x0D;
-	bus.write(0x11).write(shortData, 3);
+	
 }
 
 unsigned int RDA5807::hasBandLimit(){
@@ -165,29 +162,23 @@ void RDA5807::setBassBoost(const bool boost){
 
 void RDA5807::init(){
 
-   auto freq = 892;                            // 89.2 MHz
+   auto freq = 1007;                            // 89.2 MHz
    auto freqB = freq - 870;
    auto freqH = freqB>>2;
    auto freqL = (freqB&3)<<6;                  // Shift channel selection for matching register 0x03
 
-
-          // Device address 0x11 (random access)
-   shortData[0] = (0x02);                      // Register address 0x02
-   shortData[1] = (0xC0); 
-   shortData[2] = (0x00);    // write 0xC002 into Reg.3 (soft reset, enable)                         // wait 500ms
-   bus.write(0x11).write(shortData, 3);
+   setRegister(0x02, 0xC000);
 
    hwlib::wait_ms(1000);
-   shortData[0] = (0x02);                      // Register address 0x02
-   shortData[1] = (0xC0); 
-   shortData[2] = (0x0D);    // write 0xC002 into Reg.3 (soft reset, enable)                         // wait 500ms
-   bus.write(0x11).write(shortData, 3); // write 0xC00D (RDS on etc.) into 0x02
+   setRegister(0x02, 0xC00D);
   
    hwlib::wait_ms(1000);
+
    shortData[0] = (0x03);                      // Register address 0x02
    shortData[1] = (freqH); 
    shortData[2] = (freqL + 0x10);    // write 0xC002 into Reg.3 (soft reset, enable)                         // wait 500ms
    bus.write(0x11).write(shortData, 3);
+   //setRegister(0x03, (freqB + 0x10) << 6);
 
 	/*
 	/// Reset and Enable Powerup
