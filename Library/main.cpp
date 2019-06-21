@@ -13,5 +13,8 @@ int main( void ){
 
 	auto radio = RDA5807(i2c_bus);
   radio.init();
-
+  hwlib::wait_ms(5000);
+  radio.setMute(true);
+  hwlib::wait_ms(5000);
+  radio.setMute(false);
 }

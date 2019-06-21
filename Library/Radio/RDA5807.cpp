@@ -11,7 +11,7 @@ RDA5807::RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, int b
 //Done
 void RDA5807::setData(){
 	auto transaction = bus.write(address); 	//0x10 for sequential access
-	for(unsigned int i = 0; i < 6; i++){
+	for(unsigned int i = 2; i < 8; i++){
 		transaction.write(data[i]);
 	}
 	hwlib::wait_ms(30);
@@ -21,7 +21,8 @@ void RDA5807::setData(const int regNumber){
 	auto transaction = bus.write(indexAddress); 	//0x11 for random access
 	transaction.write(regNumber);
 	transaction.write(data[regNumber] >> 8);
-	transaction.write(data[regNumber] & 0xff);;
+	transaction.write(data[regNumber] & 0xff);
+	hwlib::wait_ms(30);
 }
 
 void RDA5807::setRegister(const int regNumber, const uint16_t value){
@@ -56,14 +57,14 @@ unsigned int RDA5807::signalStrength(){
 	return (status[1] >> 8);
 }
 
-//Done
+//Finally something That WORKS!!! Yeeeee...
 void RDA5807::setMute(const bool mute){
 	if(mute){
-		data[0] &= ~(1UL << 6);
+		data[2] &= ~(1UL << 14);
 	} else {
-		data[0] |= (1UL << 6);
+		data[2] |= (1UL << 14);
 	}
-	setData();
+	setData(2);
 }
 
 void RDA5807::setBandLimit(const unsigned int limit){
@@ -121,7 +122,7 @@ void RDA5807::setVolume(unsigned int volume){
 	if(volume <= 15){
 		data[5] |= volume;
 	}
-	setData();
+	setData(5);
 }
 
 void RDA5807::tune(const bool tune){
@@ -161,37 +162,11 @@ void RDA5807::setBassBoost(const bool boost){
 }
 
 void RDA5807::init(){
-
-   auto freq = 1007;                            // 89.2 MHz
-   auto freqB = freq - 870;
-   auto freqH = freqB>>2;
-   auto freqL = (freqB&3)<<6;                  // Shift channel selection for matching register 0x03
-
-   setRegister(0x02, 0xC000);
-
-   hwlib::wait_ms(1000);
-   setRegister(0x02, 0xC00D);
-  
-   hwlib::wait_ms(1000);
-
-   shortData[0] = (0x03);                      // Register address 0x02
-   shortData[1] = (freqH); 
-   shortData[2] = (freqL + 0x10);    // write 0xC002 into Reg.3 (soft reset, enable)                         // wait 500ms
-   bus.write(0x11).write(shortData, 3);
-   //setRegister(0x03, (freqB + 0x10) << 6);
-
-	/*
-	/// Reset and Enable Powerup
-	data[2] |= 3UL;
-	data[4] = 0x1800;
-	data[5] = 0x9081;
-	data[6] = 0x0000;
-	data[7] = 0x0000;
-	data[8] = 0x0000;
-	data[9] = 0x0000;
-	//Reset
-	setData();
-	//Enable
-	setRegister(2, 1);
-	*/
+	auto freq = 1007;
+	auto freqB = freq - 870;
+	setRegister(0x02, 0xC000);
+	hwlib::wait_ms(1000);
+	setRegister(0x02, 0xC00D);
+	hwlib::wait_ms(1000);
+	setRegister(0x03, (freqB << 6) + 0x10);
 }
