@@ -31,8 +31,8 @@ class TEA5767 : public Radio {
 		void setMute(const bool mute = true) override;
 		void setMute(const char side, const bool mute = true);
 		void standBy(const bool sleep = true);
-		void searchLoop(const unsigned int direction, const unsigned int qualityThreshold = 1);
-		void singleSearch(const unsigned int direction, const unsigned int qualityThreshold = 1);
+		void searchLoop(const unsigned int direction, const unsigned int qualityThreshold = 3);
+		void singleSearch(const unsigned int direction, const unsigned int qualityThreshold = 3);
 		void altSearch(const unsigned int direction, const unsigned int qualityThreshold = 3, const float distance = 0.4);
 		void searchLoop(const float startFrequency, const unsigned int direction, const unsigned int qualityThreshold);
 		void singleSearch(const float startFrequency, const unsigned int direction, const unsigned int qualityThreshold);

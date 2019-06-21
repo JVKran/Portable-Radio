@@ -88,6 +88,8 @@ void TEA5767::setClockFrequency(const unsigned int frequency){
 /// calculated in two ways for two different approaches; High or Low Side Injection. The result
 /// of this function is that the PLL word has been stored in the buffer; the data array.
 void TEA5767::setPLL(const float frequency, unsigned int hilo){
+	data[0] &= ~(0xFF);
+	data[1] &= ~(0xFF);
 	unsigned int pllFrequency;
 	if(hilo == 1){
 		pllFrequency = (4 * (frequency * 1000000 + 225000) / 32768);
