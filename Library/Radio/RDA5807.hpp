@@ -13,7 +13,7 @@ class RDA5807 : public Radio{
 		void setData(const int regNumber);
 		void setRegister(const int regNumber, const uint16_t value);
 		void getStatus() override;
-		void getStatus(const int regNumber);
+		void getStatus(const uint8_t regNumber);
 		float channelSpacing;
 	public:
 		RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x10, int bandLimit = 0, float channelSpacing = 0.1);
@@ -26,6 +26,7 @@ class RDA5807 : public Radio{
 		void setClockFrequency(const unsigned int frequency);
 		void demodulateMethod(const bool newMethod);
 		void reset();
+		bool isTuned();
 		void powerUpEnable(const bool enable);
 		void seekChannel(const unsigned int direction, const bool wrapContinue = true);
 		void setBandLimit(const unsigned int limit = 0) override;
@@ -33,11 +34,14 @@ class RDA5807 : public Radio{
 		bool stereoReception() override;
 		void setSpacing(const float spacing = 100000);
 		void setFrequency(const float frequency, const bool autoTune = true);
+		float getFrequency();
 		unsigned int hasBandLimit();
 		void setVolume(unsigned int volume = 15);
 		void tune(const bool tune);
 		void standBy(const bool standby);
 		void normalOutput(const bool normal);
+		void getRDS();
+		int test();
 };
 
 #endif //__RDA5807_HPP

@@ -32,28 +32,27 @@ void RDA5807::setRegister(const int regNumber, const uint16_t value){
 	hwlib::wait_ms(30);
 }
 
-void RDA5807::getStatus(const int regNumber){
-	bus.write(indexAddress).write(regNumber);
+void RDA5807::getStatus(const uint8_t regNumber){		//Addressing starts at 0x0A
+	bus.write(indexAddress).write(regNumber + 0x0A);
 	auto transaction = bus.read(indexAddress);
-	auto b1 = transaction.read_byte();
-	auto b2 = transaction.read_byte();
-	status[regNumber] = ( b1 << 8 ) | ( b2 );
+	status[regNumber] = transaction.read_byte() << 8;
+	status[regNumber] |= transaction.read_byte();
+	hwlib::wait_ms(30);
 }
 
 void RDA5807::getStatus(){
 	auto transaction = bus.read(address);
 	for(unsigned int i = 0; i < 6; i++){
-		auto b1 = transaction.read_byte();
-      	auto b2 = transaction.read_byte();
-		status[i] = ( b1 << 8 ) | ( b2 );
+		status[i] = transaction.read_byte() << 8;
+		status[i] |= transaction.read_byte();
 	}
+	hwlib::wait_ms(30);
 }
 
 void RDA5807::begin(){
 	setMute(false);
 	normalAudio(true);
-	setData(2);
-	hwlib::wait_ms(500);
+	hwlib::wait_ms(50);
 	powerUpEnable(true);
 }
 
@@ -125,7 +124,7 @@ void RDA5807::powerUpEnable(const bool enable){
 
 unsigned int RDA5807::signalStrength(){
 	getStatus(1);
-	return (status[1] >> 8);
+	return ((status[1] & 0xFE00) >> 9);
 }
 
 //Done
@@ -168,7 +167,8 @@ void RDA5807::setBassBoost(const bool boost){
 }
 
 bool RDA5807::stereoReception(){
-	return (status[0] >> 2) & 1;
+	getStatus();
+	return (status[0] >> 10) & 1;
 }
 
 //Done
@@ -203,10 +203,28 @@ void RDA5807::setFrequency(const float frequency, const bool autoTune){
 	} else {
 		tunableFrequency = frequency * 10 - 870;
 	}
-	tunableFrequency = frequency * 10 - 870;
 	data[3] |= (tunableFrequency << 6) + 0x10;
 	setData(3);
 	//STC bit is set high when tuning completes. Tune bit is automatically set low when tuning completes.
+}
+
+float RDA5807::getFrequency(){
+	getStatus(0);
+	float realFrequency;
+	auto receivedFrequency = (status[0] & 0x3FF); //Only keep last 10 bits
+	if((data[3] >> 2) & 3){
+		realFrequency = float(receivedFrequency + 650.0 / 10.0);
+	} else if((data[3] >> 2) & 1 || (data[3] >> 2) & 2){
+		realFrequency = float(receivedFrequency + 760.0 / 10.0);
+	} else {
+		realFrequency = float(receivedFrequency + 870.0 / 10.0);
+	}
+	return realFrequency;
+}
+
+bool RDA5807::isTuned(){
+	getStatus(0);
+	return (status[0] >> 14) & 1;
 }
 
 void RDA5807::setBandLimit(const unsigned int limit){
@@ -257,4 +275,14 @@ void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue)
 		data[2] |= (1UL << 7);
 	}
 	setData(2);
+}
+
+void RDA5807::getRDS(){
+	getStatus();
+	hwlib::cout << status[2] << status[3] << status[4] << status[5] << hwlib::endl;
+}
+
+int RDA5807::test(){
+	getStatus(0);
+	return status[0];
 }

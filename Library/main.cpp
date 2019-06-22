@@ -17,7 +17,12 @@ int main( void ){
   hwlib::wait_ms(5000);
   //radio.setFrequency(98.9);
   radio.setMute(true);
-  hwlib::wait_ms(2000);
+  hwlib::wait_ms(5000);
   radio.setMute(false);
-  radio.setFrequency(101.2);
+  radio.setFrequency(100.7);
+  hwlib::cout << int(radio.getFrequency()) << ", " << radio.signalStrength() << hwlib::boolalpha;
+  for(;;){
+    hwlib::cout << radio.stereoReception() << ", " << radio.signalStrength() << hwlib::endl;
+    hwlib::wait_ms(5000);
+  }
 }
