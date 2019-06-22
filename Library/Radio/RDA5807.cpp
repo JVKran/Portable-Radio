@@ -50,8 +50,8 @@ void RDA5807::getStatus(){
 }
 
 void RDA5807::begin(){
-	data[2] |= (1UL << 15);
-	data[2] |= (1UL << 14);
+	setMute(false);
+	normalAudio(true);
 	setData(2);
 	hwlib::wait_ms(500);
 	powerUpEnable(true);
@@ -203,7 +203,8 @@ void RDA5807::setFrequency(const float frequency, const bool autoTune){
 	} else {
 		tunableFrequency = frequency * 10 - 870;
 	}
-	data[3] |= (tunableFrequency << 6);
+	tunableFrequency = frequency * 10 - 870;
+	data[3] |= (tunableFrequency << 6) + 0x10;
 	setData(3);
 	//STC bit is set high when tuning completes. Tune bit is automatically set low when tuning completes.
 }
@@ -240,16 +241,6 @@ void RDA5807::standBy(const bool standby){
 		data[2] |= 1UL;
 	}
 	setData(2);
-}
-
-void RDA5807::init(){
-	auto freq = 1007;
-	auto freqB = freq - 870;
-	setRegister(0x02, 0xC000);
-	hwlib::wait_ms(1000);
-	setRegister(0x02, 0xC00D);
-	hwlib::wait_ms(1000);
-	setRegister(0x03, (freqB << 6) + 0x10);
 }
 
 //Done

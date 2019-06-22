@@ -38,7 +38,6 @@ class RDA5807 : public Radio{
 		void tune(const bool tune);
 		void standBy(const bool standby);
 		void normalOutput(const bool normal);
-		void init();
 };
 
 #endif //__RDA5807_HPP

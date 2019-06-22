@@ -12,14 +12,12 @@ int main( void ){
 	auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
 	auto radio = RDA5807(i2c_bus);
-  radio.init();
+  radio.begin();
+  radio.setFrequency(100.7);
   hwlib::wait_ms(5000);
   //radio.setFrequency(98.9);
   radio.setMute(true);
   hwlib::wait_ms(2000);
   radio.setMute(false);
-  for(;;){
-    hwlib::wait_ms(8000);
-    radio.seekChannel(1);
-  }
+  radio.setFrequency(101.2);
 }
