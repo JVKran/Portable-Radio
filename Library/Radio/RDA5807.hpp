@@ -27,6 +27,8 @@ class RDA5807 : public Radio{
 		void demodulateMethod(const bool newMethod);
 		void reset();
 		bool isTuned();
+		bool isReady();
+		bool isStation();
 		void powerUpEnable(const bool enable);
 		void seekChannel(const unsigned int direction, const bool wrapContinue = true);
 		void setBandLimit(const unsigned int limit = 0) override;
@@ -40,8 +42,10 @@ class RDA5807 : public Radio{
 		void tune(const bool tune);
 		void standBy(const bool standby);
 		void normalOutput(const bool normal);
+		bool rdsReady();
 		void getRDS();
-		int test();
+		void enableRDS(const bool enable);
+		void test();
 };
 
 #endif //__RDA5807_HPP

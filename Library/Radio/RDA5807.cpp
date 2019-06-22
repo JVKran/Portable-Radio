@@ -42,7 +42,7 @@ void RDA5807::getStatus(const uint8_t regNumber){		//Addressing starts at 0x0A
 
 void RDA5807::getStatus(){
 	auto transaction = bus.read(address);
-	for(unsigned int i = 0; i < 6; i++){
+	for(unsigned int i = 0; i < 4; i++){
 		status[i] = transaction.read_byte() << 8;
 		status[i] |= transaction.read_byte();
 	}
@@ -53,6 +53,7 @@ void RDA5807::begin(){
 	setMute(false);
 	normalAudio(true);
 	hwlib::wait_ms(50);
+	enableRDS(true);
 	powerUpEnable(true);
 }
 
@@ -164,10 +165,11 @@ void RDA5807::setBassBoost(const bool boost){
 	} else {
 		data[2] &= ~(1UL << 12);
 	}
+	setData(2);
 }
 
 bool RDA5807::stereoReception(){
-	getStatus();
+	getStatus(0);
 	return (status[0] >> 10) & 1;
 }
 
@@ -185,7 +187,7 @@ void RDA5807::setSpacing(const float spacing){
 		data[3] &= ~3UL;
 	}
 	channelSpacing = spacing;
-	setData();
+	setData(3);
 }
 
 void RDA5807::setFrequency(const float frequency, const bool autoTune){
@@ -210,16 +212,35 @@ void RDA5807::setFrequency(const float frequency, const bool autoTune){
 
 float RDA5807::getFrequency(){
 	getStatus(0);
-	float realFrequency;
-	auto receivedFrequency = (status[0] & 0x3FF); //Only keep last 10 bits
+	int frequency = (((status[0] & 0x3FF) * 10) + 8700) / 10;
+	int low = frequency / 10;
+	int high = frequency % 10;
+	return low + 0.1 * high;
+	/*
+	int realFrequency;
+	int receivedFrequency = (status[0] & 0x3FF); //Only keep last 10 bits
 	if((data[3] >> 2) & 3){
-		realFrequency = float(receivedFrequency + 650.0 / 10.0);
+		realFrequency = float((receivedFrequency * 10 + 6500.0) / 10.0);
 	} else if((data[3] >> 2) & 1 || (data[3] >> 2) & 2){
-		realFrequency = float(receivedFrequency + 760.0 / 10.0);
+		realFrequency = float((receivedFrequency * 10 + 7600.0) / 10.0);
 	} else {
-		realFrequency = float(receivedFrequency + 870.0 / 10.0);
+		realFrequency = float((receivedFrequency * 10 + 8700.0) / 10.0);
 	}
+	realFrequency &= 0x3FF;
+	realFrequency = ((realFrequency * 10) + 8700) / 10;
+	realFrequency = (realFrequency / 10) + 0.1 * (realFrequency % 10);
 	return realFrequency;
+	*/
+}
+
+bool RDA5807::isStation(){
+	getStatus(1);
+	return (status[1] >> 8) & 1;
+}
+
+bool RDA5807::isReady(){
+	getStatus(1);
+	return (status[1] >> 7) & 1;
 }
 
 bool RDA5807::isTuned(){
@@ -236,11 +257,11 @@ void RDA5807::setBandLimit(const unsigned int limit){
 }
 
 void RDA5807::setVolume(unsigned int volume){
-	data[5] &= ~(15);
 	if(volume <= 15){
+		data[5] &= ~(15);
 		data[5] |= volume;
+		setData(5);
 	}
-	setData(5);
 }
 
 void RDA5807::tune(const bool tune){
@@ -282,7 +303,26 @@ void RDA5807::getRDS(){
 	hwlib::cout << status[2] << status[3] << status[4] << status[5] << hwlib::endl;
 }
 
-int RDA5807::test(){
+void RDA5807::enableRDS(const bool enable){
+	if(enable){
+		data[2] |= (1UL << 3);
+	} else {
+		data[2] &= ~(1UL << 3);
+	}
+	setData(2);
+}
+
+bool RDA5807::rdsReady(){
 	getStatus(0);
-	return status[0];
+	return (status[0] >> 15) & 1;
+}
+
+void RDA5807::test(){
+	getStatus(0);
+	getStatus(1);
+	getStatus(2);
+	getStatus(3);
+	getStatus(4);
+	getStatus(5);
+	hwlib::cout << status[0] << ", " << status[1] << ", " << status[2] << ", " << status[3] << hwlib::endl;
 }

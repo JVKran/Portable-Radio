@@ -14,15 +14,9 @@ int main( void ){
 	auto radio = RDA5807(i2c_bus);
   radio.begin();
   radio.setFrequency(100.7);
-  hwlib::wait_ms(5000);
-  //radio.setFrequency(98.9);
-  radio.setMute(true);
-  hwlib::wait_ms(5000);
-  radio.setMute(false);
-  radio.setFrequency(100.7);
-  hwlib::cout << int(radio.getFrequency()) << ", " << radio.signalStrength() << hwlib::boolalpha;
+  hwlib::cout << "Tuning to 100.7FM (Q-Music): " << hwlib::boolalpha << radio.isTuned() << int(radio.getFrequency()) << hwlib::endl;
   for(;;){
-    hwlib::cout << radio.stereoReception() << ", " << radio.signalStrength() << hwlib::endl;
-    hwlib::wait_ms(5000);
+    hwlib::cout << hwlib::boolalpha << radio.isTuned() << hwlib::endl;
+    hwlib::wait_ms(3000);
   }
 }
