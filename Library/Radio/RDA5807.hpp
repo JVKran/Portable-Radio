@@ -2,6 +2,7 @@
 #define __RDA5807_HPP
 
 #include "Radio.hpp"
+#include "radioDataSystem.hpp"
 
 class RDA5807 : public Radio{
 	private:
@@ -46,6 +47,7 @@ class RDA5807 : public Radio{
 		bool rdsReady();
 		void getRDS();
 		void processRDS();
+		int rdsErrors(const int block);
 		void enableRDS(const bool enable = true);
 		bool rdsSync();
 		void test();

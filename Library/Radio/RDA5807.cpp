@@ -44,25 +44,27 @@ void RDA5807::updateRegister(const int regNumber, const uint16_t value){
 void RDA5807::getStatus(const uint8_t regNumber){		//Addressing starts at 0x0A
 	bus.write(indexAddress).write(regNumber + 0x0A);
 	auto transaction = bus.read(indexAddress);
-	status[regNumber] = transaction.read_byte() << 8;
+	status[regNumber] = (transaction.read_byte() << 8);
 	status[regNumber] |= transaction.read_byte();
 	hwlib::wait_ms(30);
 }
 
 void RDA5807::getStatus(){
+	/*
 	getStatus(0);
 	getStatus(1);
 	getStatus(2);
 	getStatus(3);
 	getStatus(4);
 	getStatus(5);
-	/*	Somehow doesn't work...
-	auto transaction = bus.read(address);
+	*/
+	bus.write(indexAddress).write(0x0A);
+	auto transaction = bus.read(indexAddress);
 	for(unsigned int i = 0; i < 6; i++){
 		status[i] = transaction.read_byte() << 8;
-		status[i] += transaction.read_byte();
+		status[i] |= transaction.read_byte();
 	}
-	*/
+	hwlib::cout << status[0] << hwlib::endl;
 	hwlib::wait_ms(30);
 }
 
@@ -142,7 +144,7 @@ void RDA5807::powerUpEnable(const bool enable){
 
 unsigned int RDA5807::signalStrength(){
 	getStatus(1);
-	return (status[1] >> 10);
+	return ((status[1] & 0xF000) >> 9);
 }
 
 //Done
@@ -234,6 +236,7 @@ bool RDA5807::setFrequency(const float frequency, const bool autoTune){
 }
 
 float RDA5807::getFrequency(){
+	getStatus(0);
 	int realFrequency;
 	int receivedFrequency = (status[0] & 0x3FF); //Only keep last 10 bits
 	if((data[3] >> 2) & 3){
@@ -256,17 +259,17 @@ float RDA5807::getFrequency(){
 
 bool RDA5807::isStation(){
 	getStatus(1);
-	return (status[1] >> 8) & 1;
+	return (status[1] & 0x4100);
 }
 
 bool RDA5807::isReady(){
 	getStatus(1);
-	return (status[1] >> 7) & 1;
+	return (status[1] & 0x4080);
 }
 
 bool RDA5807::isTuned(){
 	getStatus(0);
-	return (status[0] >> 14) & 1;
+	return (status[0] & 0x4000);
 }
 
 void RDA5807::setBandLimit(const unsigned int limit){
@@ -340,15 +343,101 @@ bool RDA5807::rdsSync(){
 }
 
 void RDA5807::processRDS(){
+	getStatus();
+	char receivedStationName[] = {"         \0"};
+	char realStationName[] = {"         \0"};
+	auto groupType = ((status[3]  & 0x0800 )>> 11) | (status[3] >> 8);
+	auto trafficProgramm = (status[3] & 0x0400);
+	switch(groupType){
+		case 0x0B:
+			hwlib::cout << "Radio Text: ";
+			int index = (status[3] & 0x0003);
+			char first = status[5] >> 8;
+			char second = status[5] & 0x00FF;
+			receivedStationName[index] = first;
+			receivedStationName[index + 1] = second;
+			unsigned int validI = 0;
+			for(unsigned int i = 0; i < 8; i++){
+				if(receivedStationName[i] > 31 && receivedStationName[i] < 127){
+					realStationName[validI] = receivedStationName[i];
+					validI++;
+				}
+			}
+			hwlib::cout << realStationName;
+		case 0x4A:
+			if(rdsErrors(1) > 0){
+				hwlib::cout << "Time: "; 
+				int offset = status[5] & 0x3F;
+				int minutes = ((status[5] >> 6) & 0x3F);
+				minutes += 60 * (((status[5] & 0x0001) << 4) | ((status[5] >> 12) & 0x0F));
+				if (offset & 0x20) {
+			   		minutes -= 30 * (offset & 0x1F);
+			    } else {
+			      	minutes += 30 * (offset & 0x1F);
+				}
+				hwlib::cout << minutes / 60 << ":" << minutes % 60 << hwlib::endl;
+			} else {
+				hwlib::cout << "Time, but too much errors..." << hwlib::endl;
+			}
+		default:
+			break;
+	}
 	/*
-	getStatus(2);
-	getStatus(3);
-	getStatus(4);
-	getStatus(5);
-	*/
-	getStatus(); 
-	hwlib::cout << char(status[2] >> 8)  << char(status[2] & 0xFF) << ", " << char(status[3] >> 8) << char(status[3] & 0xFF) << ", " << char(status[4] >> 8)  << char(status[4] & 0xFF) << ", " << char(status[5] >> 8) << char(status[5] & 0xFF) <<  hwlib::endl;
+	hwlib::cout << "Program Identification: " << hwlib::endl << hwlib::boolalpha;
+	hwlib::cout << "PI: " << status[2] << hwlib::endl;
+	hwlib::cout << "Message Group Type B? (1 y, 0 n): " << ((status[3] >> 11) & 1) << hwlib::endl;
+	hwlib::cout << "Group Type: ";
+	if((status[3] >> 12) & 4){
+		if(rdsErrors(1) > 0){
+			hwlib::cout << "Time: "; 
+			int offset = status[5] & 0x3F;
+			int minutes = ((status[5] >> 6) & 0x3F);
+			minutes += 60 * (((status[5] & 0x0001) << 4) | ((status[5] >> 12) & 0x0F));
+			if (offset & 0x20) {
+		   		minutes -= 30 * (offset & 0x1F);
+		    } else {
+		      	minutes += 30 * (offset & 0x1F);
+			}
+			hwlib::cout << minutes / 60 << ":" << minutes % 60 << hwlib::endl;
+		} else {
+			hwlib::cout << "Time, but too much errors..." << hwlib::endl;
+		}
+	} else if((status[3] >> 12) & 2){
+		hwlib::cout << "Radio Text: ";
+		int index = (status[3] & 0x0003);
+		char first = status[5] >> 8;
+		char second = status[5] & 0x00FF;
+		receivedStationName[index] = first;
+		receivedStationName[index + 1] = second;
+		unsigned int validI = 0;
+		for(unsigned int i = 0; i < 8; i++){
+			if(receivedStationName[i] > 31 && receivedStationName[i] < 127){
+				realStationName[validI] = receivedStationName[i];
+				validI++;
+			}
+		}
+		hwlib::cout << realStationName;
+	} else if((status[3] >> 12) & 0){
+		hwlib::cout << "Basic Tuning Info";
+	} else {
+		hwlib::cout << "Other";
+	}
+	hwlib::cout << hwlib::endl;
+	hwlib::cout << "Traffic Program: " << ((status[3] >> 10) & 1) << hwlib::endl;
+	hwlib::cout << "Program Type: " << ((status[3] & 0x3E0) >> 5) << hwlib::endl;
+	hwlib::cout << hwlib::endl;
 
+	hwlib::cout << "Payload: " << char(status[4] >> 8) << char(status[4] & 0xFF) << ", " << char(status[5] >> 8) << char(status[5] & 0xFF) << hwlib::endl;
+	*/
+}
+
+int RDA5807::rdsErrors(const int block){
+	getStatus(block);
+	if(block == 1){
+		return (status[1] & 0x000C);
+	} else {
+		return (status[1] & 0x0003);
+	}
 }
 
 void RDA5807::test(){
