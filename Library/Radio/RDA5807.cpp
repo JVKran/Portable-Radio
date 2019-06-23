@@ -64,7 +64,6 @@ void RDA5807::getStatus(){
 		status[i] = transaction.read_byte() << 8;
 		status[i] |= transaction.read_byte();
 	}
-	hwlib::cout << status[0] << hwlib::endl;
 	hwlib::wait_ms(30);
 }
 
@@ -346,17 +345,25 @@ void RDA5807::processRDS(){
 	getStatus();
 	char receivedStationName[] = {"         \0"};
 	char realStationName[] = {"         \0"};
-	auto groupType = ((status[3]  & 0x0800 )>> 11) | (status[3] >> 8);
-	auto trafficProgramm = (status[3] & 0x0400);
+	//auto groupType = (status[3] >> 12);
+	auto groupType = 0x0A | ((status[3]  & 0x0800 ) >> 11) | ((status[3] & 0xF000) >> 8);
+	unsigned int newText;
+	hwlib::cout << "Group Type: " << groupType << hwlib::endl;
+	//auto trafficProgramm = (status[3] & 0x0400);
+	int index = 0;
+	char first;
+	char second;
+	int offset;
+	int minutes;
+	unsigned int validI = 0;
 	switch(groupType){
-		case 0x0B:
+		case 0x0B:		//11
 			hwlib::cout << "Radio Text: ";
-			int index = (status[3] & 0x0003);
-			char first = status[5] >> 8;
-			char second = status[5] & 0x00FF;
+			index = (status[3] & 0x0003);
+			first = status[5] >> 8;
+			second = status[5] & 0x00FF;
 			receivedStationName[index] = first;
 			receivedStationName[index + 1] = second;
-			unsigned int validI = 0;
 			for(unsigned int i = 0; i < 8; i++){
 				if(receivedStationName[i] > 31 && receivedStationName[i] < 127){
 					realStationName[validI] = receivedStationName[i];
@@ -364,21 +371,27 @@ void RDA5807::processRDS(){
 				}
 			}
 			hwlib::cout << realStationName;
-		case 0x4A:
-			if(rdsErrors(1) > 0){
+			break;
+		case 0x2A:		//42
+			newText = (status[3] & 0x0010);
+			index = 4 * (status[3] & 0x00F);
+
+		case 0x4A:		//74
+			//if(rdsErrors(1) < 3){
 				hwlib::cout << "Time: "; 
-				int offset = status[5] & 0x3F;
-				int minutes = ((status[5] >> 6) & 0x3F);
+				offset = status[5] & 0x3F;
+				minutes = ((status[5] >> 6) & 0x3F);
 				minutes += 60 * (((status[5] & 0x0001) << 4) | ((status[5] >> 12) & 0x0F));
 				if (offset & 0x20) {
 			   		minutes -= 30 * (offset & 0x1F);
 			    } else {
 			      	minutes += 30 * (offset & 0x1F);
 				}
-				hwlib::cout << minutes / 60 << ":" << minutes % 60 << hwlib::endl;
-			} else {
+				hwlib::cout << minutes / 60 + 7 << ":" << minutes % 60 << hwlib::endl;
+			//} else {
 				hwlib::cout << "Time, but too much errors..." << hwlib::endl;
-			}
+			//}
+			break;
 		default:
 			break;
 	}

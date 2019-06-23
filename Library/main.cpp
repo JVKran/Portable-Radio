@@ -28,7 +28,7 @@ int main( void ){
   hwlib::wait_ms(5000);
   for(;;){
       hwlib::cout << radio.signalStrength() << ", " << radio.isReady() << hwlib::endl;
-      hwlib::wait_ms(3000);
+      hwlib::wait_ms(300);
       radio.processRDS();
   }
   hwlib::wait_ms(500);
