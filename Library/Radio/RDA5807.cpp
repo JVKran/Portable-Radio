@@ -27,6 +27,15 @@ void RDA5807::setRegister(const int regNumber, const uint16_t value){
 	data[regNumber] = value;
 	auto transaction = bus.write(indexAddress);
 	transaction.write(regNumber);
+	transaction.write(((value & 0xFF00) >> 8));
+	transaction.write((value & 0x00FF));
+	hwlib::wait_ms(30);
+}
+
+void RDA5807::updateRegister(const int regNumber, const uint16_t value){
+	data[regNumber] |= value;
+	auto transaction = bus.write(indexAddress);
+	transaction.write(regNumber);
 	transaction.write(static_cast<uint8_t>((value & 0xFF00) >> 8));
 	transaction.write(static_cast<uint8_t>(value & 0x00FF));
 	hwlib::wait_ms(30);
@@ -41,11 +50,19 @@ void RDA5807::getStatus(const uint8_t regNumber){		//Addressing starts at 0x0A
 }
 
 void RDA5807::getStatus(){
+	getStatus(0);
+	getStatus(1);
+	getStatus(2);
+	getStatus(3);
+	getStatus(4);
+	getStatus(5);
+	/*	Somehow doesn't work...
 	auto transaction = bus.read(address);
-	for(unsigned int i = 0; i < 4; i++){
+	for(unsigned int i = 0; i < 6; i++){
 		status[i] = transaction.read_byte() << 8;
-		status[i] |= transaction.read_byte();
+		status[i] += transaction.read_byte();
 	}
+	*/
 	hwlib::wait_ms(30);
 }
 
@@ -125,7 +142,7 @@ void RDA5807::powerUpEnable(const bool enable){
 
 unsigned int RDA5807::signalStrength(){
 	getStatus(1);
-	return ((status[1] & 0xFE00) >> 9);
+	return (status[1] >> 10);
 }
 
 //Done
@@ -190,7 +207,7 @@ void RDA5807::setSpacing(const float spacing){
 	setData(3);
 }
 
-void RDA5807::setFrequency(const float frequency, const bool autoTune){
+bool RDA5807::setFrequency(const float frequency, const bool autoTune){
 	if(autoTune){
 		data[3] |= (1UL << 4);
 	} else {
@@ -207,30 +224,34 @@ void RDA5807::setFrequency(const float frequency, const bool autoTune){
 	}
 	data[3] |= (tunableFrequency << 6) + 0x10;
 	setData(3);
+	/*
+	hwlib::wait_ms(100);
+	getStatus(0);
+	return (status[0] >> 14) & 1;
+	*/
+	return true;
 	//STC bit is set high when tuning completes. Tune bit is automatically set low when tuning completes.
 }
 
 float RDA5807::getFrequency(){
-	getStatus(0);
-	int frequency = (((status[0] & 0x3FF) * 10) + 8700) / 10;
-	int low = frequency / 10;
-	int high = frequency % 10;
-	return low + 0.1 * high;
-	/*
 	int realFrequency;
 	int receivedFrequency = (status[0] & 0x3FF); //Only keep last 10 bits
 	if((data[3] >> 2) & 3){
-		realFrequency = float((receivedFrequency * 10 + 6500.0) / 10.0);
+		realFrequency = 65.0f;
 	} else if((data[3] >> 2) & 1 || (data[3] >> 2) & 2){
-		realFrequency = float((receivedFrequency * 10 + 7600.0) / 10.0);
+		realFrequency = 76.0f;
 	} else {
-		realFrequency = float((receivedFrequency * 10 + 8700.0) / 10.0);
+		realFrequency = 87.0f;
 	}
-	realFrequency &= 0x3FF;
-	realFrequency = ((realFrequency * 10) + 8700) / 10;
-	realFrequency = (realFrequency / 10) + 0.1 * (realFrequency % 10);
-	return realFrequency;
-	*/
+	if(data[3] & 3){
+		return realFrequency + (receivedFrequency * 0.025);
+	} else if(data[3] & 2){
+		return realFrequency + (receivedFrequency * 0.05);
+	} else if (data[3] & 1){
+		return realFrequency + (receivedFrequency * 0.2);
+	} else {
+		return realFrequency + (receivedFrequency * 0.1);
+	}
 }
 
 bool RDA5807::isStation(){
@@ -256,12 +277,8 @@ void RDA5807::setBandLimit(const unsigned int limit){
 	setData(3);
 }
 
-void RDA5807::setVolume(unsigned int volume){
-	if(volume <= 15){
-		data[5] &= ~(15);
-		data[5] |= volume;
-		setData(5);
-	}
+void RDA5807::setVolume(const uint8_t volume){
+	updateRegister(5, (data[5] & 0xFFF0) | (volume & 0x0F));
 }
 
 void RDA5807::tune(const bool tune){
@@ -315,6 +332,23 @@ void RDA5807::enableRDS(const bool enable){
 bool RDA5807::rdsReady(){
 	getStatus(0);
 	return (status[0] >> 15) & 1;
+}
+
+bool RDA5807::rdsSync(){
+	getStatus(0);
+	return (status[0] >> 12) & 1;
+}
+
+void RDA5807::processRDS(){
+	/*
+	getStatus(2);
+	getStatus(3);
+	getStatus(4);
+	getStatus(5);
+	*/
+	getStatus(); 
+	hwlib::cout << char(status[2] >> 8)  << char(status[2] & 0xFF) << ", " << char(status[3] >> 8) << char(status[3] & 0xFF) << ", " << char(status[4] >> 8)  << char(status[4] & 0xFF) << ", " << char(status[5] >> 8) << char(status[5] & 0xFF) <<  hwlib::endl;
+
 }
 
 void RDA5807::test(){

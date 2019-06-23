@@ -13,10 +13,16 @@ int main( void ){
 
 	auto radio = RDA5807(i2c_bus);
   radio.begin();
-  radio.setFrequency(100.7);
+  hwlib::cout << hwlib::boolalpha << radio.setFrequency(100.7);
+  hwlib::wait_ms(500);
+  radio.enableRDS(true);
   hwlib::cout << "Tuning to 100.7FM (Q-Music): " << hwlib::boolalpha << radio.isTuned() << int(radio.getFrequency()) << hwlib::endl;
   for(;;){
-    hwlib::cout << hwlib::boolalpha << radio.isTuned() << hwlib::endl;
-    hwlib::wait_ms(3000);
+    if(radio.rdsReady()){
+      radio.processRDS();
+      radio.enableRDS(true);
+      hwlib::wait_ms(3000);
+    }
+    hwlib::wait_ms(500);
   }
 }

@@ -12,6 +12,7 @@ class RDA5807 : public Radio{
 		void setData() override;
 		void setData(const int regNumber);
 		void setRegister(const int regNumber, const uint16_t value);
+		void updateRegister(const int regNumber, const uint16_t value);
 		void getStatus() override;
 		void getStatus(const uint8_t regNumber);
 		float channelSpacing;
@@ -35,16 +36,18 @@ class RDA5807 : public Radio{
 		void setStereo(const bool stereo = true) override;
 		bool stereoReception() override;
 		void setSpacing(const float spacing = 100000);
-		void setFrequency(const float frequency, const bool autoTune = true);
+		bool setFrequency(const float frequency, const bool autoTune = true);
 		float getFrequency();
 		unsigned int hasBandLimit();
-		void setVolume(unsigned int volume = 15);
+		void setVolume(const uint8_t volume = 15);
 		void tune(const bool tune);
 		void standBy(const bool standby);
 		void normalOutput(const bool normal);
 		bool rdsReady();
 		void getRDS();
-		void enableRDS(const bool enable);
+		void processRDS();
+		void enableRDS(const bool enable = true);
+		bool rdsSync();
 		void test();
 };
 
