@@ -13,7 +13,7 @@ int main( void ){
 
 	auto radio = RDA5807(i2c_bus);
   radio.begin();
-  radio.setFrequency(100.7);
+  radio.setFrequency(98.9);
   /*
   hwlib::wait_ms(2000);
   radio.setMute(true);
@@ -25,11 +25,12 @@ int main( void ){
   hwlib::wait_ms(2000);
   hwlib::cout << radio.signalStrength() << hwlib::endl;
   */
-  hwlib::wait_ms(5000);
   for(;;){
-      hwlib::cout << radio.signalStrength() << ", " << radio.isReady() << hwlib::endl;
-      hwlib::wait_ms(300);
-      radio.processRDS();
+      hwlib::wait_ms(2000);
+      radio.seekChannel(1);
+      hwlib::wait_ms(2000);
+      hwlib::cout << hwlib::boolalpha << int(radio.getFrequency()) << hwlib::endl;
+      //radio.setFrequency(100.7);
   }
   hwlib::wait_ms(500);
 }

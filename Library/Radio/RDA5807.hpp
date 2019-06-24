@@ -8,7 +8,8 @@ class RDA5807 : public Radio{
 	private:
 		uint16_t data[8] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};	//First two bytes contain device specific info; are never send but here for completeness.
 		unsigned int status[6] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
-		uint8_t shortData[3] = {};
+		uint8_t receivedStatus[12] = {};
+		uint8_t shortData[2] = {};
 		const uint8_t indexAddress;
 		void setData() override;
 		void setData(const int regNumber);
@@ -37,7 +38,7 @@ class RDA5807 : public Radio{
 		void setStereo(const bool stereo = true) override;
 		bool stereoReception() override;
 		void setSpacing(const float spacing = 100000);
-		bool setFrequency(const float frequency, const bool autoTune = true);
+		void setFrequency(const float frequency, const bool autoTune = true);
 		float getFrequency();
 		unsigned int hasBandLimit();
 		void setVolume(const uint8_t volume = 15);
