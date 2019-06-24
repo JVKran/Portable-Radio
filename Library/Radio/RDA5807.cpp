@@ -136,6 +136,7 @@ void RDA5807::powerUpEnable(const bool enable){
 }
 
 unsigned int RDA5807::signalStrength(){
+	status[1] &= ~0xFC00;
 	getStatus(1);
 	return ((status[1] & 0xFC00) >> 9);
 }
@@ -165,16 +166,6 @@ void RDA5807::normalAudio(const bool normal){
 }
 
 //Done
-void RDA5807::setStereo(const bool stereo){
-	if(stereo){
-		data[2] &= ~(1UL << 13);
-	} else {
-		data[2] |= (1UL << 13);
-	}
-	setData(2);
-}
-
-//Done
 void RDA5807::setBassBoost(const bool boost){
 	if(boost){
 		data[2] |= (1UL << 12);
@@ -184,9 +175,27 @@ void RDA5807::setBassBoost(const bool boost){
 	setData(2);
 }
 
+bool RDA5807::bassBoosted(){
+	return (data[2] >> 12) & 1;
+}
+
 bool RDA5807::stereoReception(){
 	getStatus(0);
 	return (status[0] >> 10) & 1;
+}
+
+//Done
+void RDA5807::setStereo(const bool stereo){
+	if(stereo){
+		data[2] &= ~(1UL << 13);
+	} else {
+		data[2] |= (1UL << 13);
+	}
+	setData(2);
+}
+
+bool RDA5807::isStereo(){
+	return !(data[2] >> 13) & 1;		//Stereo is 0, mono is 1
 }
 
 //Done
@@ -251,6 +260,10 @@ float RDA5807::getFrequency(){
 	}
 }
 
+int RDA5807::getIntFrequency(){
+	return (getFrequency() * 10);
+}
+
 bool RDA5807::isStation(){
 	getStatus(1);
 	return (status[1] & 0x4100);
@@ -275,6 +288,7 @@ void RDA5807::setBandLimit(const unsigned int limit){
 }
 
 void RDA5807::setVolume(const uint8_t volume){
+	data[5] &= ~0x000F;
 	data[5] |= (volume & 0x000F);
 	setData(5);
 }
@@ -297,6 +311,10 @@ void RDA5807::standBy(const bool standby){
 	setData(2);
 }
 
+bool RDA5807::isStandBy(){
+	return !(data[2] & 1);
+}
+
 //Done
 void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue){
 	data[2] |= (1UL << 8);		//Set seek mode
@@ -316,6 +334,11 @@ void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue)
 void RDA5807::setSeekThreshold(const uint8_t threshold){
 	data[5] |= (threshold & 0xF00);
 	setData(5);
+}
+
+bool RDA5807::seekCompleted(){
+	getStatus(0);
+	return (status[0] >> 14) & 1;
 }
 
 void RDA5807::getRDS(){

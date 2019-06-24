@@ -6,7 +6,7 @@
 
 class RDA5807 : public Radio{
 	private:
-		uint16_t data[8] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x9081, 0x0000, 0x8000};	//First two bytes contain device specific info; are never send but here for completeness.
+		uint16_t data[8] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x9881, 0x0000, 0x8000};	//First two bytes contain device specific info; are never send but here for completeness.
 		unsigned int status[6] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
 		uint8_t receivedStatus[12] = {};
 		uint8_t shortData[2] = {};
@@ -18,6 +18,7 @@ class RDA5807 : public Radio{
 		void getStatus() override;
 		void getStatus(const uint8_t regNumber);
 		float channelSpacing;
+		void powerUpEnable(const bool enable);
 	public:
 		RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x10, int bandLimit = 0, float channelSpacing = 0.1);
 		void begin();
@@ -26,6 +27,7 @@ class RDA5807 : public Radio{
 		bool isMuted();
 		void normalAudio(const bool normal = true);
 		void setBassBoost(const bool boost = true);
+		bool bassBoosted();
 		void setClockSupply(const bool clockSource, const bool directInput);
 		void setClockFrequency(const unsigned int frequency);
 		void demodulateMethod(const bool newMethod);
@@ -33,19 +35,22 @@ class RDA5807 : public Radio{
 		bool isTuned();
 		bool isReady();
 		bool isStation();
-		void powerUpEnable(const bool enable);
 		void seekChannel(const unsigned int direction, const bool wrapContinue = true);
+		bool seekCompleted();
 		void setSeekThreshold(const uint8_t threshold);
 		void setBandLimit(const unsigned int limit = 0) override;
 		void setStereo(const bool stereo = true) override;
+		bool isStereo();
 		bool stereoReception() override;
 		void setSpacing(const float spacing = 100000);
 		bool setFrequency(const float frequency, const bool autoTune = true);
 		float getFrequency();
+		int getIntFrequency();
 		unsigned int hasBandLimit();
 		void setVolume(const uint8_t volume = 15);
 		void setTune(const bool tune);
 		void standBy(const bool standby);
+		bool isStandBy();
 		void normalOutput(const bool normal);
 		bool rdsReady();
 		void getRDS();
