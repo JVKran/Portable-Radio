@@ -18,8 +18,8 @@ void RDA5807::setData(){
 void RDA5807::setData(const int regNumber){
 	auto transaction = bus.write(indexAddress);
 	transaction.write(regNumber);
-	transaction.write(static_cast<uint8_t>((data[regNumber] & 0xFF00) >> 8));
-	transaction.write(static_cast<uint8_t>(data[regNumber] & 0x00FF));
+	transaction.write((data[regNumber] & 0xFF00) >> 8);
+	transaction.write(data[regNumber] & 0x00FF);
 	hwlib::wait_ms(30);
 }
 
@@ -60,8 +60,10 @@ void RDA5807::getStatus(){
 }
 
 void RDA5807::begin(){
+	hwlib::wait_ms(1000);
 	setMute(false);
 	normalAudio(true);
+	setTune(true);
 	hwlib::wait_ms(50);
 	enableRDS(true);
 	powerUpEnable(true);
@@ -135,7 +137,7 @@ void RDA5807::powerUpEnable(const bool enable){
 
 unsigned int RDA5807::signalStrength(){
 	getStatus(1);
-	return ((status[1] & 0xF000) >> 9);
+	return ((status[1] & 0xFC00) >> 9);
 }
 
 //Done
@@ -146,6 +148,10 @@ void RDA5807::setMute(const bool mute){
 		data[2] |= (1UL << 14);
 	}
 	setData(2);
+}
+
+bool RDA5807::isMuted(){
+	return !(data[2] >> 14) & 1;
 }
 
 //Done
@@ -200,13 +206,13 @@ void RDA5807::setSpacing(const float spacing){
 	setData(3);
 }
 
-void RDA5807::setFrequency(const float frequency, const bool autoTune){
+bool RDA5807::setFrequency(const float frequency, const bool autoTune){
 	if(autoTune){
 		data[3] |= (1UL << 4);
 	} else {
 		data[3] &= ~(1UL << 4);
 	}
-	data[3] &= ~(0x1FF); //Unset bits representing frequency.
+	data[3] &= ~(0x1FF << 6); //Unset bits representing frequency.
 	auto tunableFrequency = 1000;
 	if((data[3] >> 2) & 3){
 		tunableFrequency = frequency * 10 - 650;
@@ -215,21 +221,16 @@ void RDA5807::setFrequency(const float frequency, const bool autoTune){
 	} else {
 		tunableFrequency = frequency * 10 - 870;
 	}
-	data[3] |= (tunableFrequency << 6) + 0x10;
+	data[3] |= (tunableFrequency << 6);
 	setData(3);
 	hwlib::wait_ms(100);
-	//bus.read(0x10).read(shortData, 2);
-	//status[0] = shortData[0] >> 8;
-	//status[0] |= shortData[1];
-	//return (status[0] >> 14) & 1;
+	getStatus(0);
+	return (status[0] >> 14) & 1;
 	//STC bit is set high when tuning completes. Tune bit is automatically set low when tuning completes.
 }
 
 float RDA5807::getFrequency(){
-	getStatus();
-	//hwlib::cout << status[0] << hwlib::endl;
-	//bus.read(0x10).read(receivedStatus, 4);
-	//getStatus(0);
+	getStatus(0);
 	int realFrequency;
 	int receivedFrequency = (status[0] & 0x3FF); //Only keep last 10 bits
 	if((data[3] >> 2) & 3){
@@ -274,10 +275,11 @@ void RDA5807::setBandLimit(const unsigned int limit){
 }
 
 void RDA5807::setVolume(const uint8_t volume){
-	updateRegister(5, (data[5] & 0xFFF0) | (volume & 0x0F));
+	data[5] |= (volume & 0x000F);
+	setData(5);
 }
 
-void RDA5807::tune(const bool tune){
+void RDA5807::setTune(const bool tune){
 	if(tune){
 		data[3] |= (1UL << 4);
 	} else {
@@ -308,7 +310,12 @@ void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue)
 	} else {
 		data[2] |= (1UL << 7);
 	}
-	setData(0x02);
+	setData(2);
+}
+
+void RDA5807::setSeekThreshold(const uint8_t threshold){
+	data[5] |= (threshold & 0xF00);
+	setData(5);
 }
 
 void RDA5807::getRDS(){
