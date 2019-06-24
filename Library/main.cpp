@@ -12,11 +12,16 @@ int main( void ){
   radio.begin();
   hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
   radio.setFrequency(100.7);
-  hwlib::wait_ms(1000);
+  hwlib::wait_ms(2000);
   for(;;){
-    radio.updateRDS();
-    radio.processRDS();
-    hwlib::wait_ms(200);
+    for(unsigned int i = 0; i < 20; i++){
+      radio.updateRDS();
+      radio.processRDS();
+      hwlib::wait_ms(200);
+    }
   }
 
 }
+
+
+//http://www.g.laroche.free.fr/english/rds/groupes/4/groupe4A.htm

@@ -14,7 +14,7 @@ void radioDataSystem::process(){
 	auto groupType = ((blockB & 0xF000) >> 12);
 	hwlib::cout << "Group Type: " << groupType << hwlib::endl;
 	//auto trafficProgramm = (blockB & 0x0400);
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << ((blockA & 0xF000) >> 12) << hwlib::endl;				//0xFFFF where F is one nibble
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << ((blockA & 0xF000) >> 12) << hwlib::endl;			//0xFFFF where F is one nibble
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << ((blockA & 0x0F00) >> 8) << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << (blockA & 0x00FF) << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: ";
@@ -32,9 +32,77 @@ void radioDataSystem::process(){
 	} 
 	hwlib::cout << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << ((blockB & 0x3E0) >> 5) << hwlib::endl;
-	hwlib::cout << hwlib::endl;
+	if((blockB >> 11) & 1){		//Message Version A
+		switch(groupType){
+			case 2:		//RDStext
+				hwlib::cout << hwlib::left << hwlib::setw(30) << "Received RDS Text: ";
+				first = ((blockC & 0xFF00) >> 8);
+				second = (blockC & 0x00FF);
+				third = ((blockD & 0xFF00) >> 8);
+				fourth = (blockD & 0x00FF);
+				charSegment0 = (blockB & 1);
+				charSegment1 = (blockB >> 1) & 1;
+				charSegment2 = (blockB >> 2) & 1;
+				charSegment3 = (blockB >> 3) & 1;
+				//bool clearScreenRequest = (blockB >> 4) & 1;
+				offset = 4 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
+				rdsText[offset + 1] = first;
+				rdsText[offset + 2] = second;
+				rdsText[offset + 3] = third;
+				rdsText[offset + 4] = fourth;
+				hwlib::cout << rdsText << hwlib::endl;
+				break;
+			case 4:
+				minutes = (blockD & 0xFC0) >> 6;
+				hours = ((blockD & 0xF000) >> 12) + ((blockC & 1) << 4);
+				hwlib::cout << hours << ":" << minutes << hwlib::endl;
+				break;
+		}
+	} else {		//Message Version B
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((blockB >> 5) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music or Speech: " << ((blockB >> 4) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: ";
+		first = ((blockD & 0xFF00) >> 8);
+		second = (blockD & 0x00FF);
+		//bool decoderIdentification = (blockB >> 3) & 1;
+		charSegment0 = (blockB & 1);
+		charSegment1 = (blockB >> 1) & 1;
+		if(!charSegment1 && !charSegment0){
+			receivedStationName[0] = first;
+			receivedStationName[1] = second;
+		} else if (charSegment0 && !charSegment1){
+			receivedStationName[2] = first;
+			receivedStationName[3] = second;
+		} else if (!charSegment0 && charSegment1){
+			receivedStationName[4] = first;
+			receivedStationName[5] = second;
+		} else {
+			receivedStationName[6] = first;
+			receivedStationName[7] = second;
+		}
+		hwlib::wait_ms(500);
+		hwlib::cout << receivedStationName << hwlib::endl << hwlib::endl;
+		switch(groupType){
+			case 2:		//RDStext
+				hwlib::cout << hwlib::left << hwlib::setw(30) << "Received RDS Text: ";
+				third = ((blockD & 0xFF00) >> 8);
+				fourth = (blockD & 0x00FF);
+				charSegment0 = (blockB & 1);
+				charSegment1 = (blockB >> 1) & 1;
+				charSegment2 = (blockB >> 2) & 1;
+				charSegment3 = (blockB >> 3) & 1;
+				//bool clearScreenRequest = (blockB >> 4) & 1;
+				offset = 2 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
+				rdsText[offset + 1] = third;
+				rdsText[offset + 2] = fourth;
+				hwlib::cout << rdsText << hwlib::endl;
+				break;
+		}
+	}
+	hwlib::cout << hwlib::endl << hwlib::endl;
+	/*
 	switch(groupType){
-		case 0x0B:		//11
+		case 0x00;		//11
 			hwlib::cout << "Radio Text: ";
 			index = (blockB & 0x0003);
 			first = blockD >> 8;
@@ -68,6 +136,7 @@ void radioDataSystem::process(){
 		default:
 			break;
 	}
+	*/
 	/*
 	hwlib::cout << "Program Identification: " << hwlib::endl << hwlib::boolalpha;
 	hwlib::cout << "PI: " << blockA << hwlib::endl;
