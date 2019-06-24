@@ -8,7 +8,7 @@ RDA5807::RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, int b
 {}
 
 void RDA5807::setData(){
-	auto transaction = bus.write(0x10);
+	auto transaction = bus.write(address);
 	for(unsigned int i = 2; i < 8; i++){
 		transaction.write(data[i]);
 	}
@@ -16,7 +16,7 @@ void RDA5807::setData(){
 }
 
 void RDA5807::setData(const int regNumber){
-	auto transaction = bus.write(0x11);
+	auto transaction = bus.write(indexAddress);
 	transaction.write(regNumber);
 	transaction.write(static_cast<uint8_t>((data[regNumber] & 0xFF00) >> 8));
 	transaction.write(static_cast<uint8_t>(data[regNumber] & 0x00FF));
@@ -25,7 +25,7 @@ void RDA5807::setData(const int regNumber){
 
 void RDA5807::setRegister(const int regNumber, const uint16_t value){
 	data[regNumber] = value;
-	auto transaction = bus.write(0x11);
+	auto transaction = bus.write(indexAddress);
 	transaction.write(regNumber);
 	transaction.write(((value & 0xFF00) >> 8));
 	transaction.write((value & 0x00FF));
@@ -34,7 +34,7 @@ void RDA5807::setRegister(const int regNumber, const uint16_t value){
 
 void RDA5807::updateRegister(const int regNumber, const uint16_t value){
 	data[regNumber] |= value;
-	auto transaction = bus.write(0x11);
+	auto transaction = bus.write(indexAddress);
 	transaction.write(regNumber);
 	transaction.write(static_cast<uint8_t>((value & 0xFF00) >> 8));
 	transaction.write(static_cast<uint8_t>(value & 0x00FF));
@@ -42,28 +42,19 @@ void RDA5807::updateRegister(const int regNumber, const uint16_t value){
 }
 
 void RDA5807::getStatus(const uint8_t regNumber){		//Addressing starts at 0x0A
-	auto addressTransaction = bus.write(0x11);
-	addressTransaction.write(regNumber + 0x0A);
-	//addressTransaction.restart();
-	auto transaction = bus.read(0x11);
-	status[regNumber] = (transaction.read_byte() >> 8);
+	bus.write(indexAddress).write(0x0A + regNumber);
+	auto transaction = bus.read(indexAddress);
+	status[regNumber] = transaction.read_byte() << 8;
 	status[regNumber] |= transaction.read_byte();
 	hwlib::wait_ms(30);
 }
 
 void RDA5807::getStatus(){
-	/*
-	getStatus(0);
-	getStatus(1);
-	getStatus(2);
-	getStatus(3);
-	getStatus(4);
-	getStatus(5);
-	*/
-	bus.read(0x10).read(receivedStatus, 12);
-	for(unsigned int i = 0; i < 12; i+=2){
-		status[i/2] = receivedStatus[i];
-		status[i/2] |= receivedStatus[i+1];
+	bus.write(indexAddress).write(0x0A);
+	auto transaction = bus.read(indexAddress);
+	for(unsigned int i = 0; i < 6; i++){
+		status[i] = transaction.read_byte() << 8;
+		status[i] |= transaction.read_byte();
 	}
 	hwlib::wait_ms(30);
 }
@@ -235,14 +226,8 @@ void RDA5807::setFrequency(const float frequency, const bool autoTune){
 }
 
 float RDA5807::getFrequency(){
-	//getStatus();
-	bus.write(0x11).write(0x0A);
-	//transaction.restart();
-	//hwlib::wait_ns(50000);
-	bus.read(0x11).read(shortData, 2);
-	status[0] = shortData[0] >> 8;
-	status[0] |= shortData[1];
-	hwlib::cout << status[0] << hwlib::endl;
+	getStatus();
+	//hwlib::cout << status[0] << hwlib::endl;
 	//bus.read(0x10).read(receivedStatus, 4);
 	//getStatus(0);
 	int realFrequency;
