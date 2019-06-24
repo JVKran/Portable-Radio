@@ -10,6 +10,11 @@ class RDA5807 : public Radio{
 		unsigned int status[6] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
 		uint8_t receivedStatus[12] = {};
 		uint8_t shortData[2] = {};
+		uint16_t blockA;
+		uint16_t blockB;
+		uint16_t blockC;
+		uint16_t blockD;
+		uint16_t blockE;
 		const uint8_t indexAddress;
 		void setData() override;
 		void setData(const int regNumber);
@@ -53,7 +58,7 @@ class RDA5807 : public Radio{
 		bool isStandBy();
 		void normalOutput(const bool normal);
 		bool rdsReady();
-		void getRDS();
+		void updateRDS();
 		void processRDS();
 		int rdsErrors(const int block);
 		void enableRDS(const bool enable = true);

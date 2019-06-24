@@ -341,7 +341,7 @@ bool RDA5807::seekCompleted(){
 	return (status[0] >> 14) & 1;
 }
 
-void RDA5807::getRDS(){
+void RDA5807::updateRDS(){
 	getStatus();
 	hwlib::cout << status[2] << status[3] << status[4] << status[5] << hwlib::endl;
 }
@@ -366,6 +366,7 @@ bool RDA5807::rdsSync(){
 }
 
 void RDA5807::processRDS(){
+	if(rdsSync() && rdsReady()){
 	getStatus();
 	char receivedStationName[] = {"         \0"};
 	char realStationName[] = {"         \0"};
@@ -401,7 +402,7 @@ void RDA5807::processRDS(){
 			index = 4 * (status[3] & 0x00F);
 
 		case 0x4A:		//74
-			//if(rdsErrors(1) < 3){
+			if(rdsErrors(1) < 3){
 				hwlib::cout << "Time: "; 
 				offset = status[5] & 0x3F;
 				minutes = ((status[5] >> 6) & 0x3F);
@@ -412,9 +413,9 @@ void RDA5807::processRDS(){
 			      	minutes += 30 * (offset & 0x1F);
 				}
 				hwlib::cout << minutes / 60 + 7 << ":" << minutes % 60 << hwlib::endl;
-			//} else {
+			} else {
 				hwlib::cout << "Time, but too much errors..." << hwlib::endl;
-			//}
+			}
 			break;
 		default:
 			break;
@@ -466,6 +467,7 @@ void RDA5807::processRDS(){
 
 	hwlib::cout << "Payload: " << char(status[4] >> 8) << char(status[4] & 0xFF) << ", " << char(status[5] >> 8) << char(status[5] & 0xFF) << hwlib::endl;
 	*/
+}
 }
 
 int RDA5807::rdsErrors(const int block){
