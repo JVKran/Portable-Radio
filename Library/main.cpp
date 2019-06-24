@@ -14,7 +14,7 @@ int main( void ){
   radio.setFrequency(100.7);
   hwlib::wait_ms(1000);
   for(;;){
-    radio.processRDS();
+    radio.updateRDS();
   }
 
 }

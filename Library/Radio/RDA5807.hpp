@@ -10,11 +10,6 @@ class RDA5807 : public Radio{
 		unsigned int status[6] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
 		uint8_t receivedStatus[12] = {};
 		uint8_t shortData[2] = {};
-		uint16_t blockA;
-		uint16_t blockB;
-		uint16_t blockC;
-		uint16_t blockD;
-		uint16_t blockE;
 		const uint8_t indexAddress;
 		void setData() override;
 		void setData(const int regNumber);
@@ -24,6 +19,7 @@ class RDA5807 : public Radio{
 		void getStatus(const uint8_t regNumber);
 		float channelSpacing;
 		void powerUpEnable(const bool enable);
+		radioDataSystem RDS;
 	public:
 		RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x10, int bandLimit = 0, float channelSpacing = 0.1);
 		void begin();
@@ -57,12 +53,11 @@ class RDA5807 : public Radio{
 		void standBy(const bool standby);
 		bool isStandBy();
 		void normalOutput(const bool normal);
-		bool rdsReady();
 		void updateRDS();
-		void processRDS();
-		int rdsErrors(const int block);
-		void enableRDS(const bool enable = true);
+		void enableRDS(const bool enable);
+		bool rdsReady();
 		bool rdsSync();
+		int rdsErrors(const int block);
 		void test();
 };
 

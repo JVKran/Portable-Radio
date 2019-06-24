@@ -343,7 +343,7 @@ bool RDA5807::seekCompleted(){
 
 void RDA5807::updateRDS(){
 	getStatus();
-	hwlib::cout << status[2] << status[3] << status[4] << status[5] << hwlib::endl;
+	RDS.update(status[2], status[3], status[4], status[5]);
 }
 
 void RDA5807::enableRDS(const bool enable){
@@ -364,112 +364,6 @@ bool RDA5807::rdsSync(){
 	getStatus(0);
 	return (status[0] >> 12) & 1;
 }
-
-void RDA5807::processRDS(){
-	if(rdsSync() && rdsReady()){
-	getStatus();
-	char receivedStationName[] = {"         \0"};
-	char realStationName[] = {"         \0"};
-	//auto groupType = (status[3] >> 12);
-	auto groupType = 0x0A | ((status[3]  & 0x0800 ) >> 11) | ((status[3] & 0xF000) >> 8);
-	unsigned int newText;
-	hwlib::cout << "Group Type: " << groupType << hwlib::endl;
-	//auto trafficProgramm = (status[3] & 0x0400);
-	int index = 0;
-	char first;
-	char second;
-	int offset;
-	int minutes;
-	unsigned int validI = 0;
-	switch(groupType){
-		case 0x0B:		//11
-			hwlib::cout << "Radio Text: ";
-			index = (status[3] & 0x0003);
-			first = status[5] >> 8;
-			second = status[5] & 0x00FF;
-			receivedStationName[index] = first;
-			receivedStationName[index + 1] = second;
-			for(unsigned int i = 0; i < 8; i++){
-				if(receivedStationName[i] > 31 && receivedStationName[i] < 127){
-					realStationName[validI] = receivedStationName[i];
-					validI++;
-				}
-			}
-			hwlib::cout << realStationName;
-			break;
-		case 0x2A:		//42
-			newText = (status[3] & 0x0010);
-			index = 4 * (status[3] & 0x00F);
-
-		case 0x4A:		//74
-			if(rdsErrors(1) < 3){
-				hwlib::cout << "Time: "; 
-				offset = status[5] & 0x3F;
-				minutes = ((status[5] >> 6) & 0x3F);
-				minutes += 60 * (((status[5] & 0x0001) << 4) | ((status[5] >> 12) & 0x0F));
-				if (offset & 0x20) {
-			   		minutes -= 30 * (offset & 0x1F);
-			    } else {
-			      	minutes += 30 * (offset & 0x1F);
-				}
-				hwlib::cout << minutes / 60 + 7 << ":" << minutes % 60 << hwlib::endl;
-			} else {
-				hwlib::cout << "Time, but too much errors..." << hwlib::endl;
-			}
-			break;
-		default:
-			break;
-	}
-	/*
-	hwlib::cout << "Program Identification: " << hwlib::endl << hwlib::boolalpha;
-	hwlib::cout << "PI: " << status[2] << hwlib::endl;
-	hwlib::cout << "Message Group Type B? (1 y, 0 n): " << ((status[3] >> 11) & 1) << hwlib::endl;
-	hwlib::cout << "Group Type: ";
-	if((status[3] >> 12) & 4){
-		if(rdsErrors(1) > 0){
-			hwlib::cout << "Time: "; 
-			int offset = status[5] & 0x3F;
-			int minutes = ((status[5] >> 6) & 0x3F);
-			minutes += 60 * (((status[5] & 0x0001) << 4) | ((status[5] >> 12) & 0x0F));
-			if (offset & 0x20) {
-		   		minutes -= 30 * (offset & 0x1F);
-		    } else {
-		      	minutes += 30 * (offset & 0x1F);
-			}
-			hwlib::cout << minutes / 60 << ":" << minutes % 60 << hwlib::endl;
-		} else {
-			hwlib::cout << "Time, but too much errors..." << hwlib::endl;
-		}
-	} else if((status[3] >> 12) & 2){
-		hwlib::cout << "Radio Text: ";
-		int index = (status[3] & 0x0003);
-		char first = status[5] >> 8;
-		char second = status[5] & 0x00FF;
-		receivedStationName[index] = first;
-		receivedStationName[index + 1] = second;
-		unsigned int validI = 0;
-		for(unsigned int i = 0; i < 8; i++){
-			if(receivedStationName[i] > 31 && receivedStationName[i] < 127){
-				realStationName[validI] = receivedStationName[i];
-				validI++;
-			}
-		}
-		hwlib::cout << realStationName;
-	} else if((status[3] >> 12) & 0){
-		hwlib::cout << "Basic Tuning Info";
-	} else {
-		hwlib::cout << "Other";
-	}
-	hwlib::cout << hwlib::endl;
-	hwlib::cout << "Traffic Program: " << ((status[3] >> 10) & 1) << hwlib::endl;
-	hwlib::cout << "Program Type: " << ((status[3] & 0x3E0) >> 5) << hwlib::endl;
-	hwlib::cout << hwlib::endl;
-
-	hwlib::cout << "Payload: " << char(status[4] >> 8) << char(status[4] & 0xFF) << ", " << char(status[5] >> 8) << char(status[5] & 0xFF) << hwlib::endl;
-	*/
-}
-}
-
 int RDA5807::rdsErrors(const int block){
 	getStatus(block);
 	if(block == 1){
