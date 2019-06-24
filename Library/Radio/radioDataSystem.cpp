@@ -6,13 +6,33 @@ void radioDataSystem::update(const uint16_t block1, const uint16_t block2, const
 	blockA = block1;
 	blockB = block2;
 	blockC = block3;
-	blockD= block4;
+	blockD = block4;
+	//hwlib::cout << blockA << ", " << blockB << ", " << blockC << ", " << blockD << hwlib::endl;
 }
 
 void radioDataSystem::process(){
 	auto groupType = ((blockB & 0xF000) >> 12);
 	hwlib::cout << "Group Type: " << groupType << hwlib::endl;
 	//auto trafficProgramm = (blockB & 0x0400);
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << ((blockA & 0xF000) >> 12) << hwlib::endl;				//0xFFFF where F is one nibble
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << ((blockA & 0x0F00) >> 8) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << (blockA & 0x00FF) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: ";
+	if((blockB >> 11) & 1){
+		hwlib::cout << "A";
+	} else {
+		hwlib::cout << "B";
+	} 
+	hwlib::cout << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Program: ";
+	if((blockB >> 10) & 1){
+		hwlib::cout << "Yes";
+	} else {
+		hwlib::cout << "No";
+	} 
+	hwlib::cout << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << ((blockB & 0x3E0) >> 5) << hwlib::endl;
+	hwlib::cout << hwlib::endl;
 	switch(groupType){
 		case 0x0B:		//11
 			hwlib::cout << "Radio Text: ";

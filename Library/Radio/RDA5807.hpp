@@ -58,6 +58,7 @@ class RDA5807 : public Radio{
 		bool rdsReady();
 		bool rdsSync();
 		int rdsErrors(const int block);
+		void processRDS();
 		void test();
 };
 

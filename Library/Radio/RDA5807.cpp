@@ -373,6 +373,10 @@ int RDA5807::rdsErrors(const int block){
 	}
 }
 
+void RDA5807::processRDS(){
+	RDS.process();
+}
+
 void RDA5807::test(){
 	getStatus(0);
 	getStatus(1);

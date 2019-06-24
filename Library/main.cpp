@@ -15,6 +15,8 @@ int main( void ){
   hwlib::wait_ms(1000);
   for(;;){
     radio.updateRDS();
+    radio.processRDS();
+    hwlib::wait_ms(200);
   }
 
 }
