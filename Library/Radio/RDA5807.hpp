@@ -8,8 +8,6 @@ class RDA5807 : public Radio{
 	private:
 		uint16_t data[8] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x9881, 0x0000, 0x8000};	//First two bytes contain device specific info; are never send but here for completeness.
 		unsigned int status[6] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
-		uint8_t receivedStatus[12] = {};
-		uint8_t shortData[2] = {};
 		const uint8_t indexAddress;
 		const uint8_t firstReadRegister;
 		void setData() override;

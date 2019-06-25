@@ -10,8 +10,8 @@ int main( void ){
 
   auto radio = RDA5807(i2c_bus);
   radio.begin();
-  hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
-  radio.setFrequency(100.7);
+  hwlib::cout << "Tuning to 98.9FM (NPO-R2): ";
+  radio.setFrequency(98.9);
   hwlib::wait_ms(1000);
   hwlib::cout << "DONE: " << hwlib::boolalpha << (radio.getIntFrequency() == 1007) << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
   for(unsigned int i = 0; i < 10; i++){
@@ -106,22 +106,44 @@ int main( void ){
     hwlib::wait_ms(3000);
   }
 
-  radio.setFrequency(100.1);
+  radio.setFrequency(100.7);
   hwlib::cout << hwlib::endl << "Starting Reading of Radio Data System: ";
-  for(unsigned int i = 0; i < 5; i++){
+  for(unsigned int i = 0; i < 8; i++){
     hwlib::wait_ms(5000);
-    for(unsigned int i = 0; i < 15; i++){
-      radio.radioData.update();
-    }
+    radio.radioData.update();
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Frequency: " << radio.getIntFrequency() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << radio.radioData.stationName() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Radio Text: " << radio.radioData.stationText() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << radio.radioData.getCountryCode() << hwlib::endl;      //0xFFFF where F is one nibble
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << radio.radioData.getProgramArea() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << radio.radioData.getProgramRefrence() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: " << radio.radioData.getMessageGroupType() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << radio.radioData.trafficAnnouncement() << hwlib::endl;
-    hwlib::cout << hwlib::left << hwlib::setw(30) << "Music Playing: : " << radio.radioData.currentMusic() << hwlib::endl << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Music Playing: " << radio.radioData.currentMusic() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Clear Screen Request: " << radio.radioData.clearScreen() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << radio.radioData.getProgramType() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Static Program Type: " << radio.radioData.staticProgramType() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Stereo Broadcast: " << radio.radioData.stereo() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Compressed Broadcast: " << radio.radioData.compressed() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Emergency Warning: " << radio.radioData.emergencyWarning() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Received Time: " << radio.radioData.hours() << ":" << radio.radioData.minutes() << hwlib::endl;
+    hwlib::cout << hwlib::endl << hwlib::endl;
     hwlib::wait_ms(3000);
+    radio.seekChannel(1);
+  }
+
+  for(unsigned int i = 0; i < 5; i++){
+    hwlib::wait_ms(5000);
+    radio.seekChannel(1);
+    hwlib::wait_ms(2000);   //Give time to complete tune process
+    radio.radioData.rawData();
+  }
+
+  radio.setFrequency(107.5);    //No station Supports RDS-A, this one is RDS-A but doesn't send time...
+  for(;;){
+    hwlib::wait_ms(50);
+    radio.radioData.update();
+    hwlib::cout << radio.radioData.hours() << ":" << radio.radioData.minutes() << hwlib::endl;
   }
 
 }

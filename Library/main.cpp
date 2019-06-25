@@ -10,10 +10,9 @@ int main( void ){
 
   auto radio = RDA5807(i2c_bus);
   radio.begin();
-  hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
+  hwlib::cout << "Tuning to 98.9FM (NPO-R2): ";
   radio.setFrequency(98.9);
   hwlib::wait_ms(1000);
-  /*
   hwlib::cout << "DONE: " << hwlib::boolalpha << (radio.getIntFrequency() == 1007) << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
   for(unsigned int i = 0; i < 10; i++){
     hwlib::cout << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
@@ -139,9 +138,8 @@ int main( void ){
     hwlib::wait_ms(2000);   //Give time to complete tune process
     radio.radioData.rawData();
   }
-  */
-  radio.setFrequency(107.5);    //Station with RDS-A for time
 
+  radio.setFrequency(107.5);    //No station Supports RDS-A, this one is RDS-A but doesn't send time...
   for(;;){
     hwlib::wait_ms(50);
     radio.radioData.update();
