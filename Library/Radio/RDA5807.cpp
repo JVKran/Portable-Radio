@@ -4,7 +4,8 @@
 RDA5807::RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, int bandLimit, float channelSpacing):
 	Radio(bus, address, bandLimit),
 	indexAddress(address + 1),		//0x10 for sequential access and 0x11 for indexed access
-	channelSpacing(channelSpacing)
+	channelSpacing(channelSpacing),
+	RDS(radioDataSystem(bus))
 {}
 
 void RDA5807::setData(){
@@ -375,6 +376,14 @@ int RDA5807::rdsErrors(const int block){
 
 void RDA5807::processRDS(){
 	RDS.process();
+}
+
+char* RDA5807::getStationName(const unsigned int dataValidity){
+	return RDS.getStationName(dataValidity);
+}
+
+char* RDA5807::getStationText(){
+	return RDS.getStationText();
 }
 
 void RDA5807::test(){

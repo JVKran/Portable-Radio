@@ -19,8 +19,8 @@ class RDA5807 : public Radio{
 		void getStatus(const uint8_t regNumber);
 		float channelSpacing;
 		void powerUpEnable(const bool enable);
-		radioDataSystem RDS;
 	public:
+		radioDataSystem RDS;
 		RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x10, int bandLimit = 0, float channelSpacing = 0.1);
 		void begin();
 		unsigned int signalStrength() override;
@@ -59,6 +59,8 @@ class RDA5807 : public Radio{
 		bool rdsSync();
 		int rdsErrors(const int block);
 		void processRDS();
+		char* getStationName(const unsigned int dataValidity = 4);
+		char* getStationText();
 		void test();
 };
 

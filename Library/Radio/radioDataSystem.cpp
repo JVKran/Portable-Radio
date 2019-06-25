@@ -1,6 +1,7 @@
 #include "hwlib.hpp"
 #include "radioDataSystem.hpp"
 
+radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus): bus(bus) {}
 
 void radioDataSystem::update(const uint16_t block1, const uint16_t block2, const uint16_t block3, const uint16_t block4){
 	blockA = block1;
@@ -10,7 +11,30 @@ void radioDataSystem::update(const uint16_t block1, const uint16_t block2, const
 	//hwlib::cout << blockA << ", " << blockB << ", " << blockC << ", " << blockD << hwlib::endl;
 }
 
+int radioDataSystem::rdsErrors(const int block){
+	if(block == 1){
+		return (status[1] & 0x000C);
+	} else {
+		return (status[1] & 0x0003);
+	}
+}
+
+void radioDataSystem::getStatus(){
+	bus.write(0x11).write(0x0A);
+	auto transaction = bus.read(0x11);
+	for(unsigned int i = 0; i < 6; i++){
+		status[i] = transaction.read_byte() << 8;
+		status[i] |= transaction.read_byte();
+	}
+	blockA = status[2];
+	blockB = status[3];
+	blockC = status[4];
+	blockD = status[5];
+	hwlib::wait_ms(30);
+}
+
 void radioDataSystem::process(){
+	getStatus();
 	auto groupType = ((blockB & 0xF000) >> 12);
 	hwlib::cout << "Group Type: " << groupType << hwlib::endl;
 	//auto trafficProgramm = (blockB & 0x0400);
@@ -33,6 +57,32 @@ void radioDataSystem::process(){
 	hwlib::cout << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << ((blockB & 0x3E0) >> 5) << hwlib::endl;
 	if((blockB >> 11) & 1){		//Message Version A
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((blockB >> 5) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music (1) or Speech (0): " << ((blockB >> 4) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: ";
+		first = ((blockD & 0xFF00) >> 8);
+		second = (blockD & 0x00FF);
+		//bool decoderIdentification = (blockB >> 3) & 1;
+		charSegment0 = (blockB & 1);
+		charSegment1 = (blockB >> 1) & 1;
+		offset = ((charSegment0 * 1) + (charSegment1 * 2));
+		receivedStationName[offset * 2] = first;
+		receivedStationName[offset * 2 + 1] = second;
+		if(!charSegment1 && !charSegment0){
+			receivedStationName[0] = first;
+			receivedStationName[1] = second;
+		} else if (charSegment0 && !charSegment1){
+			receivedStationName[2] = first;
+			receivedStationName[3] = second;
+		} else if (!charSegment0 && charSegment1){
+			receivedStationName[4] = first;
+			receivedStationName[5] = second;
+		} else {
+			receivedStationName[6] = first;
+			receivedStationName[7] = second;
+		}
+		hwlib::wait_ms(500);
+		hwlib::cout << receivedStationName << hwlib::endl << hwlib::endl;
 		switch(groupType){
 			case 2:		//RDStext
 				hwlib::cout << hwlib::left << hwlib::setw(30) << "Received RDS Text: ";
@@ -67,6 +117,9 @@ void radioDataSystem::process(){
 		//bool decoderIdentification = (blockB >> 3) & 1;
 		charSegment0 = (blockB & 1);
 		charSegment1 = (blockB >> 1) & 1;
+		offset = ((charSegment0 * 1) + (charSegment1 * 2));
+		receivedStationName[offset * 2] = first;
+		receivedStationName[offset * 2 + 1] = second;
 		if(!charSegment1 && !charSegment0){
 			receivedStationName[0] = first;
 			receivedStationName[1] = second;
@@ -186,3 +239,112 @@ void radioDataSystem::process(){
 	*/
 }
 
+int radioDataSystem::getCountryCode(){
+	return ((blockA & 0xF000) >> 12);
+}
+
+char* radioDataSystem::getStationName(const unsigned int dataValidity){
+	for(unsigned int i = 0; i < 8; i++){
+		receivedStationName[i] = ' ';
+		realStationName[i] = ' ';
+	}
+	getStatus();
+	if((blockB >> 11) & 1){			//Version A
+
+	} else {						//Version B
+		for(unsigned int i = 0; i < dataValidity * 15; i++){
+			getStatus();
+			if(rdsErrors(0) + rdsErrors(1) <= 2){
+				first = ((blockD & 0xFF00) >> 8);
+				second = (blockD & 0x00FF);
+				//bool decoderIdentification = (blockB >> 3) & 1;
+				charSegment0 = (blockB & 1);
+				charSegment1 = (blockB >> 1) & 1;
+				if(first > 31 && first < 127 && second > 31 && second < 127 && first != ' ' && second != ' '){
+					offset = ((charSegment0 * 1) + (charSegment1 * 2));
+					receivedStationName[offset * 2] = first;
+					receivedStationName[offset * 2 + 1] = second;
+				} else {
+					hwlib::wait_ms(20);
+				}
+				if(offset < lastOffset){
+					if(receivedStationName == realStationName){
+						cycles++;
+						if(cycles >= dataValidity){			//Station Name has got to be received equal at least three times in a row.
+							cycles = 0;
+							break;
+						}
+						break;
+					} else {
+						for(unsigned int i = 0; i < 8; i++){
+							realStationName[i] = receivedStationName[i];
+						}
+						cycles = 0;
+						hwlib::wait_ms(20);
+					}
+				} else {
+					lastOffset = offset;
+				}
+				hwlib::wait_ms(20);
+			} else {
+				hwlib::wait_ms(20);
+			}
+		}
+	}
+	return receivedStationName;
+}
+
+char* radioDataSystem::getStationText(){
+	getStatus();
+	for(unsigned int i = 0; i < 100; i++){
+		getStatus();
+		if((blockB >> 11) & 1 && rdsErrors(0) + rdsErrors(1) < 1 && rdsReady() && rdsSync()){		//Version A
+			first = ((blockC & 0xFF00) >> 8);
+			second = (blockC & 0x00FF);
+			third = ((blockD & 0xFF00) >> 8);
+			fourth = (blockD & 0x00FF);
+			charSegment0 = (blockB & 1);
+			charSegment1 = (blockB >> 1) & 1;
+			charSegment2 = (blockB >> 2) & 1;
+			charSegment3 = (blockB >> 3) & 1;
+			//bool clearScreenRequest = (blockB >> 4) & 1;
+			offset = 4 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
+			rdsText[offset + 1] = first;
+			rdsText[offset + 2] = second;
+			rdsText[offset + 3] = third;
+			rdsText[offset + 4] = fourth;
+			if(offset < lastOffset){
+				break;
+			} else {
+				lastOffset = offset;
+			}
+			
+		} else if (rdsErrors(0) + rdsErrors(1) < 1 && rdsReady() && rdsSync()){
+			third = ((blockD & 0xFF00) >> 8);
+			fourth = (blockD & 0x00FF);
+			charSegment0 = (blockB & 1);
+			charSegment1 = (blockB >> 1) & 1;
+			charSegment2 = (blockB >> 2) & 1;
+			charSegment3 = (blockB >> 3) & 1;
+			//bool clearScreenRequest = (blockB >> 4) & 1;
+			offset = 2 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
+			rdsText[offset + 1] = third;
+			rdsText[offset + 2] = fourth;
+			if(offset < lastOffset){
+				//One Text Cycle received.
+				break;
+			} else {
+				lastOffset = offset;
+			}
+		}
+	}
+	return rdsText;
+}
+
+bool radioDataSystem::rdsReady(){
+	return (status[0] >> 15) & 1;
+}
+
+bool radioDataSystem::rdsSync(){
+	return (status[0] >> 12) & 1;
+}
