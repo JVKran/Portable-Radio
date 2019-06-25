@@ -14,9 +14,7 @@ int main( void ){
   hwlib::wait_ms(2000);
   for(;;){
     hwlib::wait_ms(50);
-    for(unsigned int i = 0; i < 20; i++){
-      radio.radioData.update();
-    }
+    radio.radioData.update();
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << radio.radioData.stationName() << hwlib::endl;
     hwlib::wait_ms(50);
   }

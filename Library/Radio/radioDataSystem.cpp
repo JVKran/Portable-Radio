@@ -233,34 +233,55 @@ void radioDataSystem::process(){
 	*/
 }
 
-char* radioDataSystem::getStationName(const unsigned int radioDataValidity){
-	/*
+char* radioDataSystem::getStationName(const unsigned int dataValidity){
 	for(unsigned int i = 0; i < 8; i++){
-		//receivedStationName[i] = ' ';
-		realStationName[i] = ' ';
+		radioData.receivedStationName[i] = ' ';
+		radioData.realStationName[i] = ' ';
 	}
-	*/
 	getStatus();
 	if((radioData.blockB >> 11) & 1){			//Version A
 
 	} else {						//Version B
-		radioData.first = ((radioData.blockD & 0xFF00) >> 8);
-		radioData.second = (radioData.blockD & 0x00FF);
-		//bool decoderIdentification = (blockB >> 3) & 1;
-		radioData.charSegment0 = (radioData.blockB & 1);
-		radioData.charSegment1 = (radioData.blockB >> 1) & 1;
-		hwlib::wait_ms(25);
-		getStatus();
-		//Check if the values received are the same.
-		if(((radioData.blockD & 0xFF00) >> 8) == radioData.first && (radioData.blockD & 0x00FF) == radioData.second && (radioData.blockB & 1) == radioData.charSegment0 && ((radioData.blockB >> 1) & 1) == radioData.charSegment1 && radioDataErrors(0) + radioDataErrors(1) == 0){
-			if(radioData.first > 31 && radioData.first < 127 && radioData.second > 31 && radioData.second < 127 && radioData.first != ' ' && radioData.second != ' '){
-				radioData.offset = ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2));
-				radioData.receivedStationName[radioData.offset * 2] = radioData.first;
-				radioData.receivedStationName[radioData.offset * 2 + 1] = radioData.second;
+		for(unsigned int i = 0; i < dataValidity * 15; i++){
+			getStatus();
+			if(radioDataErrors(0) + radioDataErrors(1) <= 2){
+				radioData.first = ((radioData.blockD & 0xFF00) >> 8);
+				radioData.second = (radioData.blockD & 0x00FF);
+				//bool decoderIdentification = (blockB >> 3) & 1;
+				radioData.charSegment0 = (radioData.blockB & 1);
+				radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+				if(radioData.first > 31 && radioData.first < 127 && radioData.second > 31 && radioData.second < 127 && radioData.first != ' ' && radioData.second != ' '){
+					radioData.offset = ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2));
+					radioData.receivedStationName[radioData.offset * 2] = radioData.first;
+					radioData.receivedStationName[radioData.offset * 2 + 1] = radioData.second;
+				} else {
+					hwlib::wait_ms(20);
+				}
+				if(radioData.offset < radioData.lastOffset){
+					if(radioData.receivedStationName == radioData.realStationName){
+						radioData.cycles++;
+						if(radioData.cycles >= dataValidity){			//Station Name has got to be received equal at least three times in a row.
+							radioData.cycles = 0;
+							break;
+						}
+						break;
+					} else {
+						for(unsigned int i = 0; i < 8; i++){
+							radioData.realStationName[i] = radioData.receivedStationName[i];
+						}
+						radioData.cycles = 0;
+						hwlib::wait_ms(20);
+					}
+				} else {
+					radioData.lastOffset = radioData.offset;
+				}
+				hwlib::wait_ms(20);
+			} else {
+				hwlib::wait_ms(20);
 			}
 		}
 	}
-	return radioData.receivedStationName;
+return radioData.receivedStationName;
 }
 
 char* radioDataSystem::getStationText(){
