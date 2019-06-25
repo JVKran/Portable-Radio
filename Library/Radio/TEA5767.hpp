@@ -22,15 +22,15 @@ class TEA5767 : public Radio {
 		void setPLL(const float frequency, unsigned int hilo);
 	public:
 		TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit = 0, uint8_t address = 0x60);
-		void setClockFrequency(const unsigned int frequency = 32);
+		void setClockFrequency(const unsigned int frequency = 32) override;
 		void setBandLimit(const unsigned int limit = 1) override;
 		void setFrequency(const float frequency = -1, const int hiLoForce = -1);
-		float getFrequency();
-		unsigned int getIntFrequency();
+		float getFrequency() override;
+		unsigned int getIntFrequency() override;
 		unsigned int signalStrength() override;
 		void setMute(const bool mute = true) override;
 		void setMute(const char side, const bool mute = true);
-		void standBy(const bool sleep = true);
+		void standBy(const bool sleep = true) override;
 		void searchLoop(const unsigned int direction, const unsigned int qualityThreshold = 3);
 		void singleSearch(const unsigned int direction, const unsigned int qualityThreshold = 3);
 		void altSearch(const unsigned int direction, const unsigned int qualityThreshold = 3, const float distance = 0.4);
@@ -45,10 +45,10 @@ class TEA5767 : public Radio {
 		bool inSearch();
 		bool isMuted(const char side = 'a');
 		bool highSide();
-		bool isStandBy();
+		bool isStandBy() override;
 		unsigned int clockFrequency();
-		bool hasBandLimit();
-		bool stereo();
+		unsigned int hasBandLimit() override;
+		bool isStereo() override;
 };
 
 #endif //__TEA5767_HPP

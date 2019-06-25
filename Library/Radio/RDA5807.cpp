@@ -1,9 +1,10 @@
 #include "hwlib.hpp"
 #include "RDA5807.hpp"
 
-RDA5807::RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, int bandLimit, float channelSpacing):
+RDA5807::RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, const uint8_t address, const uint8_t firstReadRegister, const int bandLimit, const float channelSpacing):
 	Radio(bus, address, bandLimit),
-	indexAddress(address + 1),		//0x10 for sequential access and 0x11 for indexed access
+	indexAddress(address + 1),					//0x10 for sequential access and 0x11 for indexed access
+	firstReadRegister(firstReadRegister),
 	channelSpacing(channelSpacing),
 	radioData(radioDataSystem(bus))
 {}
@@ -262,7 +263,7 @@ float RDA5807::getFrequency(){
 	}
 }
 
-int RDA5807::getIntFrequency(){
+unsigned int RDA5807::getIntFrequency(){
 	return (getFrequency() * 10);
 }
 
@@ -289,6 +290,10 @@ void RDA5807::setBandLimit(const unsigned int limit){
 	setData(3);
 }
 
+unsigned int RDA5807::hasBandLimit(){
+	return (data[3] & 0x000C) >> 2;
+}
+
 void RDA5807::setVolume(const uint8_t volume){
 	data[5] &= ~0x000F;
 	data[5] |= (volume & 0x000F);
@@ -304,8 +309,8 @@ void RDA5807::setTune(const bool tune){
 	setData(3);
 }
 
-void RDA5807::standBy(const bool standby){
-	if(standby){
+void RDA5807::standBy(const bool sleep){
+	if(sleep){
 		data[2] &= ~1UL;
 	} else {
 		data[2] |= 1UL;

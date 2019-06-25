@@ -15,6 +15,13 @@ class Radio{
 		virtual void setBandLimit(const unsigned int limit = 0) = 0;
 		virtual void setStereo(const bool stereo = true) = 0;
 		virtual bool stereoReception() = 0;
+		virtual bool isStereo() = 0;
+		virtual float getFrequency() = 0;
+		virtual unsigned int getIntFrequency() = 0;
+		virtual void standBy(const bool sleep = true) = 0;
+		virtual bool isStandBy() = 0;
+		virtual void setClockFrequency(const unsigned int frequency = 32) = 0;
+		virtual unsigned int hasBandLimit() = 0;
 };
 
 #endif //__RADIO_HPP

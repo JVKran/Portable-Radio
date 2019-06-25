@@ -682,7 +682,7 @@ unsigned int TEA5767::clockFrequency(){
 /// Get Band Limit
 /// \details
 /// This function returns true if the TEA5767's FM-range is limited.
-bool TEA5767::hasBandLimit(){
+unsigned int TEA5767::hasBandLimit(){
 	return(data[0] >> 6) & 1;
 }
 
@@ -692,6 +692,6 @@ bool TEA5767::hasBandLimit(){
 /// This function returns true if the TEA5767's stereo bit is set. This does not
 /// mean it is also receiving stereo audio. This can be determined with function
 /// stereoReception().
-bool TEA5767::stereo(){
+bool TEA5767::isStereo(){
 	return (data[2] >> 3) & 0;		//Yes, 0 is stereo
 }

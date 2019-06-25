@@ -76,11 +76,16 @@ class radioDataSystem{
 		int getProgramRefrence();
 		char getMessageGroupType();
 		int getProgramType();
+		bool stereo();
+		bool compressed();
+		bool emergencyWarning();
+		bool staticProgramType();
 		bool currentMusic();
 		int hours();
 		int minutes();
 		void update();
 		void reset();
+		programItemNumber getProgramItem();
 };
 
 #endif //__RADIO_DATA_SYSTEM_HPP
