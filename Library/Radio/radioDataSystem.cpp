@@ -1,21 +1,21 @@
 #include "hwlib.hpp"
 #include "radioDataSystem.hpp"
 
-radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus): bus(bus) {}
+radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus): bus(bus), data(radioData()) {}
 
 void radioDataSystem::update(const uint16_t block1, const uint16_t block2, const uint16_t block3, const uint16_t block4){
-	blockA = block1;
-	blockB = block2;
-	blockC = block3;
-	blockD = block4;
+	data.blockA = block1;
+	data.blockB = block2;
+	data.blockC = block3;
+	data.blockD = block4;
 	//hwlib::cout << blockA << ", " << blockB << ", " << blockC << ", " << blockD << hwlib::endl;
 }
 
-int radioDataSystem::rdsErrors(const int block){
+int radioDataSystem::radioDataErrors(const int block){
 	if(block == 1){
-		return (status[1] & 0x000C);
+		return (data.status[1] & 0x000C);
 	} else {
-		return (status[1] & 0x0003);
+		return (data.status[1] & 0x0003);
 	}
 }
 
@@ -23,132 +23,132 @@ void radioDataSystem::getStatus(){
 	bus.write(0x11).write(0x0A);
 	auto transaction = bus.read(0x11);
 	for(unsigned int i = 0; i < 6; i++){
-		status[i] = transaction.read_byte() << 8;
-		status[i] |= transaction.read_byte();
+		data.status[i] = transaction.read_byte() << 8;
+		data.status[i] |= transaction.read_byte();
 	}
-	blockA = status[2];
-	blockB = status[3];
-	blockC = status[4];
-	blockD = status[5];
-	hwlib::wait_ms(30);
+	data.blockA = data.status[2];
+	data.blockB = data.status[3];
+	data.blockC = data.status[4];
+	data.blockD = data.status[5];
+	hwlib::wait_ms(15);
 }
 
 void radioDataSystem::process(){
 	getStatus();
-	auto groupType = ((blockB & 0xF000) >> 12);
+	auto groupType = ((data.blockB & 0xF000) >> 12);
 	hwlib::cout << "Group Type: " << groupType << hwlib::endl;
 	//auto trafficProgramm = (blockB & 0x0400);
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << ((blockA & 0xF000) >> 12) << hwlib::endl;			//0xFFFF where F is one nibble
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << ((blockA & 0x0F00) >> 8) << hwlib::endl;
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << (blockA & 0x00FF) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << ((data.blockA & 0xF000) >> 12) << hwlib::endl;			//0xFFFF where F is one nibble
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << ((data.blockA & 0x0F00) >> 8) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << (data.blockA & 0x00FF) << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: ";
-	if((blockB >> 11) & 1){
+	if((data.blockB >> 11) & 1){
 		hwlib::cout << "A";
 	} else {
 		hwlib::cout << "B";
 	} 
 	hwlib::cout << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Program: ";
-	if((blockB >> 10) & 1){
+	if((data.blockB >> 10) & 1){
 		hwlib::cout << "Yes";
 	} else {
 		hwlib::cout << "No";
 	} 
 	hwlib::cout << hwlib::endl;
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << ((blockB & 0x3E0) >> 5) << hwlib::endl;
-	if((blockB >> 11) & 1){		//Message Version A
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((blockB >> 5) & 1) << hwlib::endl;
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music (1) or Speech (0): " << ((blockB >> 4) & 1) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << ((data.blockB & 0x3E0) >> 5) << hwlib::endl;
+	if((data.blockB >> 11) & 1){		//Message Version A
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((data.blockB >> 5) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music (1) or Speech (0): " << ((data.blockB >> 4) & 1) << hwlib::endl;
 		hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: ";
-		first = ((blockD & 0xFF00) >> 8);
-		second = (blockD & 0x00FF);
+		data.first = ((data.blockD & 0xFF00) >> 8);
+		data.second = (data.blockD & 0x00FF);
 		//bool decoderIdentification = (blockB >> 3) & 1;
-		charSegment0 = (blockB & 1);
-		charSegment1 = (blockB >> 1) & 1;
-		offset = ((charSegment0 * 1) + (charSegment1 * 2));
-		receivedStationName[offset * 2] = first;
-		receivedStationName[offset * 2 + 1] = second;
-		if(!charSegment1 && !charSegment0){
-			receivedStationName[0] = first;
-			receivedStationName[1] = second;
-		} else if (charSegment0 && !charSegment1){
-			receivedStationName[2] = first;
-			receivedStationName[3] = second;
-		} else if (!charSegment0 && charSegment1){
-			receivedStationName[4] = first;
-			receivedStationName[5] = second;
+		data.charSegment0 = (data.blockB & 1);
+		data.charSegment1 = (data.blockB >> 1) & 1;
+		data.offset = ((data.charSegment0 * 1) + (data.charSegment1 * 2));
+		data.receivedStationName[data.offset * 2] = data.first;
+		data.receivedStationName[data.offset * 2 + 1] = data.second;
+		if(!data.charSegment1 && !data.charSegment0){
+			data.receivedStationName[0] = data.first;
+			data.receivedStationName[1] = data.second;
+		} else if (data.charSegment0 && !data.charSegment1){
+			data.receivedStationName[2] = data.first;
+			data.receivedStationName[3] = data.second;
+		} else if (!data.charSegment0 && data.charSegment1){
+			data.receivedStationName[4] = data.first;
+			data.receivedStationName[5] = data.second;
 		} else {
-			receivedStationName[6] = first;
-			receivedStationName[7] = second;
+			data.receivedStationName[6] = data.first;
+			data.receivedStationName[7] = data.second;
 		}
 		hwlib::wait_ms(500);
-		hwlib::cout << receivedStationName << hwlib::endl << hwlib::endl;
+		hwlib::cout << data.receivedStationName << hwlib::endl << hwlib::endl;
 		switch(groupType){
 			case 2:		//RDStext
 				hwlib::cout << hwlib::left << hwlib::setw(30) << "Received RDS Text: ";
-				first = ((blockC & 0xFF00) >> 8);
-				second = (blockC & 0x00FF);
-				third = ((blockD & 0xFF00) >> 8);
-				fourth = (blockD & 0x00FF);
-				charSegment0 = (blockB & 1);
-				charSegment1 = (blockB >> 1) & 1;
-				charSegment2 = (blockB >> 2) & 1;
-				charSegment3 = (blockB >> 3) & 1;
+				data.first = ((data.blockC & 0xFF00) >> 8);
+				data.second = (data.blockC & 0x00FF);
+				data.third = ((data.blockD & 0xFF00) >> 8);
+				data.fourth = (data.blockD & 0x00FF);
+				data.charSegment0 = (data.blockB & 1);
+				data.charSegment1 = (data.blockB >> 1) & 1;
+				data.charSegment2 = (data.blockB >> 2) & 1;
+				data.charSegment3 = (data.blockB >> 3) & 1;
 				//bool clearScreenRequest = (blockB >> 4) & 1;
-				offset = 4 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
-				rdsText[offset + 1] = first;
-				rdsText[offset + 2] = second;
-				rdsText[offset + 3] = third;
-				rdsText[offset + 4] = fourth;
-				hwlib::cout << rdsText << hwlib::endl;
+				data.offset = 4 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
+				data.rdsText[data.offset + 1] = data.first;
+				data.rdsText[data.offset + 2] = data.second;
+				data.rdsText[data.offset + 3] = data.third;
+				data.rdsText[data.offset + 4] = data.fourth;
+				hwlib::cout << data.rdsText << hwlib::endl;
 				break;
 			case 4:
-				minutes = (blockD & 0xFC0) >> 6;
-				hours = ((blockD & 0xF000) >> 12) + ((blockC & 1) << 4);
-				hwlib::cout << hours << ":" << minutes << hwlib::endl;
+				data.minutes = (data.blockD & 0xFC0) >> 6;
+				data.hours = ((data.blockD & 0xF000) >> 12) + ((data.blockC & 1) << 4);
+				hwlib::cout << data.hours << ":" << data.minutes << hwlib::endl;
 				break;
 		}
 	} else {		//Message Version B
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((blockB >> 5) & 1) << hwlib::endl;
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music or Speech: " << ((blockB >> 4) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((data.blockB >> 5) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music or Speech: " << ((data.blockB >> 4) & 1) << hwlib::endl;
 		hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: ";
-		first = ((blockD & 0xFF00) >> 8);
-		second = (blockD & 0x00FF);
+		data.first = ((data.blockD & 0xFF00) >> 8);
+		data.second = (data.blockD & 0x00FF);
 		//bool decoderIdentification = (blockB >> 3) & 1;
-		charSegment0 = (blockB & 1);
-		charSegment1 = (blockB >> 1) & 1;
-		offset = ((charSegment0 * 1) + (charSegment1 * 2));
-		receivedStationName[offset * 2] = first;
-		receivedStationName[offset * 2 + 1] = second;
-		if(!charSegment1 && !charSegment0){
-			receivedStationName[0] = first;
-			receivedStationName[1] = second;
-		} else if (charSegment0 && !charSegment1){
-			receivedStationName[2] = first;
-			receivedStationName[3] = second;
-		} else if (!charSegment0 && charSegment1){
-			receivedStationName[4] = first;
-			receivedStationName[5] = second;
+		data.charSegment0 = (data.blockB & 1);
+		data.charSegment1 = (data.blockB >> 1) & 1;
+		data.offset = ((data.charSegment0 * 1) + (data.charSegment1 * 2));
+		data.receivedStationName[data.offset * 2] = data.first;
+		data.receivedStationName[data.offset * 2 + 1] = data.second;
+		if(!data.charSegment1 && !data.charSegment0){
+			data.receivedStationName[0] = data.first;
+			data.receivedStationName[1] = data.second;
+		} else if (data.charSegment0 && !data.charSegment1){
+			data.receivedStationName[2] = data.first;
+			data.receivedStationName[3] = data.second;
+		} else if (!data.charSegment0 && data.charSegment1){
+			data.receivedStationName[4] = data.first;
+			data.receivedStationName[5] = data.second;
 		} else {
-			receivedStationName[6] = first;
-			receivedStationName[7] = second;
+			data.receivedStationName[6] = data.first;
+			data.receivedStationName[7] = data.second;
 		}
 		hwlib::wait_ms(500);
-		hwlib::cout << receivedStationName << hwlib::endl << hwlib::endl;
+		hwlib::cout << data.receivedStationName << hwlib::endl << hwlib::endl;
 		switch(groupType){
 			case 2:		//RDStext
 				hwlib::cout << hwlib::left << hwlib::setw(30) << "Received RDS Text: ";
-				third = ((blockD & 0xFF00) >> 8);
-				fourth = (blockD & 0x00FF);
-				charSegment0 = (blockB & 1);
-				charSegment1 = (blockB >> 1) & 1;
-				charSegment2 = (blockB >> 2) & 1;
-				charSegment3 = (blockB >> 3) & 1;
+				data.third = ((data.blockD & 0xFF00) >> 8);
+				data.fourth = (data.blockD & 0x00FF);
+				data.charSegment0 = (data.blockB & 1);
+				data.charSegment1 = (data.blockB >> 1) & 1;
+				data.charSegment2 = (data.blockB >> 2) & 1;
+				data.charSegment3 = (data.blockB >> 3) & 1;
 				//bool clearScreenRequest = (blockB >> 4) & 1;
-				offset = 2 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
-				rdsText[offset + 1] = third;
-				rdsText[offset + 2] = fourth;
-				hwlib::cout << rdsText << hwlib::endl;
+				data.offset = 2 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
+				data.rdsText[data.offset + 1] = data.third;
+				data.rdsText[data.offset + 2] = data.fourth;
+				hwlib::cout << data.rdsText << hwlib::endl;
 				break;
 		}
 	}
@@ -196,7 +196,7 @@ void radioDataSystem::process(){
 	hwlib::cout << "Message Group Type B? (1 y, 0 n): " << ((blockB >> 11) & 1) << hwlib::endl;
 	hwlib::cout << "Group Type: ";
 	if((blockB >> 12) & 4){
-		if(rdsErrors(1) > 0){
+		if(radioDataErrors(1) > 0){
 			hwlib::cout << "Time: "; 
 			int offset = blockD & 0x3F;
 			int minutes = ((blockD >> 6) & 0x3F);
@@ -240,111 +240,110 @@ void radioDataSystem::process(){
 }
 
 int radioDataSystem::getCountryCode(){
-	return ((blockA & 0xF000) >> 12);
+	return ((data.blockA & 0xF000) >> 12);
+}
+
+void radioDataSystem::reset(){
+	for(auto & element : data.receivedStationName){
+		element = ' ';
+	}
 }
 
 char* radioDataSystem::getStationName(const unsigned int dataValidity){
+	/*
 	for(unsigned int i = 0; i < 8; i++){
-		receivedStationName[i] = ' ';
+		//receivedStationName[i] = ' ';
 		realStationName[i] = ' ';
 	}
+	*/
 	getStatus();
-	if((blockB >> 11) & 1){			//Version A
+	if((data.blockB >> 11) & 1){			//Version A
 
 	} else {						//Version B
-		for(unsigned int i = 0; i < dataValidity * 15; i++){
-			getStatus();
-			if(rdsErrors(0) + rdsErrors(1) <= 2){
-				first = ((blockD & 0xFF00) >> 8);
-				second = (blockD & 0x00FF);
-				//bool decoderIdentification = (blockB >> 3) & 1;
-				charSegment0 = (blockB & 1);
-				charSegment1 = (blockB >> 1) & 1;
-				if(first > 31 && first < 127 && second > 31 && second < 127 && first != ' ' && second != ' '){
-					offset = ((charSegment0 * 1) + (charSegment1 * 2));
-					receivedStationName[offset * 2] = first;
-					receivedStationName[offset * 2 + 1] = second;
-				} else {
-					hwlib::wait_ms(20);
-				}
-				if(offset < lastOffset){
-					if(receivedStationName == realStationName){
-						cycles++;
-						if(cycles >= dataValidity){			//Station Name has got to be received equal at least three times in a row.
-							cycles = 0;
-							break;
-						}
-						break;
-					} else {
-						for(unsigned int i = 0; i < 8; i++){
-							realStationName[i] = receivedStationName[i];
-						}
-						cycles = 0;
-						hwlib::wait_ms(20);
-					}
-				} else {
-					lastOffset = offset;
-				}
-				hwlib::wait_ms(20);
-			} else {
-				hwlib::wait_ms(20);
+		data.first = ((data.blockD & 0xFF00) >> 8);
+		data.second = (data.blockD & 0x00FF);
+		//bool decoderIdentification = (blockB >> 3) & 1;
+		data.charSegment0 = (data.blockB & 1);
+		data.charSegment1 = (data.blockB >> 1) & 1;
+		hwlib::wait_ms(10);
+		getStatus();
+		//Check if the values received are the same.
+		if(((data.blockD & 0xFF00) >> 8) == data.first && (data.blockD & 0x00FF) == data.second && (data.blockB & 1) == data.charSegment0 && ((data.blockB >> 1) & 1) == data.charSegment1 && radioDataErrors(0) + radioDataErrors(1) == 0){
+			if(data.first > 31 && data.first < 127 && data.second > 31 && data.second < 127 && data.first != ' ' && data.second != ' '){
+				data.offset = ((data.charSegment0 * 1) + (data.charSegment1 * 2));
+				data.receivedStationName[data.offset * 2] = data.first;
+				data.receivedStationName[data.offset * 2 + 1] = data.second;
 			}
 		}
 	}
-	return receivedStationName;
+	return data.receivedStationName;
 }
 
 char* radioDataSystem::getStationText(){
 	getStatus();
 	for(unsigned int i = 0; i < 100; i++){
 		getStatus();
-		if((blockB >> 11) & 1 && rdsErrors(0) + rdsErrors(1) < 1 && rdsReady() && rdsSync()){		//Version A
-			first = ((blockC & 0xFF00) >> 8);
-			second = (blockC & 0x00FF);
-			third = ((blockD & 0xFF00) >> 8);
-			fourth = (blockD & 0x00FF);
-			charSegment0 = (blockB & 1);
-			charSegment1 = (blockB >> 1) & 1;
-			charSegment2 = (blockB >> 2) & 1;
-			charSegment3 = (blockB >> 3) & 1;
+		if((data.blockB >> 11) & 1 && radioDataErrors(0) + radioDataErrors(1) < 1 && radioDataReady() && radioDataSynced()){		//Version A
+			data.first = ((data.blockC & 0xFF00) >> 8);
+			data.second = (data.blockC & 0x00FF);
+			data.third = ((data.blockD & 0xFF00) >> 8);
+			data.fourth = (data.blockD & 0x00FF);
+			data.charSegment0 = (data.blockB & 1);
+			data.charSegment1 = (data.blockB >> 1) & 1;
+			data.charSegment2 = (data.blockB >> 2) & 1;
+			data.charSegment3 = (data.blockB >> 3) & 1;
 			//bool clearScreenRequest = (blockB >> 4) & 1;
-			offset = 4 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
-			rdsText[offset + 1] = first;
-			rdsText[offset + 2] = second;
-			rdsText[offset + 3] = third;
-			rdsText[offset + 4] = fourth;
-			if(offset < lastOffset){
+			data.offset = 4 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
+			data.rdsText[data.offset + 1] = data.first;
+			data.rdsText[data.offset + 2] = data.second;
+			data.rdsText[data.offset + 3] = data.third;
+			data.rdsText[data.offset + 4] = data.fourth;
+			if(data.offset < data.lastOffset){
 				break;
 			} else {
-				lastOffset = offset;
+				data.lastOffset = data.offset;
 			}
 			
-		} else if (rdsErrors(0) + rdsErrors(1) < 1 && rdsReady() && rdsSync()){
-			third = ((blockD & 0xFF00) >> 8);
-			fourth = (blockD & 0x00FF);
-			charSegment0 = (blockB & 1);
-			charSegment1 = (blockB >> 1) & 1;
-			charSegment2 = (blockB >> 2) & 1;
-			charSegment3 = (blockB >> 3) & 1;
+		} else if (radioDataErrors(0) + radioDataErrors(1) < 1 && radioDataReady() && radioDataSynced()){
+			data.third = ((data.blockD & 0xFF00) >> 8);
+			data.fourth = (data.blockD & 0x00FF);
+			data.charSegment0 = (data.blockB & 1);
+			data.charSegment1 = (data.blockB >> 1) & 1;
+			data.charSegment2 = (data.blockB >> 2) & 1;
+			data.charSegment3 = (data.blockB >> 3) & 1;
 			//bool clearScreenRequest = (blockB >> 4) & 1;
-			offset = 2 * ((charSegment0 * 1) + (charSegment1 * 2) + (charSegment2 * 4) + (charSegment3 * 8));
-			rdsText[offset + 1] = third;
-			rdsText[offset + 2] = fourth;
-			if(offset < lastOffset){
+			data.offset = 2 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
+			data.rdsText[data.offset + 1] = data.third;
+			data.rdsText[data.offset + 2] = data.fourth;
+			if(data.offset < data.lastOffset){
 				//One Text Cycle received.
 				break;
 			} else {
-				lastOffset = offset;
+				data.lastOffset = data.offset;
 			}
 		}
 	}
-	return rdsText;
+	return data.rdsText;
 }
 
-bool radioDataSystem::rdsReady(){
-	return (status[0] >> 15) & 1;
+bool radioDataSystem::radioDataReady(){
+	//getStatus();
+	return (data.status[0] >> 15) & 1;
 }
 
-bool radioDataSystem::rdsSync(){
-	return (status[0] >> 12) & 1;
+bool radioDataSystem::radioDataSynced(){
+	//getStatus();
+	return (data.status[0] >> 12) & 1;
+}
+char* radioDataSystem::stationName(){
+	return data.receivedStationName;
+}
+
+char* radioDataSystem::stationText(){
+	return data.rdsText;
+}
+
+void radioDataSystem::update(){
+	getStatus();
+	getStationName();
 }

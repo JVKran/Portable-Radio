@@ -66,7 +66,7 @@ void RDA5807::begin(){
 	normalAudio(true);
 	setTune(true);
 	hwlib::wait_ms(50);
-	enableRDS(true);
+	enableRadioData(true);
 	powerUpEnable(true);
 }
 
@@ -217,6 +217,7 @@ void RDA5807::setSpacing(const float spacing){
 }
 
 bool RDA5807::setFrequency(const float frequency, const bool autoTune){
+	RDS.reset();
 	if(autoTune){
 		data[3] |= (1UL << 4);
 	} else {
@@ -318,6 +319,7 @@ bool RDA5807::isStandBy(){
 
 //Done
 void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue){
+	RDS.reset();
 	data[2] |= (1UL << 8);		//Set seek mode
 	if(direction > 0){
 		data[2] |= (1UL << 9);	//Seek up
@@ -342,12 +344,7 @@ bool RDA5807::seekCompleted(){
 	return (status[0] >> 14) & 1;
 }
 
-void RDA5807::updateRDS(){
-	getStatus();
-	RDS.update(status[2], status[3], status[4], status[5]);
-}
-
-void RDA5807::enableRDS(const bool enable){
+void RDA5807::enableRadioData(const bool enable){
 	if(enable){
 		data[2] |= (1UL << 3);
 	} else {
@@ -356,16 +353,16 @@ void RDA5807::enableRDS(const bool enable){
 	setData(2);
 }
 
-bool RDA5807::rdsReady(){
+bool RDA5807::radioDataReady(){
 	getStatus(0);
 	return (status[0] >> 15) & 1;
 }
 
-bool RDA5807::rdsSync(){
+bool RDA5807::radioDataSynced(){
 	getStatus(0);
 	return (status[0] >> 12) & 1;
 }
-int RDA5807::rdsErrors(const int block){
+int RDA5807::radioDataErrors(const int block){
 	getStatus(block);
 	if(block == 1){
 		return (status[1] & 0x000C);
@@ -374,16 +371,24 @@ int RDA5807::rdsErrors(const int block){
 	}
 }
 
-void RDA5807::processRDS(){
+void RDA5807::printRawRadioData(){
 	RDS.process();
 }
 
-char* RDA5807::getStationName(const unsigned int dataValidity){
-	return RDS.getStationName(dataValidity);
+char* RDA5807::stationName(){
+	return RDS.stationName();
 }
 
 char* RDA5807::getStationText(){
 	return RDS.getStationText();
+}
+
+char* RDA5807::stationText(){
+	return RDS.stationText();
+}
+
+void RDA5807::updateRadioData(){
+	RDS.update();
 }
 
 void RDA5807::test(){

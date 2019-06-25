@@ -1,48 +1,56 @@
 #ifndef __RADIO_DATA_SYSTEM_HPP
 #define __RADIO_DATA_SYSTEM_HPP
 
+struct radioData{
+	char first;
+	char second;
+	char third;
+	char fourth;
+	int minutes;
+	int hours;
+	bool charSegment0;
+	bool charSegment1;
+	bool charSegment2;
+	bool charSegment3;
+	uint16_t blockA;
+	uint16_t blockB;
+	uint16_t blockC;
+	uint16_t blockD;
+	uint16_t blockE;
+	int groupType = 0;
+	int trafficProgramm = 0;
+	int offset = 0;
+	int lastOffset = 0;
+	int index = 0;
+	int lastIndex = 0;
+	unsigned int validI = 0;
+	unsigned int newText;
+	char receivedStationName[10] = {"         "};
+	char realStationName[10] = {"         "};
+	char rdsText[64] = {"                                                               "};
+	uint16_t status[6] = {0x0000, 0x0000};
+	unsigned int cycles;
+};
+
 class radioDataSystem{
 	private:
 		hwlib::i2c_bus & bus;
-		char first;
-		char second;
-		char third;
-		char fourth;
-		int minutes;
-		int hours;
-		bool charSegment0;
-		bool charSegment1;
-		bool charSegment2;
-		bool charSegment3;
-		uint16_t blockA;
-		uint16_t blockB;
-		uint16_t blockC;
-		uint16_t blockD;
-		uint16_t blockE;
-		int groupType = 0;
-		int trafficProgramm = 0;
-		int offset = 0;
-		int lastOffset = 0;
-		int index = 0;
-		int lastIndex = 0;
-		unsigned int validI = 0;
-		unsigned int newText;
-		char receivedStationName[10] = {"         "};
-		char realStationName[10] = {"         "};
-		char rdsText[64] = {"                                                               "};
-		uint16_t status[6] = {0x0000, 0x0000};
-		unsigned int cycles;
 		void getStatus();
-		int rdsErrors(const int block);
-		bool rdsReady();
-		bool rdsSync();
+		int radioDataErrors(const int block);
+		bool radioDataReady();
+		bool radioDataSynced();
+		radioData data;
 	public:
 		radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus);
 		void process();
 		void update(const uint16_t block1, const uint16_t block2, const uint16_t block3, const uint16_t block4);
 		int getCountryCode();
 		char* getStationName(const unsigned int dataValidity = 4);
+		char* stationName();
 		char* getStationText();
+		char* stationText();
+		void update();
+		void reset();
 };
 
 #endif //__RADIO_DATA_SYSTEM_HPP
