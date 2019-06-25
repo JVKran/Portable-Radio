@@ -1,7 +1,7 @@
 #ifndef __RADIO_DATA_SYSTEM_HPP
 #define __RADIO_DATA_SYSTEM_HPP
 
-struct radioData{
+struct radioDataSystemData{
 	char first;
 	char second;
 	char third;
@@ -12,13 +12,14 @@ struct radioData{
 	bool charSegment1;
 	bool charSegment2;
 	bool charSegment3;
+	bool clearScreenRequest;
 	uint16_t blockA;
 	uint16_t blockB;
 	uint16_t blockC;
 	uint16_t blockD;
 	uint16_t blockE;
 	int groupType = 0;
-	int trafficProgramm = 0;
+	bool trafficProgram = 0;
 	int offset = 0;
 	int lastOffset = 0;
 	int index = 0;
@@ -39,16 +40,26 @@ class radioDataSystem{
 		int radioDataErrors(const int block);
 		bool radioDataReady();
 		bool radioDataSynced();
-		radioData data;
+		radioDataSystemData radioData;
 	public:
 		radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus);
 		void process();
-		void update(const uint16_t block1, const uint16_t block2, const uint16_t block3, const uint16_t block4);
+		//void update(const uint16_t block1, const uint16_t block2, const uint16_t block3, const uint16_t block4);
 		int getCountryCode();
 		char* getStationName(const unsigned int dataValidity = 4);
 		char* stationName();
 		char* getStationText();
 		char* stationText();
+		bool clearScreen();
+		bool trafficProgram();			//This channel features traffic announcements
+		bool trafficAnnouncement();		//This channel currently talks about traffic
+		int getProgramArea();
+		int getProgramRefrence();
+		char getMessageGroupType();
+		int getProgramType();
+		bool currentMusic();
+		int hours();
+		int minutes();
 		void update();
 		void reset();
 };

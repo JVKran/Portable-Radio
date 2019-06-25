@@ -5,7 +5,7 @@ RDA5807::RDA5807(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, int b
 	Radio(bus, address, bandLimit),
 	indexAddress(address + 1),		//0x10 for sequential access and 0x11 for indexed access
 	channelSpacing(channelSpacing),
-	RDS(radioDataSystem(bus))
+	radioData(radioDataSystem(bus))
 {}
 
 void RDA5807::setData(){
@@ -217,7 +217,7 @@ void RDA5807::setSpacing(const float spacing){
 }
 
 bool RDA5807::setFrequency(const float frequency, const bool autoTune){
-	RDS.reset();
+	radioData.reset();
 	if(autoTune){
 		data[3] |= (1UL << 4);
 	} else {
@@ -319,7 +319,7 @@ bool RDA5807::isStandBy(){
 
 //Done
 void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue){
-	RDS.reset();
+	radioData.reset();
 	data[2] |= (1UL << 8);		//Set seek mode
 	if(direction > 0){
 		data[2] |= (1UL << 9);	//Seek up
@@ -372,23 +372,23 @@ int RDA5807::radioDataErrors(const int block){
 }
 
 void RDA5807::printRawRadioData(){
-	RDS.process();
+	radioData.process();
 }
 
 char* RDA5807::stationName(){
-	return RDS.stationName();
+	return radioData.stationName();
 }
 
 char* RDA5807::getStationText(){
-	return RDS.getStationText();
+	return radioData.getStationText();
 }
 
 char* RDA5807::stationText(){
-	return RDS.stationText();
+	return radioData.stationText();
 }
 
 void RDA5807::updateRadioData(){
-	RDS.update();
+	radioData.update();
 }
 
 void RDA5807::test(){

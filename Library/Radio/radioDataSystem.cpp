@@ -1,154 +1,148 @@
 #include "hwlib.hpp"
 #include "radioDataSystem.hpp"
 
-radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus): bus(bus), data(radioData()) {}
+radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus): bus(bus), radioData(radioDataSystemData()) {}
 
+/*
 void radioDataSystem::update(const uint16_t block1, const uint16_t block2, const uint16_t block3, const uint16_t block4){
-	data.blockA = block1;
-	data.blockB = block2;
-	data.blockC = block3;
-	data.blockD = block4;
+	radioData.blockA = block1;
+	radioData.blockB = block2;
+	radioData.blockC = block3;
+	radioData.blockD = block4;
 	//hwlib::cout << blockA << ", " << blockB << ", " << blockC << ", " << blockD << hwlib::endl;
 }
-
-int radioDataSystem::radioDataErrors(const int block){
-	if(block == 1){
-		return (data.status[1] & 0x000C);
-	} else {
-		return (data.status[1] & 0x0003);
-	}
-}
+*/
 
 void radioDataSystem::getStatus(){
 	bus.write(0x11).write(0x0A);
 	auto transaction = bus.read(0x11);
 	for(unsigned int i = 0; i < 6; i++){
-		data.status[i] = transaction.read_byte() << 8;
-		data.status[i] |= transaction.read_byte();
+		radioData.status[i] = transaction.read_byte() << 8;
+		radioData.status[i] |= transaction.read_byte();
 	}
-	data.blockA = data.status[2];
-	data.blockB = data.status[3];
-	data.blockC = data.status[4];
-	data.blockD = data.status[5];
+	radioData.blockA = radioData.status[2];
+	radioData.blockB = radioData.status[3];
+	radioData.blockC = radioData.status[4];
+	radioData.blockD = radioData.status[5];
 	hwlib::wait_ms(15);
 }
 
 void radioDataSystem::process(){
 	getStatus();
-	auto groupType = ((data.blockB & 0xF000) >> 12);
+	auto groupType = ((radioData.blockB & 0xF000) >> 12);
 	hwlib::cout << "Group Type: " << groupType << hwlib::endl;
 	//auto trafficProgramm = (blockB & 0x0400);
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << ((data.blockA & 0xF000) >> 12) << hwlib::endl;			//0xFFFF where F is one nibble
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << ((data.blockA & 0x0F00) >> 8) << hwlib::endl;
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << (data.blockA & 0x00FF) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << ((radioData.blockA & 0xF000) >> 12) << hwlib::endl;			//0xFFFF where F is one nibble
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << ((radioData.blockA & 0x0F00) >> 8) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << (radioData.blockA & 0x00FF) << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: ";
-	if((data.blockB >> 11) & 1){
+	if((radioData.blockB >> 11) & 1){
 		hwlib::cout << "A";
 	} else {
 		hwlib::cout << "B";
 	} 
 	hwlib::cout << hwlib::endl;
 	hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Program: ";
-	if((data.blockB >> 10) & 1){
+	if((radioData.blockB >> 10) & 1){
 		hwlib::cout << "Yes";
 	} else {
 		hwlib::cout << "No";
 	} 
 	hwlib::cout << hwlib::endl;
-	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << ((data.blockB & 0x3E0) >> 5) << hwlib::endl;
-	if((data.blockB >> 11) & 1){		//Message Version A
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((data.blockB >> 5) & 1) << hwlib::endl;
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music (1) or Speech (0): " << ((data.blockB >> 4) & 1) << hwlib::endl;
+	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << ((radioData.blockB & 0x3E0) >> 5) << hwlib::endl;
+	if((radioData.blockB >> 11) & 1){		//Message Version A
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((radioData.blockB >> 5) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music (1) or Speech (0): " << ((radioData.blockB >> 4) & 1) << hwlib::endl;
 		hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: ";
-		data.first = ((data.blockD & 0xFF00) >> 8);
-		data.second = (data.blockD & 0x00FF);
+		radioData.first = ((radioData.blockD & 0xFF00) >> 8);
+		radioData.second = (radioData.blockD & 0x00FF);
 		//bool decoderIdentification = (blockB >> 3) & 1;
-		data.charSegment0 = (data.blockB & 1);
-		data.charSegment1 = (data.blockB >> 1) & 1;
-		data.offset = ((data.charSegment0 * 1) + (data.charSegment1 * 2));
-		data.receivedStationName[data.offset * 2] = data.first;
-		data.receivedStationName[data.offset * 2 + 1] = data.second;
-		if(!data.charSegment1 && !data.charSegment0){
-			data.receivedStationName[0] = data.first;
-			data.receivedStationName[1] = data.second;
-		} else if (data.charSegment0 && !data.charSegment1){
-			data.receivedStationName[2] = data.first;
-			data.receivedStationName[3] = data.second;
-		} else if (!data.charSegment0 && data.charSegment1){
-			data.receivedStationName[4] = data.first;
-			data.receivedStationName[5] = data.second;
+		radioData.charSegment0 = (radioData.blockB & 1);
+		radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+		radioData.offset = ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2));
+		radioData.receivedStationName[radioData.offset * 2] = radioData.first;
+		radioData.receivedStationName[radioData.offset * 2 + 1] = radioData.second;
+		if(!radioData.charSegment1 && !radioData.charSegment0){
+			radioData.receivedStationName[0] = radioData.first;
+			radioData.receivedStationName[1] = radioData.second;
+		} else if (radioData.charSegment0 && !radioData.charSegment1){
+			radioData.receivedStationName[2] = radioData.first;
+			radioData.receivedStationName[3] = radioData.second;
+		} else if (!radioData.charSegment0 && radioData.charSegment1){
+			radioData.receivedStationName[4] = radioData.first;
+			radioData.receivedStationName[5] = radioData.second;
 		} else {
-			data.receivedStationName[6] = data.first;
-			data.receivedStationName[7] = data.second;
+			radioData.receivedStationName[6] = radioData.first;
+			radioData.receivedStationName[7] = radioData.second;
 		}
 		hwlib::wait_ms(500);
-		hwlib::cout << data.receivedStationName << hwlib::endl << hwlib::endl;
+		hwlib::cout << radioData.receivedStationName << hwlib::endl << hwlib::endl;
 		switch(groupType){
 			case 2:		//RDStext
 				hwlib::cout << hwlib::left << hwlib::setw(30) << "Received RDS Text: ";
-				data.first = ((data.blockC & 0xFF00) >> 8);
-				data.second = (data.blockC & 0x00FF);
-				data.third = ((data.blockD & 0xFF00) >> 8);
-				data.fourth = (data.blockD & 0x00FF);
-				data.charSegment0 = (data.blockB & 1);
-				data.charSegment1 = (data.blockB >> 1) & 1;
-				data.charSegment2 = (data.blockB >> 2) & 1;
-				data.charSegment3 = (data.blockB >> 3) & 1;
+				radioData.first = ((radioData.blockC & 0xFF00) >> 8);
+				radioData.second = (radioData.blockC & 0x00FF);
+				radioData.third = ((radioData.blockD & 0xFF00) >> 8);
+				radioData.fourth = (radioData.blockD & 0x00FF);
+				radioData.charSegment0 = (radioData.blockB & 1);
+				radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+				radioData.charSegment2 = (radioData.blockB >> 2) & 1;
+				radioData.charSegment3 = (radioData.blockB >> 3) & 1;
 				//bool clearScreenRequest = (blockB >> 4) & 1;
-				data.offset = 4 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
-				data.rdsText[data.offset + 1] = data.first;
-				data.rdsText[data.offset + 2] = data.second;
-				data.rdsText[data.offset + 3] = data.third;
-				data.rdsText[data.offset + 4] = data.fourth;
-				hwlib::cout << data.rdsText << hwlib::endl;
+				radioData.offset = 4 * ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2) + (radioData.charSegment2 * 4) + (radioData.charSegment3 * 8));
+				radioData.rdsText[radioData.offset + 1] = radioData.first;
+				radioData.rdsText[radioData.offset + 2] = radioData.second;
+				radioData.rdsText[radioData.offset + 3] = radioData.third;
+				radioData.rdsText[radioData.offset + 4] = radioData.fourth;
+				hwlib::cout << radioData.rdsText << hwlib::endl;
 				break;
 			case 4:
-				data.minutes = (data.blockD & 0xFC0) >> 6;
-				data.hours = ((data.blockD & 0xF000) >> 12) + ((data.blockC & 1) << 4);
-				hwlib::cout << data.hours << ":" << data.minutes << hwlib::endl;
+				radioData.minutes = (radioData.blockD & 0xFC0) >> 6;
+				radioData.hours = ((radioData.blockD & 0xF000) >> 12) + ((radioData.blockC & 1) << 4);
+				hwlib::cout << radioData.hours << ":" << radioData.minutes << hwlib::endl;
 				break;
 		}
 	} else {		//Message Version B
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((data.blockB >> 5) & 1) << hwlib::endl;
-		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music or Speech: " << ((data.blockB >> 4) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << ((radioData.blockB >> 5) & 1) << hwlib::endl;
+		hwlib::cout << hwlib::left << hwlib::setw(30) << "Music or Speech: " << ((radioData.blockB >> 4) & 1) << hwlib::endl;
 		hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: ";
-		data.first = ((data.blockD & 0xFF00) >> 8);
-		data.second = (data.blockD & 0x00FF);
+		radioData.first = ((radioData.blockD & 0xFF00) >> 8);
+		radioData.second = (radioData.blockD & 0x00FF);
 		//bool decoderIdentification = (blockB >> 3) & 1;
-		data.charSegment0 = (data.blockB & 1);
-		data.charSegment1 = (data.blockB >> 1) & 1;
-		data.offset = ((data.charSegment0 * 1) + (data.charSegment1 * 2));
-		data.receivedStationName[data.offset * 2] = data.first;
-		data.receivedStationName[data.offset * 2 + 1] = data.second;
-		if(!data.charSegment1 && !data.charSegment0){
-			data.receivedStationName[0] = data.first;
-			data.receivedStationName[1] = data.second;
-		} else if (data.charSegment0 && !data.charSegment1){
-			data.receivedStationName[2] = data.first;
-			data.receivedStationName[3] = data.second;
-		} else if (!data.charSegment0 && data.charSegment1){
-			data.receivedStationName[4] = data.first;
-			data.receivedStationName[5] = data.second;
+		radioData.charSegment0 = (radioData.blockB & 1);
+		radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+		radioData.offset = ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2));
+		radioData.receivedStationName[radioData.offset * 2] = radioData.first;
+		radioData.receivedStationName[radioData.offset * 2 + 1] = radioData.second;
+		if(!radioData.charSegment1 && !radioData.charSegment0){
+			radioData.receivedStationName[0] = radioData.first;
+			radioData.receivedStationName[1] = radioData.second;
+		} else if (radioData.charSegment0 && !radioData.charSegment1){
+			radioData.receivedStationName[2] = radioData.first;
+			radioData.receivedStationName[3] = radioData.second;
+		} else if (!radioData.charSegment0 && radioData.charSegment1){
+			radioData.receivedStationName[4] = radioData.first;
+			radioData.receivedStationName[5] = radioData.second;
 		} else {
-			data.receivedStationName[6] = data.first;
-			data.receivedStationName[7] = data.second;
+			radioData.receivedStationName[6] = radioData.first;
+			radioData.receivedStationName[7] = radioData.second;
 		}
 		hwlib::wait_ms(500);
-		hwlib::cout << data.receivedStationName << hwlib::endl << hwlib::endl;
+		hwlib::cout << radioData.receivedStationName << hwlib::endl << hwlib::endl;
 		switch(groupType){
 			case 2:		//RDStext
 				hwlib::cout << hwlib::left << hwlib::setw(30) << "Received RDS Text: ";
-				data.third = ((data.blockD & 0xFF00) >> 8);
-				data.fourth = (data.blockD & 0x00FF);
-				data.charSegment0 = (data.blockB & 1);
-				data.charSegment1 = (data.blockB >> 1) & 1;
-				data.charSegment2 = (data.blockB >> 2) & 1;
-				data.charSegment3 = (data.blockB >> 3) & 1;
+				radioData.third = ((radioData.blockD & 0xFF00) >> 8);
+				radioData.fourth = (radioData.blockD & 0x00FF);
+				radioData.charSegment0 = (radioData.blockB & 1);
+				radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+				radioData.charSegment2 = (radioData.blockB >> 2) & 1;
+				radioData.charSegment3 = (radioData.blockB >> 3) & 1;
 				//bool clearScreenRequest = (blockB >> 4) & 1;
-				data.offset = 2 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
-				data.rdsText[data.offset + 1] = data.third;
-				data.rdsText[data.offset + 2] = data.fourth;
-				hwlib::cout << data.rdsText << hwlib::endl;
+				radioData.offset = 2 * ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2) + (radioData.charSegment2 * 4) + (radioData.charSegment3 * 8));
+				radioData.rdsText[radioData.offset + 1] = radioData.third;
+				radioData.rdsText[radioData.offset + 2] = radioData.fourth;
+				hwlib::cout << radioData.rdsText << hwlib::endl;
 				break;
 		}
 	}
@@ -239,17 +233,7 @@ void radioDataSystem::process(){
 	*/
 }
 
-int radioDataSystem::getCountryCode(){
-	return ((data.blockA & 0xF000) >> 12);
-}
-
-void radioDataSystem::reset(){
-	for(auto & element : data.receivedStationName){
-		element = ' ';
-	}
-}
-
-char* radioDataSystem::getStationName(const unsigned int dataValidity){
+char* radioDataSystem::getStationName(const unsigned int radioDataValidity){
 	/*
 	for(unsigned int i = 0; i < 8; i++){
 		//receivedStationName[i] = ' ';
@@ -257,93 +241,185 @@ char* radioDataSystem::getStationName(const unsigned int dataValidity){
 	}
 	*/
 	getStatus();
-	if((data.blockB >> 11) & 1){			//Version A
+	if((radioData.blockB >> 11) & 1){			//Version A
 
 	} else {						//Version B
-		data.first = ((data.blockD & 0xFF00) >> 8);
-		data.second = (data.blockD & 0x00FF);
+		radioData.first = ((radioData.blockD & 0xFF00) >> 8);
+		radioData.second = (radioData.blockD & 0x00FF);
 		//bool decoderIdentification = (blockB >> 3) & 1;
-		data.charSegment0 = (data.blockB & 1);
-		data.charSegment1 = (data.blockB >> 1) & 1;
-		hwlib::wait_ms(10);
+		radioData.charSegment0 = (radioData.blockB & 1);
+		radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+		hwlib::wait_ms(25);
 		getStatus();
 		//Check if the values received are the same.
-		if(((data.blockD & 0xFF00) >> 8) == data.first && (data.blockD & 0x00FF) == data.second && (data.blockB & 1) == data.charSegment0 && ((data.blockB >> 1) & 1) == data.charSegment1 && radioDataErrors(0) + radioDataErrors(1) == 0){
-			if(data.first > 31 && data.first < 127 && data.second > 31 && data.second < 127 && data.first != ' ' && data.second != ' '){
-				data.offset = ((data.charSegment0 * 1) + (data.charSegment1 * 2));
-				data.receivedStationName[data.offset * 2] = data.first;
-				data.receivedStationName[data.offset * 2 + 1] = data.second;
+		if(((radioData.blockD & 0xFF00) >> 8) == radioData.first && (radioData.blockD & 0x00FF) == radioData.second && (radioData.blockB & 1) == radioData.charSegment0 && ((radioData.blockB >> 1) & 1) == radioData.charSegment1 && radioDataErrors(0) + radioDataErrors(1) == 0){
+			if(radioData.first > 31 && radioData.first < 127 && radioData.second > 31 && radioData.second < 127 && radioData.first != ' ' && radioData.second != ' '){
+				radioData.offset = ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2));
+				radioData.receivedStationName[radioData.offset * 2] = radioData.first;
+				radioData.receivedStationName[radioData.offset * 2 + 1] = radioData.second;
 			}
 		}
 	}
-	return data.receivedStationName;
+	return radioData.receivedStationName;
 }
 
 char* radioDataSystem::getStationText(){
 	getStatus();
 	for(unsigned int i = 0; i < 100; i++){
 		getStatus();
-		if((data.blockB >> 11) & 1 && radioDataErrors(0) + radioDataErrors(1) < 1 && radioDataReady() && radioDataSynced()){		//Version A
-			data.first = ((data.blockC & 0xFF00) >> 8);
-			data.second = (data.blockC & 0x00FF);
-			data.third = ((data.blockD & 0xFF00) >> 8);
-			data.fourth = (data.blockD & 0x00FF);
-			data.charSegment0 = (data.blockB & 1);
-			data.charSegment1 = (data.blockB >> 1) & 1;
-			data.charSegment2 = (data.blockB >> 2) & 1;
-			data.charSegment3 = (data.blockB >> 3) & 1;
-			//bool clearScreenRequest = (blockB >> 4) & 1;
-			data.offset = 4 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
-			data.rdsText[data.offset + 1] = data.first;
-			data.rdsText[data.offset + 2] = data.second;
-			data.rdsText[data.offset + 3] = data.third;
-			data.rdsText[data.offset + 4] = data.fourth;
-			if(data.offset < data.lastOffset){
+		if((radioData.blockB >> 11) & 1 && radioDataErrors(0) + radioDataErrors(1) < 1 && radioDataReady() && radioDataSynced()){		//Version A
+			radioData.first = ((radioData.blockC & 0xFF00) >> 8);
+			radioData.second = (radioData.blockC & 0x00FF);
+			radioData.third = ((radioData.blockD & 0xFF00) >> 8);
+			radioData.fourth = (radioData.blockD & 0x00FF);
+			radioData.charSegment0 = (radioData.blockB & 1);
+			radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+			radioData.charSegment2 = (radioData.blockB >> 2) & 1;
+			radioData.charSegment3 = (radioData.blockB >> 3) & 1;
+			radioData.offset = 4 * ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2) + (radioData.charSegment2 * 4) + (radioData.charSegment3 * 8));
+			radioData.rdsText[radioData.offset + 1] = radioData.first;
+			radioData.rdsText[radioData.offset + 2] = radioData.second;
+			radioData.rdsText[radioData.offset + 3] = radioData.third;
+			radioData.rdsText[radioData.offset + 4] = radioData.fourth;
+			if(radioData.offset < radioData.lastOffset){
 				break;
 			} else {
-				data.lastOffset = data.offset;
+				radioData.lastOffset = radioData.offset;
 			}
 			
 		} else if (radioDataErrors(0) + radioDataErrors(1) < 1 && radioDataReady() && radioDataSynced()){
-			data.third = ((data.blockD & 0xFF00) >> 8);
-			data.fourth = (data.blockD & 0x00FF);
-			data.charSegment0 = (data.blockB & 1);
-			data.charSegment1 = (data.blockB >> 1) & 1;
-			data.charSegment2 = (data.blockB >> 2) & 1;
-			data.charSegment3 = (data.blockB >> 3) & 1;
-			//bool clearScreenRequest = (blockB >> 4) & 1;
-			data.offset = 2 * ((data.charSegment0 * 1) + (data.charSegment1 * 2) + (data.charSegment2 * 4) + (data.charSegment3 * 8));
-			data.rdsText[data.offset + 1] = data.third;
-			data.rdsText[data.offset + 2] = data.fourth;
-			if(data.offset < data.lastOffset){
+			radioData.third = ((radioData.blockD & 0xFF00) >> 8);
+			radioData.fourth = (radioData.blockD & 0x00FF);
+			radioData.charSegment0 = (radioData.blockB & 1);
+			radioData.charSegment1 = (radioData.blockB >> 1) & 1;
+			radioData.charSegment2 = (radioData.blockB >> 2) & 1;
+			radioData.charSegment3 = (radioData.blockB >> 3) & 1;
+			radioData.offset = 2 * ((radioData.charSegment0 * 1) + (radioData.charSegment1 * 2) + (radioData.charSegment2 * 4) + (radioData.charSegment3 * 8));
+			radioData.rdsText[radioData.offset + 1] = radioData.third;
+			radioData.rdsText[radioData.offset + 2] = radioData.fourth;
+			if(radioData.offset < radioData.lastOffset){
 				//One Text Cycle received.
 				break;
 			} else {
-				data.lastOffset = data.offset;
+				radioData.lastOffset = radioData.offset;
 			}
 		}
 	}
-	return data.rdsText;
+	return radioData.rdsText;
+}
+
+
+int radioDataSystem::radioDataErrors(const int block){
+	if(block == 1){
+		return (radioData.status[1] & 0x000C);
+	} else {
+		return (radioData.status[1] & 0x0003);
+	}
+}
+
+//When a station is found or the frequency gets set, the data has to be reset for it to contain valid chars again.
+void radioDataSystem::reset(){
+	for(auto & element : radioData.receivedStationName){
+		element = ' ';
+	}
+	getStatus();
 }
 
 bool radioDataSystem::radioDataReady(){
 	//getStatus();
-	return (data.status[0] >> 15) & 1;
+	return (radioData.status[0] >> 15) & 1;
 }
 
 bool radioDataSystem::radioDataSynced(){
 	//getStatus();
-	return (data.status[0] >> 12) & 1;
+	return (radioData.status[0] >> 12) & 1;
 }
+
+bool radioDataSystem::clearScreen(){
+	if(radioData.clearScreenRequest){
+		radioData.clearScreenRequest = false;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+int radioDataSystem::getCountryCode(){
+	return ((radioData.blockA & 0xF000) >> 12);
+}
+
+int radioDataSystem::getProgramArea(){
+	return ((radioData.blockA & 0x0F00) >> 8);
+}
+
+int radioDataSystem::getProgramRefrence(){
+	return (radioData.blockA & 0x00FF);
+}
+
+char radioDataSystem::getMessageGroupType(){
+	if((radioData.blockB >> 11) & 1){
+		return 'A';
+	} else {
+		return 'B';
+	} 
+}
+
+int radioDataSystem::getProgramType(){
+	return ((radioData.blockB & 0x3E0) >> 5);
+}
+
+bool radioDataSystem::currentMusic(){
+	return ((radioData.blockB >> 4) & 1);
+}
+
 char* radioDataSystem::stationName(){
-	return data.receivedStationName;
+	return radioData.receivedStationName;
 }
 
 char* radioDataSystem::stationText(){
-	return data.rdsText;
+	return radioData.rdsText;
 }
+
+bool radioDataSystem::trafficProgram(){
+	return ((radioData.blockB >> 10) & 1);
+}
+
+bool radioDataSystem::trafficAnnouncement(){
+	return ((radioData.blockB >> 5) & 1);
+}
+
+int radioDataSystem::hours(){
+	return radioData.hours;
+}
+
+int radioDataSystem::minutes(){
+	return radioData.minutes;
+}
+
 
 void radioDataSystem::update(){
 	getStatus();
 	getStationName();
+	radioData.clearScreenRequest |= (radioData.blockB >> 4) & 1;
+	radioData.trafficProgram = (radioData.blockB >> 5) & 1;
+	for(unsigned int i = 0; i < 4; i++){
+		if(radioDataErrors(0) + radioDataErrors(1) == 0 && radioDataSynced()){
+			if((radioData.blockB >> 11) & 1){		//Message Version A
+				switch(((radioData.blockB & 0xF000) >> 12)){		//Group Type
+					case 4:
+						radioData.minutes = (radioData.blockD & 0xFC0) >> 6;
+						radioData.hours = ((radioData.blockD & 0xF000) >> 12) + ((radioData.blockC & 1) << 4);
+						break;
+					case 2:
+						getStationText();
+				}
+			} else {
+				switch(((radioData.blockB & 0xF000) >> 12)){		//Group Type
+					case 2:
+						getStationText();
+				}
+			}
+			break;
+		}
+	}
 }

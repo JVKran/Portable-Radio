@@ -106,4 +106,22 @@ int main( void ){
     hwlib::wait_ms(3000);
   }
 
+  radio.setFrequency(100.1);
+  hwlib::cout << hwlib::endl << "Starting Reading of Radio Data System: ";
+  for(unsigned int i = 0; i < 5; i++){
+    hwlib::wait_ms(5000);
+    for(unsigned int i = 0; i < 15; i++){
+      radio.radioData.update();
+    }
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Frequency: " << radio.getIntFrequency() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << radio.radioData.stationName() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << radio.radioData.getCountryCode() << hwlib::endl;      //0xFFFF where F is one nibble
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << radio.radioData.getProgramArea() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << radio.radioData.getProgramRefrence() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: " << radio.radioData.getMessageGroupType() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << radio.radioData.trafficAnnouncement() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Music Playing: : " << radio.radioData.currentMusic() << hwlib::endl << hwlib::endl;
+    hwlib::wait_ms(3000);
+  }
+
 }
