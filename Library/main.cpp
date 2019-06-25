@@ -13,10 +13,10 @@ int main( void ){
   radio.setFrequency(101.2);    //100.1, 100.7
   hwlib::wait_ms(2000);
   for(;;){
-    hwlib::wait_ms(50);
+    hwlib::wait_ms(500);
     radio.radioData.update();
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << radio.radioData.stationName() << hwlib::endl;
-    hwlib::wait_ms(50);
+    hwlib::wait_ms(500);
   }
 
 }

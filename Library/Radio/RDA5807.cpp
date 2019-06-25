@@ -372,7 +372,7 @@ int RDA5807::radioDataErrors(const int block){
 }
 
 void RDA5807::printRawRadioData(){
-	radioData.process();
+	radioData.rawData();
 }
 
 char* RDA5807::stationName(){
