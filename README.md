@@ -14,8 +14,8 @@ radio.setStereo(true);
 radio.audioSettings(true, true, true);
 radio.setFrequency(100.7);
 for(;;){
-  hwlib::cout << radio.signalStrength() << hwlib::endl;
-	hwlib::wait_ms(10000);
+    hwlib::cout << radio.signalStrength() << hwlib::endl;
+    hwlib::wait_ms(10000);
 }
 ```
 ### 24CXXX
