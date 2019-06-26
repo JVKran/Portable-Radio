@@ -27,9 +27,20 @@ int main( void ){
   //auto textArea = hwlib::terminal_from(frequencyArea, font);
 
   auto window = hwlib::window_part(oled, hwlib::xy(0, 0), hwlib::xy(128, 64));
-  auto display = GUI(window, oled, button);
 
-  radio.setFrequency(100.7);
+  auto frequencyWindow = hwlib::window_part(oled, hwlib::xy(0, 0), hwlib::xy(100, 20));
+  auto frequencyFont = hwlib::font_default_8x8();
+  auto frequencyField = hwlib::terminal_from(frequencyWindow, frequencyFont);
+
+  auto stationWindow = hwlib::window_part(oled, hwlib::xy(20, 20), hwlib::xy(100, 40));
+  auto stationFont = hwlib::font_default_8x8();
+  auto stationField = hwlib::terminal_from(stationWindow, stationFont);
+
+  auto signalWindow = hwlib::window_part(oled, hwlib::xy(50, 0), hwlib::xy(128, 64));
+
+  auto display = GUI(window, oled, button, frequencyField, signalWindow);
+
+  radio.setFrequency(101.2);
   hwlib::wait_ms(3000);
   unsigned int iterations = 0;
   int lastKnownPos = 0;
@@ -49,10 +60,11 @@ int main( void ){
       radio.seekChannel(1);
       lastKnownPos = button.getPos();
     }
-    if(iterations > 500){
+    if(iterations > 20000){
       iterations = 0;
-      display.displayMenuUpdate(radio.signalStrength(), radio.getIntFrequency());
-      display.displayStationName(radio.getStationName()[0]);
+      display.displayFrequency(radio.getFrequency());
+      display.receptionStrength(radio.signalStrength());
+      //stationField << "\f" << radio.radioData.getStationName() << hwlib::flush;
     }
   }
 

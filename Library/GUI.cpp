@@ -30,7 +30,7 @@ void signalBars::print(hwlib::window & window, const unsigned int amountOfLines)
 	if(amountOfLines > 4){
 		fifth.draw(window);
 	}
-	//window.flush();
+	window.flush();
 }
 
 
@@ -39,12 +39,16 @@ void signalBars::print(hwlib::window & window, const unsigned int amountOfLines)
 
 
 
-GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button):
+GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button, hwlib::terminal_from & frequencyField, hwlib::window & signalWindow):
 	window(window),
 	display(display), 
 	button(button),
-	signalIndicator(signalBars(hwlib::xy(110, 10), 2, 2))
-{}
+	signalIndicator(signalBars(hwlib::xy(110, 10), 2, 2)),
+	frequencyField(frequencyField),
+	signalWindow(signalWindow)
+{
+	display.clear();
+}
 
 /*					TEA5767 Compatible
 void GUI::receptionStrength(const unsigned int signalStrength){
@@ -55,15 +59,12 @@ void GUI::receptionStrength(const unsigned int signalStrength){
 
 				   //RDA5807 Compatible
 void GUI::receptionStrength(const unsigned int signalStrength){
+	signalWindow.clear();
 	signalIndicator.print(window, signalStrength / 12);
 }
 
 void GUI::displayFrequency(const float frequency){
-	auto font = hwlib::font_default_8x8();
-	auto textArea = hwlib::terminal_from(window, font);
-	textArea << int(frequency) << hwlib::flush;
-	signalIndicator.print(window, 60 / 12);
-	//window.flush();
+	frequencyField << "\f" << int(frequency) << hwlib::flush;
 }
 
 void GUI::displayStationName(const char & stationName){
@@ -82,4 +83,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		lastSignalStrength = signalStrength / 12;
 		window.flush();
 	}
+}
+
+void GUI::showSettings(){
+
 }

@@ -22,12 +22,15 @@ class GUI{
 		signalBars signalIndicator;
 		unsigned int lastSignalStrength = 0;
 		unsigned int lastFrequency = 0;
+		hwlib::terminal & frequencyField;
+		hwlib::window & signalWindow;
 	public:
-		GUI(hwlib::window & window_part, hwlib::glcd_oled & display, KY040 & button);
+		GUI(hwlib::window & window_part, hwlib::glcd_oled & display, KY040 & button, hwlib::terminal_from & frequencyField, hwlib::window & signalWindow);
 		void receptionStrength(const unsigned int signalStrength);
 		void displayFrequency(const float frequency);
 		void displayStationName(const char & stationName);
 		void displayMenuUpdate(const unsigned int signalStrength, const float frequency);
+		void showSettings();
 };
 
 
