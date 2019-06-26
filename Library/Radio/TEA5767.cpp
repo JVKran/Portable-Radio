@@ -116,7 +116,7 @@ void TEA5767::setPLL(const float frequency, unsigned int hilo){
 int TEA5767::testHiLo(const float frequency){
 	setPLL(frequency, 1);
 	setData();
-	hwlib::wait_ms(30);
+	hwlib::wait_ms(30);					//Give Signal Strenght time for accurate enough reading
 	int highStrentgh = signalStrength();
 	setPLL(frequency, 0);
 	setData();
@@ -135,7 +135,7 @@ int TEA5767::testHiLo(const float frequency){
 /// This function tunes to the given frequency. If no frequency is provided, the chip will tune to the first
 /// legal frequency The user can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
 /// testHiLo() will be called to determine the best option. During the tuning, the audio is muted
-/// to prevent loud pops.
+/// to prevent loud pops and cracks.
 void TEA5767::setFrequency(const float frequency, const int hiLoForce){
 	if((((bandLimit && frequency <= 91) || (bandLimit && frequency >= 76) || ((!bandLimit && frequency <= 108) || (!bandLimit && frequency >= 87.5))) && frequency != -1)){
 		setMute(true);
@@ -170,7 +170,7 @@ void TEA5767::setFrequency(const float frequency){
 /// \brief
 /// Get Frequency
 /// \details
-/// This function returns the currently tuned frequency of the chip. Wheter it is using
+/// This function returns the currently tuned frequency of the chip. Wether it is using
 /// High or Low Side Injection can only be determined from the data array; not from the status.
 /// However, this is not a problem; the search mode uses the data array to tune to frequencies too.
 float TEA5767::getFrequency(){
@@ -193,7 +193,7 @@ unsigned int TEA5767::getIntFrequency(){
 }
 
 /// \brief
-/// Mute Unmute L and R
+/// Mute / Unmute L AND R
 /// \details
 /// This function takes one parameter that determines if the audio has to be muted or unmuted.
 void TEA5767::setMute(const bool mute){
@@ -208,7 +208,7 @@ void TEA5767::setMute(const bool mute){
 }
 
 /// \brief
-/// Mute Unmute L or R
+/// Mute Unmute L OR R
 /// \details
 /// This function takes two parameters which define what side has to be muted or unmuted. If L or R
 /// is muted, the audio signal will be mono. Otherwise it will be automatically set to stereo.
@@ -329,6 +329,11 @@ void TEA5767::setPort(const bool portOne, const bool portTwo, const bool searchI
 	}
 }
 
+/// \brief
+/// Seek Channel
+/// \details
+/// This function takes one mandatory parameter, the search direction (1:up, 0:down). This function then calls singleSearch() with the default
+/// quality Threshold.
 void TEA5767::seek(const unsigned int direction){
 	singleSearch(direction);
 }
