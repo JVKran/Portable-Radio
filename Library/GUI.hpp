@@ -5,11 +5,12 @@
 
 class signalBars{
 	private:
-		int spacing;
-		int heightIncrement;
+		unsigned int spacing;
+		unsigned int heightIncrement;
+		unsigned int lastAmountOfLines;
 		hwlib::line first, second, third, fourth, fifth;
 	public:
-		signalBars(const hwlib::xy & position, const int spacing = 5, const int heightIncrement = 5);
+		signalBars(const hwlib::xy & position, const unsigned int spacing = 5, const unsigned int heightIncrement = 5);
 		void print(hwlib::window & window, const unsigned int amountOfLines);
 };
 
@@ -18,12 +19,15 @@ class GUI{
 		hwlib::window & window;
 		hwlib::glcd_oled & display;
 		KY040 & button;
-		hwlib::terminal & textArea;
 		signalBars signalIndicator;
+		unsigned int lastSignalStrength = 0;
+		unsigned int lastFrequency = 0;
 	public:
-		GUI(hwlib::window & window_part, hwlib::glcd_oled & display, KY040 & button, hwlib::terminal_from & textArea);
+		GUI(hwlib::window & window_part, hwlib::glcd_oled & display, KY040 & button);
 		void receptionStrength(const unsigned int signalStrength);
-		void displayFrequency(float frequency);
+		void displayFrequency(const float frequency);
+		void displayStationName(const char & stationName);
+		void displayMenuUpdate(const unsigned int signalStrength, const float frequency);
 };
 
 

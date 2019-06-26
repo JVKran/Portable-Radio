@@ -4,7 +4,7 @@
 
 
 
-signalBars::signalBars(const hwlib::xy & position, const int spacing, const int heightIncrement):
+signalBars::signalBars(const hwlib::xy & position, const unsigned int spacing, const unsigned int heightIncrement):
 	spacing(spacing),
 	heightIncrement(heightIncrement),
 	first(position, hwlib::xy(position.x, position.y - heightIncrement)),
@@ -30,31 +30,56 @@ void signalBars::print(hwlib::window & window, const unsigned int amountOfLines)
 	if(amountOfLines > 4){
 		fifth.draw(window);
 	}
-	window.flush();
+	//window.flush();
 }
 
 
 
-//<------------------------------------------------------------------------------>
+//<<<------------------------------------------------------------------------------>>>
 
 
 
-
-GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button, hwlib::terminal_from & textArea):
+GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button):
 	window(window),
 	display(display), 
 	button(button),
-	textArea(textArea),
 	signalIndicator(signalBars(hwlib::xy(110, 10), 2, 2))
 {}
 
+/*					TEA5767 Compatible
 void GUI::receptionStrength(const unsigned int signalStrength){
 	display.clear();
 	signalIndicator.print(window, signalStrength / 45);
 }
+*/
 
-void GUI::displayFrequency(float frequency){
+				   //RDA5807 Compatible
+void GUI::receptionStrength(const unsigned int signalStrength){
+	signalIndicator.print(window, signalStrength / 12);
+}
+
+void GUI::displayFrequency(const float frequency){
+	auto font = hwlib::font_default_8x8();
+	auto textArea = hwlib::terminal_from(window, font);
 	textArea << int(frequency) << hwlib::flush;
-	display.flush();
-	display.flush();
+	signalIndicator.print(window, 60 / 12);
+	//window.flush();
+}
+
+void GUI::displayStationName(const char & stationName){
+	auto font = hwlib::font_default_8x8();
+	auto textArea = hwlib::terminal_from(window, font);
+	textArea << stationName << hwlib::flush;
+	signalIndicator.print(window, 60 / 12);
+}
+
+void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequency){
+	if(frequency != lastFrequency || signalStrength / 12 != lastSignalStrength){
+		display.clear();
+		receptionStrength(signalStrength);
+		displayFrequency(frequency);
+		lastFrequency = frequency;
+		lastSignalStrength = signalStrength / 12;
+		window.flush();
+	}
 }
