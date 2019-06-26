@@ -183,9 +183,15 @@ float TEA5767::getFrequency(){
 	}
 }
 
+/// \brief
+/// Get Frequency
+/// \details
+/// This function returns the currently tuned frequency as an unsigned integer. In the background
+/// it calls getFrequency(). The returned frequency consequently always up-to-date.
 unsigned int TEA5767::getIntFrequency(){
 	return int(getFrequency() * 10);
 }
+
 /// \brief
 /// Mute Unmute L and R
 /// \details

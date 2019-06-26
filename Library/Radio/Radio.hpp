@@ -4,7 +4,7 @@
 #define __RADIO_HPP
 
 /// \brief
-/// Abstract Base Class Radios
+/// Abstract Base Class Radio
 /// \details
 /// This is an abstract base class which supports all basic functions radios have. In pariticular,
 /// it supports the TEA5767 and RDA58XX Series. RDA58XX Chips also have a compatibility mode in which 

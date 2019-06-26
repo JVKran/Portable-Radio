@@ -231,7 +231,7 @@ void RDA5807::powerUpEnable(const bool enable){
 /// Get Signal Strength
 /// \details
 /// This function returns the current Signal Strength. It can vary from 0 to 63 where lower means
-/// a better Signal Strength.
+/// a better Signal Strength. The value given by the chip is exponential.
 unsigned int RDA5807::signalStrength(){
 	status[1] &= ~0xFC00;
 	getStatus(1);
@@ -283,7 +283,11 @@ bool RDA5807::isNormalAudio(){
 	return (data[2] >> 15) & 1;
 }
 
-//Done
+/// \brief
+/// Set Bass Boost
+/// \details
+/// This function is used to set or unset the built-in Bass Boost option. If the mandatory parameter is
+/// true, the chip will output a little bassier signal.
 void RDA5807::setBassBoost(const bool boost){
 	if(boost){
 		data[2] |= (1UL << 12);
@@ -293,16 +297,29 @@ void RDA5807::setBassBoost(const bool boost){
 	setData(2);
 }
 
+/// \brief
+/// Get Bass Boost
+/// \details
+/// This function returns true if the bass should be boosted or false when it should not be.
 bool RDA5807::bassBoosted(){
 	return (data[2] >> 12) & 1;
 }
 
+/// \brief
+/// Stereo FM-Signal
+/// \details
+/// This function returns true if the FM-Signal Received is Stereo. This doesn't mean the output is stereo.
+/// For that to be the case, setStereo() has got to be called with true as parameter.
 bool RDA5807::stereoReception(){
 	getStatus(0);
 	return (status[0] >> 10) & 1;
 }
 
-//Done
+/// \brief
+/// Set Stereo Output
+/// \details
+/// This function is used to enable Stereo Output. This doesn't mean the output really is stereo. For that
+/// to be the case, the received FM-Signal has also got to be stereo. This can be checked with stereoReception().
 void RDA5807::setStereo(const bool stereo){
 	if(stereo){
 		data[2] &= ~(1UL << 13);
@@ -312,11 +329,20 @@ void RDA5807::setStereo(const bool stereo){
 	setData(2);
 }
 
+/// \brief
+/// Is Stereo Output Set
+/// \details
+/// This function returns true if the Output Signal is allowed to be stereo.
 bool RDA5807::isStereo(){
 	return !(data[2] >> 13) & 1;		//Stereo is 0, mono is 1
 }
 
-//Done
+/// \brief
+/// Set Spacing
+/// \details
+/// This function is used to set the spacing (minimal difference in frequency between channels). This setting
+/// should be country dependent, but with a spacing of 20000(kHz = 0.02MHz) you're always good. Valid
+/// arguments are 100.000, 200.000, 50.000 and 20.000. The default is 100.000.
 void RDA5807::setSpacing(const unsigned int spacing){
 	data[3] &= ~3UL;
 	if(spacing == 100000){
@@ -333,6 +359,10 @@ void RDA5807::setSpacing(const unsigned int spacing){
 	setData(3);
 }
 
+/// \brief
+/// Get Spacing
+/// \details
+/// This function returns the currently set spacing in kHz.
 unsigned int RDA5807::getSpacing(){
 	const auto spacing = (data[3] & 0x0003);
 	if(spacing == 0){
@@ -346,6 +376,16 @@ unsigned int RDA5807::getSpacing(){
 	}
 }
 
+/// \brief
+/// Set Frequency
+/// \details
+/// This function is used to set the Frequency. It has two mandatory parameters; the desired frequency and wether or not
+/// to auto tune. setFrequency(const float frequency) has only one mandatory parameter; autoTune will default to true.
+/// When the autoTune bit is set (true is passed) the chip will tune to the closest best frequency. When it is not
+/// set, the chip will leave it as is; without guarantee of best quality. If the tune operation fails, this function returns
+/// true. Though testing has pointed out this chip is not very good at determining this.
+/// If the passed frequency is outside the legal range, according to the set Band Limit, the chip will tune
+/// to the lowest legal frequency.
 bool RDA5807::setFrequency(const float frequency, const bool autoTune){
 	radioData.reset();		//Clear Received RDS-Data since this is not useful anymore and will only slow the process down
 	if(autoTune){
@@ -393,10 +433,20 @@ bool RDA5807::setFrequency(const float frequency, const bool autoTune){
 	//STC bit is set high when tuning completes or low when it fails. Tune bit is automatically set low when tuning completes.
 }
 
+/// \brief
+/// Set Frequency
+/// \details
+/// This function has, in contrary of setFrequency(const float frequency, const bool autoTune) only one mandatory
+/// parameter. It does the same; it calls that function with autoTune set to true.
 void RDA5807::setFrequency(const float frequency){
 	setFrequency(frequency, true);
 }
 
+/// \brief
+/// Get Frequency
+/// \details
+/// This function returns the currently set frequency as a float. The Frequency is update before returning the frequency,
+/// so even after a seekChannel() call the frequency will be right.
 float RDA5807::getFrequency(){
 	getStatus(0);
 	auto receivedFrequency = (status[0] & 0x3FF); //Only keep last 10 bits
@@ -411,25 +461,51 @@ float RDA5807::getFrequency(){
 	}
 }
 
+/// \brief
+/// Get Frequency Integer
+/// \details
+/// This function returns the currently tuned frequency as an unsigned integer. In the background
+/// it calls getFrequency(). The returned frequency consequently always up-to-date.
 unsigned int RDA5807::getIntFrequency(){
 	return (getFrequency() * 10);
 }
 
+/// \brief
+/// Is Station
+/// \details
+/// This function returns true if the currently tuned frequency is a station or false when it isn't.
+/// However, testing has pointed out the chip is not very good at determining this.
 bool RDA5807::isStation(){
 	getStatus(1);
 	return (status[1] & 0x4100);
 }
 
+/// \brief
+/// Is Ready
+/// \details
+/// This function returns true if the chip is ready to output a clear, well received audio signal. In 
+/// contrary of isStation(), this function performs pretty well.
 bool RDA5807::isReady(){
 	getStatus(1);
 	return (status[1] & 0x4080);
 }
 
+/// \brief
+/// Is Station
+/// \details
+/// This function returns true if the chip succeeded the tune or seek action or false when it didn't.
+/// Testing pointed out that this function is fairly accurate.
 bool RDA5807::isTuned(){
 	getStatus(0);
 	return (status[0] & 0x4000);
 }
 
+/// \brief
+/// Set Band Limit
+/// \details
+/// This function is used to set the Band Limit. Valid arguments are 0 (US/EU), 1 (Japan), 2 (World Wide)
+/// or 3 (East Europe). This setting is used to determine how far the chip can seek after seekChannel() has been called
+/// and wether or not a desired frequency passed to setFrequency() is valid. 
 void RDA5807::setBandLimit(const unsigned int limit){
 	data[3] &= ~(3UL << 2);			//Unset bits representing US/European Band Limit.
 	bandLimit = limit;
@@ -439,20 +515,39 @@ void RDA5807::setBandLimit(const unsigned int limit){
 	setData(3);
 }
 
+/// \brief
+/// Set Band Limit
+/// \details
+/// This function returns the set Band Limit.
 unsigned int RDA5807::hasBandLimit(){
 	return bandLimit;
 }
 
+/// \brief
+/// Set Volume
+/// \details
+/// This function is used to set the Volume. It has one mandatory parameter; the volume. The range of valid
+/// volume levels is from 0 to 15 where 0 is silent and 15 is max volume. A setVolume(0) call is equivalent to 
+/// setMute(true). The volume rises and falls linear.
 void RDA5807::setVolume(const uint8_t volume){
 	data[5] &= ~0x000F;
-	data[5] |= (volume & 0x000F);
+	data[5] |= (volume & 0x000F);		//Larger volumes than 15 are reduced to 15
 	setData(5);
 }
 
+/// \brief
+/// Get Volume
+/// \details
+/// This function returns the volume level as an integer ranging from 0 to 15. 
 unsigned int RDA5807::getVolume(){
 	return (data[5] & 0x000F);
 }
 
+/// \brief
+/// Set Tune
+/// \details
+/// This function is used to tune the frequency. In the background the chip tunes to the frequency with best Signal Strenght.
+/// The seekChannel() and setFrequency() functions do this automatically.
 void RDA5807::setTune(const bool tune){
 	if(tune){
 		data[3] |= (1UL << 4);
@@ -462,6 +557,11 @@ void RDA5807::setTune(const bool tune){
 	setData(3);
 }
 
+/// \brief
+/// Set StandBy
+/// \details
+/// This function is used to make the chip go in stantBy mode, or get out of it. Thus it has one mandatory parameter;
+/// wether to go in standBy (true) or get out of it (false). The I2C bus remains active while in standBy mode.
 void RDA5807::standBy(const bool sleep){
 	if(sleep){
 		data[2] &= ~1UL;
@@ -471,11 +571,22 @@ void RDA5807::standBy(const bool sleep){
 	setData(2);
 }
 
+/// \brief
+/// Get StandBy
+/// \details
+/// This function returns true if the chip is in StandBy Mode or false when it isn't.
 bool RDA5807::isStandBy(){
 	return !(data[2] & 1);
 }
 
-//Done
+/// \brief
+/// Seek Channel
+/// \details
+/// This function is used to seek for a channel. It has one mandatory parameter; wether to seek up (1) or down (0).
+/// The optional parameter defines wether or not to Wrap Around at th Band Limits. When this is set to true, and 
+/// a Band Limit is reached while seeking, the chip continues at the other side. (from 87 to 108 or turned around
+/// depending on search up or down). The default is set to true. If false is passed, the seek operation will stop
+/// at the Band Limit.
 void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue){
 	radioData.reset();
 	data[2] |= (1UL << 8);		//Set seek mode
@@ -492,21 +603,42 @@ void RDA5807::seekChannel(const unsigned int direction, const bool wrapContinue)
 	setData(2);
 }
 
+/// \brief
+/// Set Seek Threshold
+/// \details
+/// This function defines the minimum quality of audio a station has to offer for it to be good enough to stop seeking
+/// for. The higher this value, the less stations will be found. However, the stations that are found, really are good.
+/// Set it too low, and you will find a lot of false positives. The recomended default by the datasheet (8), is a very
+/// good average.
 void RDA5807::setSeekThreshold(const uint8_t threshold){
 	data[5] &= ~0xF00;
 	data[5] |= (threshold & 0xF00);
 	setData(5);
 }
 
+/// \brief
+/// Seek Completed
+/// \details
+/// This function returns true if the seek operation is done, or false when it isn't done yet.
 bool RDA5807::seekCompleted(){
 	getStatus(0);
 	return (status[0] >> 14) & 1;
 }
 
+/// \brief
+/// Seek Channel
+/// \details
+/// This function has, in contrary to seekChannel(), only one mandatory parameter. It does the same as seekChannel().
+/// In fact, this function calls seekChannel().
 void RDA5807::seek(const unsigned int direction){
 	seekChannel(direction);
 }
 
+/// \brief
+/// Enable Radio Data Reception
+/// \details
+/// This function enables the reception of Radio Data. When enabled, the chip will store the received RDS blocks in 
+/// registers 2 to 5. When disabled, Radio Data will be ignored by the chip.
 void RDA5807::enableRadioData(const bool enable){
 	if(enable){
 		data[2] |= (1UL << 3);
@@ -516,20 +648,39 @@ void RDA5807::enableRadioData(const bool enable){
 	setData(2);
 }
 
+/// \brief
+/// Radio Data Enabled
+/// \details
+/// This function returns true if the Radio Data is allowed to be received, or false when it isn't.
 bool RDA5807::radioDataEnabled(){
 	return (data[2] >> 3) & 1;
 }
 
+/// \brief
+/// New Radio Data Ready
+/// \details
+/// This function returns true if new Radio Data is available. In practice, this always is the case when tuned to 
+/// a channel with good audio quality.
 bool RDA5807::radioDataReady(){
 	getStatus(0);
 	return (status[0] >> 15) & 1;
 }
 
+/// \brief
+/// Radio Data Synchronised
+/// \details
+/// This function returns true if the chip is in sync with the Radio Data Blocks that arrive. When this is the case,
+/// the data has a smaller chance to contain errors.
 bool RDA5807::radioDataSynced(){
 	getStatus(0);
 	return (status[0] >> 12) & 1;
 }
 
+/// \brief
+/// Radio Data Synchronised
+/// \details
+/// This function returns true if the chip is in sync with the Radio Data Blocks that arrive. When this is the case,
+/// the data has a smaller chance to contain errors.
 unsigned int RDA5807::radioDataErrors(const unsigned int block){
 	getStatus(1);
 	if(block == 1){
@@ -539,22 +690,47 @@ unsigned int RDA5807::radioDataErrors(const unsigned int block){
 	}
 }
 
+/// \brief
+/// Print Raw Radio Data
+/// \details
+/// This function prints the received Radio Data in a clear way whith basic information. Really usefull to
+/// debug and test the decoding of the received data.
 void RDA5807::printRawRadioData(){
 	radioData.rawData();
 }
 
+/// \brief
+/// Get Station Name
+/// \details
+/// This function returns the Station Name received by the updateRadioData() calls. For the Station Name to be valid
+/// and make sense, the updateRadioData() function has got to be called at least 15 times within a time period of 3-10 seconds.
 char* RDA5807::stationName(){
 	return radioData.stationName();
 }
 
+/// \brief
+/// Decode And Return Station Name
+/// \details
+/// This function Parses, Decodes, Checks and returns the Station Text. Since approximately 50 Radio Data Blocks
+/// are needed to be received, decoded, analysed and checked to receive the station name, this can take up to 12 seconds.
 char* RDA5807::getStationText(){
 	return radioData.getStationText();
 }
 
+/// \brief
+/// Get Station Text
+/// \details
+/// This function returns the Station Text received by the updateRadioData() calls. For the Station Text to be valid
+/// and make sense, the updateRadioData() function has got to be called at least 50 times within a time period of 20-80 seconds.
 char* RDA5807::stationText(){
 	return radioData.stationText();
 }
 
+/// \brief
+/// Update Radio Data
+/// \details
+/// This function receives the Radio Data, Decodes it, Analyses it and Updates the values. It is advised to call this
+/// function as often as possible.
 void RDA5807::updateRadioData(){
 	radioData.update();
 }

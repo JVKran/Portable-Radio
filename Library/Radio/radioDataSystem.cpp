@@ -1,6 +1,13 @@
+/// @file
+
 #include "hwlib.hpp"
 #include "radioDataSystem.hpp"
 
+/// \brief
+/// Constructor
+/// \details
+/// This constructor has one mandatory parameter; the I2C bus. Since this function is specifically made for the RDA58XX
+/// Series, it is tuned towards the RDA58XX with corresponding addresses.
 radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus, const uint8_t address, const uint8_t firstReadAddress): 
 	bus(bus),
 	address(address),
@@ -9,6 +16,12 @@ radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus, const 
 	radioData(radioDataSystemData())
 {}
 
+/// \brief
+/// Get Radio Data
+/// \details
+/// This function retrieves the Radio Data Blocks and General Statuses from the Registers of the RDA58XX.
+/// This class also stores the standard Registers of The RDA58XX since they contain information about validity,
+/// quality and availability of Radio Data.
 void radioDataSystem::getStatus(){
 	bus.write(indexAddress).write(firstReadAddress);
 	auto transaction = bus.read(indexAddress);
@@ -23,10 +36,14 @@ void radioDataSystem::getStatus(){
 	hwlib::wait_ms(15);
 }
 
+/// \brief
+/// Print Raw Radio Data
+/// \details
+/// This function prints the received Radio Data in a clear way whith basic information. Really usefull to
+/// debug and test the decoding of the received data.
 void radioDataSystem::rawData(){
 	getStatus();
 	update();
-    //hwlib::cout << hwlib::left << hwlib::setw(30) << "Frequency: " << radio.getIntFrequency() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << stationName() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Radio Text: " << stationText() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << getCountryCode() << hwlib::endl;      //0xFFFF where F is one nibble
@@ -45,12 +62,22 @@ void radioDataSystem::rawData(){
     hwlib::cout << hwlib::endl << hwlib::endl;
 }
 
+/// \brief
+/// Get Station Name
+/// \details
+/// This function retrieves the Data Blocks at least 15 times to get a valid Station Name. Every time data gets
+/// received, it contains only two characters. Next to some other information, which is gathered in the update() function
+/// , it also contains the index of the received characters. Wether or not 1 bit gets received correctly can determine
+/// if the Station Name is right or wrong. A mistake is make easy, even when the received Station Name is compared 5 times.
+/// It has one optional parameter (which defaults to 4) that defines how many times the data blocks have to be received (value * 15) and
+/// how many times the Station Name has to be the same for it to be valid.
+/// If there are more than 2 errors, the program will wait 20ms to wait for new data blocks to be received.
 char* radioDataSystem::getStationName(const unsigned int dataValidity){
 	for(unsigned int i = 0; i < 8; i++){
 		radioData.receivedStationName[i] = ' ';
 		radioData.realStationName[i] = ' ';
 	}
-	getStatus();					//Version B
+	getStatus();
 	for(unsigned int i = 0; i < dataValidity * 15; i++){
 		getStatus();
 		if(radioDataErrors(0) + radioDataErrors(1) <= 2){
@@ -92,6 +119,14 @@ char* radioDataSystem::getStationName(const unsigned int dataValidity){
 	return radioData.receivedStationName;
 }
 
+/// \brief
+/// Get Station Text
+/// \details
+/// This function retrieves the data blocks containing Radio Text. That is only the case when the group type is equal
+/// to 2. That's why this function can only be called from inside update(), which checks what group type the received 
+/// Radio Data is. The difference between Message Version A and B is that Version A contains 4 Characters while Version B
+/// only contains 2 Characters. The amount of integers that define the index is the same, but the index is calculated differently.
+/// This is all according to the Radio Data System Standard.
 char* radioDataSystem::getStationText(){
 	getStatus();
 	for(unsigned int i = 0; i < 30; i++){
@@ -138,6 +173,16 @@ char* radioDataSystem::getStationText(){
 	return radioData.rdsText;
 }
 
+/// \brief
+/// Update Radio Data
+/// \details
+/// This function Retrieves, Analyses and Decodes the received Radio Data Blocks. Since getStatus() gets called, which updates
+/// both the status array and the Blocks, information that is at the same index and at the same block for both version A and B,
+/// can just be asked through simple functions. But since Version A and B have different names, they support different data and 
+/// even if they contain the same info; not at the same index in the same block. For most data there has got to be made a difference
+/// between verion A and B. That's where this function comes in. Firstly, the data is refreshed. Secondly, the Station Name is 
+/// determined through getStationName(). Third, the Message Version is determined. And last, based on the Group Type,
+/// we can interpret the received Data, which is then stored and updated in radioData of type radioDataSystemData.
 void radioDataSystem::update(){
 	getStatus();
 	getStationName();
@@ -225,22 +270,43 @@ void radioDataSystem::update(){
 	}
 }
 
+/// \brief
+/// Stereo Signal
+/// \details
+/// This function returns true if the Broadcasted Signal is Stereo according to the Broadcaster.
 bool radioDataSystem::stereo(){
 	return radioData.stereoSignal;
 }
 
+/// \brief
+/// Compressed Signal
+/// \details
+/// This function returns true if the Broadcasted Signal is Compressed, or false when it is uncompressed.
 bool radioDataSystem::compressed(){
 	return radioData.compressedSignal;
 }
 
+/// \brief
+/// Static or Dynamic Program Type
+/// \details
+/// This function returns if the Program Type of this statin can vary over time. False if otherwise.
 bool radioDataSystem::staticProgramType(){
 	return radioData.staticProgramType;
 }
 
+/// \brief
+/// Get Program Item
+/// \details
+/// This function returns a Program Item containing start Time and Date of the current Broadcast.
 programItemNumber radioDataSystem::getProgramItem(){
 	return radioData.PIN;
 }
 
+/// \brief
+/// Amount of Radio Data Errors
+/// \details
+/// This function returns the amount of errors in the received Radio Data Blocks. This is a good indication
+/// about the quality of the Radio Data, but can be wrong since this data is also send across RDS.
 unsigned int radioDataSystem::radioDataErrors(const unsigned int block){
 	if(block == 1){
 		return (radioData.status[1] & 0x000C);
@@ -249,7 +315,11 @@ unsigned int radioDataSystem::radioDataErrors(const unsigned int block){
 	}
 }
 
-//When a station is found or the frequency gets set, the data has to be reset for it to contain valid chars again.
+/// \brief
+/// Reset Stored Radio Data
+/// \details
+/// This function resets the Radio Data. This way the process of retrieving Station Names and Texts is optimised
+/// after a change of Frequency. Has got to be called after a frequency change for good performance.
 void radioDataSystem::reset(){
 	for(auto & element : radioData.receivedStationName){
 		element = ' ';
@@ -260,20 +330,40 @@ void radioDataSystem::reset(){
 	getStatus();
 }
 
+/// \brief
+/// New Radio Data Ready
+/// \details
+/// This function returns true if new Radio Data is available. In practice, this always is the case when tuned to 
+/// a channel with good audio quality.
 bool radioDataSystem::radioDataReady(){
 	//getStatus();
 	return (radioData.status[0] >> 15) & 1;
 }
 
+/// \brief
+/// Radio Data Synchronised
+/// \details
+/// This function returns true if the chip is in sync with the Radio Data Blocks that arrive. When this is the case,
+/// the data has a smaller chance to contain errors.
 bool radioDataSystem::radioDataSynced(){
 	//getStatus();
 	return (radioData.status[0] >> 12) & 1;
 }
 
+/// \brief
+/// Emergency Warning
+/// \details
+/// This function returns true if an Emergency Warning has been send. Only available in a small number of countries.
 bool radioDataSystem::emergencyWarning(){
 	return radioData.emergencyWarning;
 }
 
+/// \brief
+/// Clear Screen Request
+/// \details
+/// This function returns true if a Clear Screen Request has been send by the station. This way, some Radio Stations
+/// try to display scrolling text. Boolean is rest to false after this function has been called. Until this function is called
+/// , the boolean remains true.
 bool radioDataSystem::clearScreen(){
 	if(radioData.clearScreenRequest){
 		radioData.clearScreenRequest = false;
@@ -283,18 +373,36 @@ bool radioDataSystem::clearScreen(){
 	}
 }
 
+/// \brief
+/// Get Country Code
+/// \details
+/// This function returns the number of the current country. This way, one can determine the country he is currently in.
+/// Used in cars.
 unsigned int radioDataSystem::getCountryCode(){
 	return ((radioData.blockA & 0xF000) >> 12);
 }
 
+/// \brief
+/// Get Program Area
+/// \details
+/// This function returns the Program Area; according to International Standard.
 unsigned int radioDataSystem::getProgramArea(){
 	return ((radioData.blockA & 0x0F00) >> 8);
 }
 
+/// \brief
+/// Get Program Refrence Number
+/// \details
+/// This function returns the Program Refrence Number; according to International Standard distributed by local authorities.
+/// This way, one can determine the station.
 unsigned int radioDataSystem::getProgramRefrence(){
 	return (radioData.blockA & 0x00FF);
 }
 
+/// \brief
+/// Get Message Group Type
+/// \details
+/// This function returns the Message Version / Group Type; A or B.
 char radioDataSystem::getMessageGroupType(){
 	if((radioData.blockB >> 11) & 1){
 		return 'A';
@@ -303,50 +411,106 @@ char radioDataSystem::getMessageGroupType(){
 	} 
 }
 
+/// \brief
+/// Get Program Type
+/// \details
+/// This function returns the Program Type; according to International Standard.
+/// List defines what kind of station this is; Popmusic, News, Podcast, Sport, etc.
 unsigned int radioDataSystem::getProgramType(){
 	return ((radioData.blockB & 0x3E0) >> 5);
 }
 
+/// \brief
+/// Currently Music
+/// \details
+/// This function returns true if there is currently music, false in case of speech. Supported 
+/// by some stations.
 bool radioDataSystem::currentMusic(){
 	return ((radioData.blockB >> 4) & 1);
 }
 
+/// \brief
+/// Get Station Name
+/// \details
+/// This function returns the Station Name but doesn't update it. Thus, the user will have to call update()
+/// at least once or call getStationName().
 char* radioDataSystem::stationName(){
 	return &radioData.receivedStationName[0];
 }
 
+/// \brief
+/// Get Station Text
+/// \details
+/// This function returns the Station Text but doesn't updat it. Thus, the user will have to call update()
+/// at least 10 times in a row (Station Text is not broadcast every second according to International Standards).
 char* radioDataSystem::stationText(){
 	return radioData.rdsText;
 }
 
+/// \brief
+/// Get Traffic Program
+/// \details
+/// This function returns true if Traffic Announcements occur on this Station, false otherwise.
 bool radioDataSystem::trafficProgram(){
 	return ((radioData.blockB >> 10) & 1);
 }
 
+/// \brief
+/// Get Traffic Announcement
+/// \details
+/// This function returns true if there currently is a Traffic Announcement.
 bool radioDataSystem::trafficAnnouncement(){
 	return ((radioData.blockB >> 5) & 1);
 }
 
+/// \brief
+/// Get Hours
+/// \details
+/// This function returns the time in hours when tuned to a station which broadcasts RDS-A. Time info
+/// is send at least every minute according to the International Standard. If no Time Info is received,
+/// the time will be 0:0.
 unsigned int radioDataSystem::hours(){
 	return radioData.hours;
 }
 
+/// \brief
+/// Get Minutes
+/// \details
+/// This function returns the time in minutes when tuned to a station which broadcasts RDS-A. Time info
+/// is send at least every minute according to the International Standard. If no Time Info is received,
+/// the time will be 0:0.
 unsigned int radioDataSystem::minutes(){
 	return radioData.minutes;
 }
 
+								//Radio Data System
+//<<<---------------------------------------------------------------------------------------------->>>
+					//Radio Data System Data and Program Item Number
+
+/// \brief
+/// Constructor
+/// \details
+/// This constructor has no mandatory parameters; they default to 0, 0 and 0.
 programItemNumber::programItemNumber(unsigned int day, unsigned int hours, unsigned int minutes): 
 	day(day), 
 	hours(hours), 
 	minutes(minutes)
 {}
 
+/// \brief
+/// Set Data
+/// \details
+/// This function is used to set the Day, Hours and Minutes to the given (passed) values.
 void programItemNumber::setData(unsigned int day, unsigned int hours, unsigned int minutes){
 	day = day;
 	hours = hours;
 	minutes = minutes;
 }
 
+/// \brief
+/// Constructor
+/// \details
+/// This constructor has no mandatory parameters and initializes a programItemNumber (composition).
 radioDataSystemData::radioDataSystemData():
 	PIN(programItemNumber()) 
 {}

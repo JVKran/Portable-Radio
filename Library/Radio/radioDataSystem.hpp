@@ -1,6 +1,13 @@
+/// @file
+
 #ifndef __RADIO_DATA_SYSTEM_HPP
 #define __RADIO_DATA_SYSTEM_HPP
 
+/// \brief
+/// Program Item Number
+/// \details
+/// This class stores the data provided by the PIN-Part of RDS-data. This part contains info about when the
+/// broadcast started en when it is ought to stop.
 class programItemNumber{
 	private:
 		unsigned int day;
@@ -13,6 +20,11 @@ class programItemNumber{
 		int getMins();
 };
 
+/// \brief
+/// Radio Data System Data
+/// \details
+/// This struct contains all info needed to parse, decode, analyse and store the received data provided by the Radio
+/// Data System.
 struct radioDataSystemData{
 	//Radio Data Received Blocks
 	uint16_t blockA;
@@ -44,8 +56,8 @@ struct radioDataSystemData{
 	bool charSegment3;
 
 	//Miscellaneous
-	unsigned int minutes;
-	unsigned int hours;
+	unsigned int minutes = 0;
+	unsigned int hours = 0;
 	unsigned int radioPaging;
 	unsigned int slowLabeling;
 	bool emergencyWarning;
@@ -68,6 +80,22 @@ struct radioDataSystemData{
 	radioDataSystemData();
 };
 
+/// \brief
+/// Radio Data System
+/// \details
+/// This class is used to handle everything that is part of the decoding, analysis and validation of the received
+/// RDS-Data. 
+///
+/// The Radio Data System is an International Standard of Broadcasting extra meta data in the lower spectrum of FM-
+/// Signals. It supports a large variety of information. From Time, to Artist, Song and Album, to Traffic Announcements.
+/// In some countries ther even is a national Emergency System based on RDS. Currently RDS2 is in development. However,
+/// with the rise of DAB+ it's questionable if it's even going to launch.
+///
+/// This class tries to support as much as possible as good as possible, and it does it pretty good. Only the channels
+/// make it harder. Most of them do not completely obey the protocol.
+///
+/// Since almost all channels support RDS-B and almost no channels support RDS-A (even if they do it often
+/// isn't complete) only RDS-B support has been tested.
 class radioDataSystem{
 	private:
 		hwlib::i2c_bus & bus;
