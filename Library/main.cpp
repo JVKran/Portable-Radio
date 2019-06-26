@@ -32,11 +32,11 @@ int main( void ){
   auto frequencyFont = hwlib::font_default_8x8();
   auto frequencyField = hwlib::terminal_from(frequencyWindow, frequencyFont);
 
-  auto stationWindow = hwlib::window_part(oled, hwlib::xy(20, 20), hwlib::xy(100, 40));
+  auto stationWindow = hwlib::window_part(oled, hwlib::xy(60, 54), hwlib::xy(128, 64));
   auto stationFont = hwlib::font_default_8x8();
   auto stationField = hwlib::terminal_from(stationWindow, stationFont);
 
-  auto signalWindow = hwlib::window_part(oled, hwlib::xy(50, 0), hwlib::xy(128, 64));
+  auto signalWindow = hwlib::window_part(oled, hwlib::xy(50, 0), hwlib::xy(128, 10));
 
   auto display = GUI(window, oled, button, frequencyField, signalWindow);
 
@@ -64,7 +64,7 @@ int main( void ){
       iterations = 0;
       display.displayFrequency(radio.getFrequency());
       display.receptionStrength(radio.signalStrength());
-      //stationField << "\f" << radio.radioData.getStationName() << hwlib::flush;
+      stationField << "\f" << radio.radioData.getStationName() << hwlib::flush;
     }
   }
 
