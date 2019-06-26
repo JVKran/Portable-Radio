@@ -44,7 +44,7 @@ void RDA5807::updateRegister(const int regNumber, const uint16_t value){
 }
 
 void RDA5807::getStatus(const uint8_t regNumber){		//Addressing starts at 0x0A
-	bus.write(indexAddress).write(0x0A + regNumber);
+	bus.write(indexAddress).write(firstReadRegister + regNumber);
 	auto transaction = bus.read(indexAddress);
 	status[regNumber] = transaction.read_byte() << 8;
 	status[regNumber] |= transaction.read_byte();
@@ -52,7 +52,7 @@ void RDA5807::getStatus(const uint8_t regNumber){		//Addressing starts at 0x0A
 }
 
 void RDA5807::getStatus(){
-	bus.write(indexAddress).write(0x0A);
+	bus.write(indexAddress).write(firstReadRegister);
 	auto transaction = bus.read(indexAddress);
 	for(unsigned int i = 0; i < 6; i++){
 		status[i] = transaction.read_byte() << 8;
@@ -394,14 +394,4 @@ char* RDA5807::stationText(){
 
 void RDA5807::updateRadioData(){
 	radioData.update();
-}
-
-void RDA5807::test(){
-	getStatus(0);
-	getStatus(1);
-	getStatus(2);
-	getStatus(3);
-	getStatus(4);
-	getStatus(5);
-	hwlib::cout << status[0] << ", " << status[1] << ", " << status[2] << ", " << status[3] << hwlib::endl;
 }
