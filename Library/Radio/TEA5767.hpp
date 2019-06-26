@@ -28,7 +28,7 @@ class TEA5767 : public Radio {
 
 		//Basic Settings
 		void setClockFrequency(const unsigned int frequency = 32) override;
-		unsigned int clockFrequency();
+		unsigned int getClockFrequency() override;
 
 		void setBandLimit(const unsigned int limit = 1) override;
 		unsigned int hasBandLimit() override;
@@ -37,7 +37,8 @@ class TEA5767 : public Radio {
 		bool isStandBy() override;
 
 		//Basic Tuning
-		void setFrequency(const float frequency = -1, const int hiLoForce = -1);
+		void setFrequency(const float frequency, const int hiLoForce);
+		void setFrequency(const float frequency) override;
 		float getFrequency() override;
 		unsigned int getIntFrequency() override;
 		bool highSide();
@@ -49,19 +50,24 @@ class TEA5767 : public Radio {
 
 		void setMute(const bool mute = true) override;
 		void setMute(const char side, const bool mute = true);
-		bool isMuted(const char side = 'a');
+		bool isMuted(const char side = 'a') override;
 
 		void setStereo(const bool stereo = true) override;
 		bool isStereo() override;			//Stereo Output Set
 		bool stereoReception() override;	//Stereo Signal Received
 
 		//Search Settings
+		void seek(const unsigned int direction) override;
+
 		void searchLoop(const unsigned int direction, const unsigned int qualityThreshold = 3);
 		void searchLoop(const float startFrequency, const unsigned int direction, const unsigned int qualityThreshold);
+
 		void singleSearch(const unsigned int direction, const unsigned int qualityThreshold = 3);
 		void singleSearch(const float startFrequency, const unsigned int direction, const unsigned int qualityThreshold);
+
 		void altSearch(const unsigned int direction, const unsigned int qualityThreshold = 3, const float distance = 0.4);
 		void altSearch(const float startFrequency, const unsigned int direction, const unsigned int inQualityThreshold, const float distance);
+
 		bool inSearch();
 
 		//Software Programmable Ports

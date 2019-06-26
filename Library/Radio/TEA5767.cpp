@@ -17,7 +17,7 @@ float floor(float input){
 /// This constructor has one mandatory parameter; the I2C bus. The address defaults
 /// to 0x60. Leave the bandLimit empty or 0 for no bandlimits (EU/US) or 1 for use in
 /// Japan. The module is automatically muted after initialisation and best settings are set.
-TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit, uint8_t address): Radio(bus, bandLimit, address){
+TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit, uint8_t address): Radio(bus, address, bandLimit){
 	setMute(true);
 	audioSettings();
 }
@@ -36,7 +36,7 @@ void TEA5767::setData(){
 /// Get Data
 /// \details
 /// This function is used to receive data, which is placed in the status array and 
-/// interpreted by other functions, from the TEA5767 chip.
+/// interpreted by other functions, from the TEA5767 chip. Old data in the status array will be overwritten.
 void TEA5767::getStatus(){
 	bus.read(address).read(status, 5);
 	hwlib::wait_ms(30);		//Necessary to prevent strange things from happening
@@ -153,6 +153,18 @@ void TEA5767::setFrequency(const float frequency, const int hiLoForce){
 		}
 	}
 	setData();
+}
+
+/// \brief
+/// Set Frequency
+/// \details
+/// This function tunes to the given frequency. If no frequency is provided, the chip will tune to the first
+/// legal frequency. The user can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
+/// testHiLo() will be called to determine the best option. During the tuning, the audio is muted
+/// to prevent loud pops. This function in particular makes use of setFrequency(const float, const int) to support
+/// more class independent use of Radio().
+void TEA5767::setFrequency(const float frequency){
+	setFrequency(frequency, -1);
 }
 
 /// \brief
@@ -309,6 +321,10 @@ void TEA5767::setPort(const bool portOne, const bool portTwo, const bool searchI
 	} else {
 		data[3] &= ~(1UL << 7);
 	}
+}
+
+void TEA5767::seek(const unsigned int direction){
+	singleSearch(direction);
 }
 
 /// \brief
@@ -668,7 +684,7 @@ bool TEA5767::isStandBy(){
 /// Get Clock Frequency
 /// \details
 /// This function returns the Clock Frequency of the TEA5767
-unsigned int TEA5767::clockFrequency(){
+unsigned int TEA5767::getClockFrequency(){
 	if ((data[3] >> 5) & 0 && (data[4] >> 7) & 0){
 		return 13;
 	} else if ((data[3] >> 5) & 1 && (data[4] >> 7) & 0){
@@ -683,7 +699,7 @@ unsigned int TEA5767::clockFrequency(){
 /// \details
 /// This function returns true if the TEA5767's FM-range is limited.
 unsigned int TEA5767::hasBandLimit(){
-	return(data[0] >> 6) & 1;
+	return bandLimit;
 }
 
 /// \brief

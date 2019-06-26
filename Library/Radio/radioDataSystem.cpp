@@ -1,11 +1,17 @@
 #include "hwlib.hpp"
 #include "radioDataSystem.hpp"
 
-radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus): bus(bus), radioData(radioDataSystemData()) {}
+radioDataSystem::radioDataSystem(hwlib::i2c_bus_bit_banged_scl_sda & bus, const uint8_t address, const uint8_t firstReadAddress): 
+	bus(bus),
+	address(address),
+	indexAddress(address + 1),
+	firstReadAddress(firstReadAddress),
+	radioData(radioDataSystemData())
+{}
 
 void radioDataSystem::getStatus(){
-	bus.write(0x11).write(0x0A);
-	auto transaction = bus.read(0x11);
+	bus.write(indexAddress).write(firstReadAddress);
+	auto transaction = bus.read(indexAddress);
 	for(unsigned int i = 0; i < 6; i++){
 		radioData.status[i] = transaction.read_byte() << 8;
 		radioData.status[i] |= transaction.read_byte();
@@ -235,7 +241,7 @@ programItemNumber radioDataSystem::getProgramItem(){
 	return radioData.PIN;
 }
 
-int radioDataSystem::radioDataErrors(const int block){
+unsigned int radioDataSystem::radioDataErrors(const unsigned int block){
 	if(block == 1){
 		return (radioData.status[1] & 0x000C);
 	} else {
@@ -277,15 +283,15 @@ bool radioDataSystem::clearScreen(){
 	}
 }
 
-int radioDataSystem::getCountryCode(){
+unsigned int radioDataSystem::getCountryCode(){
 	return ((radioData.blockA & 0xF000) >> 12);
 }
 
-int radioDataSystem::getProgramArea(){
+unsigned int radioDataSystem::getProgramArea(){
 	return ((radioData.blockA & 0x0F00) >> 8);
 }
 
-int radioDataSystem::getProgramRefrence(){
+unsigned int radioDataSystem::getProgramRefrence(){
 	return (radioData.blockA & 0x00FF);
 }
 
@@ -297,7 +303,7 @@ char radioDataSystem::getMessageGroupType(){
 	} 
 }
 
-int radioDataSystem::getProgramType(){
+unsigned int radioDataSystem::getProgramType(){
 	return ((radioData.blockB & 0x3E0) >> 5);
 }
 
@@ -321,22 +327,26 @@ bool radioDataSystem::trafficAnnouncement(){
 	return ((radioData.blockB >> 5) & 1);
 }
 
-int radioDataSystem::hours(){
+unsigned int radioDataSystem::hours(){
 	return radioData.hours;
 }
 
-int radioDataSystem::minutes(){
+unsigned int radioDataSystem::minutes(){
 	return radioData.minutes;
 }
 
-programItemNumber::programItemNumber(int day, int hours, int minutes): 
+programItemNumber::programItemNumber(unsigned int day, unsigned int hours, unsigned int minutes): 
 	day(day), 
 	hours(hours), 
 	minutes(minutes)
 {}
 
-void programItemNumber::setData(int day, int hours, int minutes){
+void programItemNumber::setData(unsigned int day, unsigned int hours, unsigned int minutes){
 	day = day;
 	hours = hours;
 	minutes = minutes;
 }
+
+radioDataSystemData::radioDataSystemData():
+	PIN(programItemNumber()) 
+{}
