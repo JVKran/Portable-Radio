@@ -70,10 +70,10 @@ class RDA5807 : public Radio {
 		bool isNormalAudio();
 
 		void setBassBoost(const bool boost = true);
-		bool bassBoosted();
+		bool bassBoosted() override;
 
 		void setVolume(const uint8_t volume = 15);
-		unsigned int getVolume();
+		unsigned int getVolume() override;
 
 		void setMute(const bool mute = true) override;
 		bool isMuted(const char side = 'a') override;
@@ -93,7 +93,7 @@ class RDA5807 : public Radio {
 		radioDataSystem radioData;
 
 		void enableRadioData(const bool enable = true);
-		bool radioDataEnabled();
+		bool radioDataEnabled() override;
 
 		bool radioDataReady();
 		bool radioDataSynced();

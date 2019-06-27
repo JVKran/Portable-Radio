@@ -51,6 +51,9 @@ class TEA5767 : public Radio {
 		void setMute(const bool mute = true) override;
 		void setMute(const char side, const bool mute = true);
 		bool isMuted(const char side = 'a') override;
+		unsigned int getVolume() override;
+
+		bool bassBoosted();
 
 		void setStereo(const bool stereo = true) override;
 		bool isStereo() override;			//Stereo Output Set
@@ -73,6 +76,9 @@ class TEA5767 : public Radio {
 		//Software Programmable Ports
 		void setPort(const bool portOne, const bool portTwo, const bool searchIndicator = false);
 		bool getPort(const unsigned int port);
+
+		//Radio Data Settings
+		bool radioDataEnabled() override;
 };
 
 #endif //__TEA5767_HPP

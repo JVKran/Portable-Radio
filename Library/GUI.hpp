@@ -2,6 +2,7 @@
 #define __GUI_HPP
 
 #include "KY040.hpp"
+#include "RDA5807.hpp"
 
 class signalBars{
 	private:
@@ -38,18 +39,21 @@ class GUI{
 		unsigned int lastVoltage = 0;
 		bool lastStereo = false;
 		unsigned int lastMenuArea = 0;
+		unsigned int lastVolume = 0;
 		hwlib::terminal & stereoField;
 		hwlib::window & signalWindow;
 		hwlib::window & batteryWindow;
 		hwlib::terminal & frequencyField;
 		hwlib::terminal & menuField;
+		hwlib::terminal & settingsField;
 	public:
 		GUI(hwlib::window & window_part, hwlib::glcd_oled & display, KY040 & button, 
 			hwlib::terminal_from & stereoField, 
 			hwlib::window & signalWindow, 
 			hwlib::window & batteryWindow,
 			hwlib::terminal_from & frequencyField,
-			hwlib::terminal_from & menuField
+			hwlib::terminal_from & menuField,
+			hwlib::terminal_from & settingsField
 		);
 		void receptionStrength(const unsigned int signalStrength);
 		void batteryPercentage(const unsigned int voltage);
@@ -57,8 +61,9 @@ class GUI{
 		void displayStationName(const char & stationName);
 		void displayFrequency(const unsigned int frequency, const bool change);
 		void displayMenuArea(const unsigned int menuArea);
-		void displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea);
-		void showSettings();
+		void displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const bool force = false);
+		void displaySettings();
+		void showSettings(KY040 & button, Radio & radio, unsigned int & menuArea);
 };
 
 

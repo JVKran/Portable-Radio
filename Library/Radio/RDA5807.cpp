@@ -98,6 +98,7 @@ void RDA5807::getStatus(){
 void RDA5807::begin(const bool muted){
 	hwlib::wait_ms(1000);
 	setMute(muted);
+	setVolume(15);
 	normalAudio(true);
 	setTune(true);
 	hwlib::wait_ms(50);

@@ -208,6 +208,19 @@ void TEA5767::setMute(const bool mute){
 }
 
 /// \brief
+/// Get Volume
+/// \details
+/// This function return 0 if it is muted or 15 when it isn't. Used for interchangability with the
+/// RDA5807.
+unsigned int TEA5767::getVolume(){
+	if(isMuted()){
+		return 0;
+	} else {
+		return 15;
+	}
+}
+
+/// \brief
 /// Mute Unmute L OR R
 /// \details
 /// This function takes two parameters which define what side has to be muted or unmuted. If L or R
@@ -721,4 +734,22 @@ unsigned int TEA5767::hasBandLimit(){
 /// stereoReception().
 bool TEA5767::isStereo(){
 	return (data[2] >> 3) & 0;		//Yes, 0 is stereo
+}
+
+/// \brief
+/// Radio Data Enabled
+/// \details
+/// This function returns false since the TEA5767, in contrary of the RDA58XX Series,
+/// doesn't support the reception of Radio Data broadcasted by the Radio Data System.
+bool TEA5767::radioDataEnabled(){
+	return false;
+}
+
+/// \brief
+/// Bass Boosted
+/// \details
+/// This function returns false since the TEA5767, in contrary of the RDA58XX Series,
+/// doesn't support increasing the bass level outputed.
+bool TEA5767::bassBoosted(){
+	return false;
 }

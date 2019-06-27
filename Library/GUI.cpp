@@ -1,13 +1,14 @@
 #include "hwlib.hpp"
 #include "KY040.hpp"
+#include "RDA5807.hpp"
 #include "GUI.hpp"
 
 
 batteryBars::batteryBars(const hwlib::xy & position, const unsigned int height, const unsigned int width):
 	left(position, hwlib::xy(position.x, position.y + height)),
-	right(hwlib::xy(position.x + width, position.y + 1), hwlib::xy(position.x + width, position.y + height)),
+	right(hwlib::xy(position.x + width, position.y), hwlib::xy(position.x + width, position.y + height + 1)),
 	top(hwlib::xy(position.x, position.y + height), hwlib::xy(position.x + width, position.y + height)),
-	bottom(position, hwlib::xy(position.x + width + 2, position.y)),
+	bottom(position, hwlib::xy(position.x + width, position.y)),
 	tip(hwlib::xy(position.x - 1, position.y + 1), hwlib::xy(position.x -1, position.y + height - 1)),
 	height(height),
 	width(width),
@@ -23,7 +24,7 @@ void batteryBars::print(hwlib::window & window, const unsigned int percentage){
 	bottom.draw(window);
 	tip.draw(window);
 	for(unsigned int i = 0; i <= (width * 10) / 10 * percentage / 100; i++){
-		hwlib::line line(hwlib::xy( position.x + width - i + 1, position.y), hwlib::xy(  position.x + width - i + 1, position.y + height ));
+		hwlib::line line(hwlib::xy( position.x + width - i, position.y), hwlib::xy(  position.x + width - i, position.y + height ));
 	   	line.draw(window);
 	}
 	window.flush();
@@ -72,7 +73,8 @@ GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button,
 	hwlib::window & signalWindow, 
 	hwlib::window & batteryWindow,
 	hwlib::terminal_from & frequencyField,
-	hwlib::terminal_from & menuField
+	hwlib::terminal_from & menuField,
+	hwlib::terminal_from & settingsField
 ):
 	window(window),
 	display(display), 
@@ -83,7 +85,8 @@ GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button,
 	signalWindow(signalWindow),
 	batteryWindow(batteryWindow),
 	frequencyField(frequencyField),
-	menuField(menuField)
+	menuField(menuField),
+	settingsField(settingsField)
 {
 	display.clear();
 }
@@ -123,9 +126,9 @@ void GUI::displayStationName(const char & stationName){
 
 void GUI::displayMenuArea(const unsigned int menuArea){
 	if(menuArea == 0){
-		menuField << "Automatic" << hwlib::flush;
+		menuField << "\f" << "      Auto " << hwlib::flush;
 	} else if (menuArea == 1){
-		menuField << "Manually" << hwlib::flush;
+		menuField << "\f" << "     Manual" << hwlib::flush;
 	}
 }
 
@@ -137,30 +140,108 @@ void GUI::displayFrequency(const unsigned int frequency, const bool change){
 	}
 }
 
-void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea){
-	if(frequency != lastFrequency || change != lastChange){
+void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const bool force){
+	if(frequency != lastFrequency || change != lastChange || force){
 		displayFrequency(frequency, change);
+		displayMenuArea(menuArea);
 		lastFrequency = frequency;
 		lastChange = change;
 	}
-	if(signalStrength / 12 != lastSignalStrength){
+	if(signalStrength / 12 != lastSignalStrength || force){
 		receptionStrength(signalStrength);
 		lastSignalStrength = signalStrength / 12;
 	}
-	if(voltage != lastVoltage){
+	if(voltage != lastVoltage || force){
 		batteryPercentage(voltage);
 		lastVoltage = voltage;
 	}
-	if(stereo != lastStereo){
+	if(stereo != lastStereo || force){
 		displayStereo(stereo);
 		lastStereo = stereo;
 	}
-	if(menuArea != lastMenuArea){
+	if((menuArea != lastMenuArea || force) && menuArea < 3){
 		displayMenuArea(menuArea);
 		lastMenuArea = menuArea;
 	}
+	menuField << hwlib::boolalpha;
+	if(menuArea == 3){
+		menuField << "\f" << " Bass ";
+		if(radio.bassBoosted()){
+			menuField << "Boosted";
+		} else {
+			menuField << "Unboosted";
+		}
+		menuField << hwlib::flush;
+		lastVolume = radio.getVolume();
+	}
+	if(menuArea == 4){
+		if(radio.isMuted()){
+			menuField << "\f" << "     Muted";
+		} else {
+			menuField << "\f" << "    Unmuted";
+		}
+		menuField << hwlib::flush;
+	}
+	if(menuArea == 5){
+		if(radio.radioDataEnabled()){
+			menuField << "\f" << "  RDS enabled";
+		} else {
+			menuField << "\f" << "  RDS disabled";
+		}
+		menuField << hwlib::flush;
+	}
+	if(menuArea == 6){
+		if(showRadioDataStationName){
+			menuField << "\f" << " 	  RDS Name";
+		} else {
+			menuField << "\f" << "   Preset Name";
+		}
+		menuField << hwlib::flush;
+	}
 }
 
-void GUI::showSettings(){
-
+void GUI::showSettings(KY040 & button, Radio & radio, unsigned int & menuArea){
+	button.update();
+	auto pos = button.getPos();
+	hwlib::cout << hwlib::boolalpha;
+	if(pos == 0){
+		settingsField << 	"\f" << "-> Vol: " << radio.getVolume() <<
+					"\n" << "   Bass: " << radio.bassBoosted() <<
+				"\t0002" << "   Mute: " << radio.isMuted() <<
+				"\t0003" << "   RDS:  " << radio.radioDataEnabled() <<
+				"\t0004" << "   Back" <<
+				hwlib::flush;
+	} else if (pos == 1){
+		settingsField << 	"\f" << "   Vol: " << radio.getVolume() <<
+					"\n" << "-> Bass: " << radio.bassBoosted() <<
+				"\t0002" << "   Mute: " << radio.isMuted() <<
+				"\t0003" << "   RDS:  " << radio.radioDataEnabled() <<
+				"\t0004" << "   Back" <<
+				hwlib::flush;
+	} else if (pos == 2){
+		settingsField << 	"\f" << "   Vol: " << radio.getVolume() <<
+					"\n" << "   Bass: " << radio.bassBoosted() <<
+				"\t0002" << "-> Mute: " << radio.isMuted() <<
+				"\t0003" << "   RDS:  " << radio.radioDataEnabled() <<
+				"\t0004" << "   Back" <<
+				hwlib::flush;
+	} else if (pos == 3){
+		settingsField << 	"\f" << "   Vol: " << radio.getVolume() <<
+					"\n" << "   Bass: " << radio.bassBoosted() <<
+				"\t0002" << "   Mute: " << radio.isMuted() <<
+				"\t0003" << "-> RDS:  " << radio.radioDataEnabled() <<
+				"\t0004" << "   Back" <<
+				hwlib::flush;
+	} else {
+		settingsField << 	"\f" << "   Vol: " << radio.getVolume() <<
+					"\n" << "   Bass: " << radio.bassBoosted() <<
+				"\t0002" << "   Mute: " << radio.isMuted() <<
+				"\t0003" << "   RDS:  " << radio.radioDataEnabled() <<
+				"\t0004" << "-> Back" <<
+				hwlib::flush;
+	}
+	if(button.isPressed()){
+		menuArea = 0;
+		button.setPos(0);
+	}
 }

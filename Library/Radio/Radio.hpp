@@ -42,7 +42,9 @@ class Radio{
 
 		virtual void setMute(const bool mute) = 0;
 		virtual bool isMuted(const char side = 'a') = 0;
+		virtual unsigned int getVolume() = 0;
 
+		virtual bool bassBoosted() = 0;
 
 		virtual void setStereo(const bool stereo = true) = 0;
 		virtual bool stereoReception() = 0;
@@ -50,6 +52,9 @@ class Radio{
 
 		//Search Settings
 		virtual void seek(const unsigned int direction) = 0;
+
+		//Radio Data Settings
+		virtual bool radioDataEnabled() = 0;
 };
 
 #endif //__RADIO_HPP
