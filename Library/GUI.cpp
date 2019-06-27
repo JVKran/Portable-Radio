@@ -3,6 +3,34 @@
 #include "GUI.hpp"
 
 
+batteryBars::batteryBars(const hwlib::xy & position, const unsigned int height, const unsigned int width):
+	left(position, hwlib::xy(position.x, position.y + height)),
+	right(hwlib::xy(position.x + width, position.y + 1), hwlib::xy(position.x + width, position.y + height)),
+	top(hwlib::xy(position.x, position.y + height), hwlib::xy(position.x + width, position.y + height)),
+	bottom(position, hwlib::xy(position.x + width + 2, position.y)),
+	tip(hwlib::xy(position.x - 1, position.y + 1), hwlib::xy(position.x -1, position.y + height - 1)),
+	height(height),
+	width(width),
+	position(position)
+{}
+
+
+
+void batteryBars::print(hwlib::window & window, const unsigned int percentage){
+	left.draw(window);
+	right.draw(window);
+	top.draw(window);
+	bottom.draw(window);
+	tip.draw(window);
+	for(unsigned int i = 0; i <= (width * 10) / 10 * percentage / 100; i++){
+		hwlib::line line(hwlib::xy( position.x + width - i + 1, position.y), hwlib::xy(  position.x + width - i + 1, position.y + height ));
+	   	line.draw(window);
+	}
+	window.flush();
+}
+
+//<<<--------------------------------------------------------------------------->>>
+
 
 signalBars::signalBars(const hwlib::xy & position, const unsigned int spacing, const unsigned int heightIncrement):
 	spacing(spacing),
@@ -39,13 +67,23 @@ void signalBars::print(hwlib::window & window, const unsigned int amountOfLines)
 
 
 
-GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button, hwlib::terminal_from & frequencyField, hwlib::window & signalWindow):
+GUI::GUI(hwlib::window & window, hwlib::glcd_oled & display, KY040 & button, 
+	hwlib::terminal_from & stereoField, 
+	hwlib::window & signalWindow, 
+	hwlib::window & batteryWindow,
+	hwlib::terminal_from & frequencyField,
+	hwlib::terminal_from & menuField
+):
 	window(window),
 	display(display), 
 	button(button),
-	signalIndicator(signalBars(hwlib::xy(110, 10), 2, 2)),
+	signalIndicator(signalBars(hwlib::xy(110, 8), 2, 2)),
+	batteryIndicator(batteryBars(hwlib::xy(90, 2))),
+	stereoField(stereoField),
+	signalWindow(signalWindow),
+	batteryWindow(batteryWindow),
 	frequencyField(frequencyField),
-	signalWindow(signalWindow)
+	menuField(menuField)
 {
 	display.clear();
 }
@@ -63,8 +101,17 @@ void GUI::receptionStrength(const unsigned int signalStrength){
 	signalIndicator.print(window, signalStrength / 12);
 }
 
-void GUI::displayFrequency(const float frequency){
-	frequencyField << "\f" << int(frequency) << hwlib::flush;
+void GUI::batteryPercentage(const unsigned int voltage){
+	batteryWindow.clear();
+	batteryIndicator.print(window, (voltage - 32) * 10);			//4.2V = 100%, 3.2V = 0%
+}
+
+void GUI::displayStereo(const bool stereo){
+	if(stereo){
+		stereoField << "\f" << "ST" << hwlib::flush;
+	} else {
+		stereoField << "\f" << "MN" << hwlib::flush;
+	}
 }
 
 void GUI::displayStationName(const char & stationName){
@@ -74,14 +121,43 @@ void GUI::displayStationName(const char & stationName){
 	signalIndicator.print(window, 60 / 12);
 }
 
-void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequency){
-	if(frequency != lastFrequency || signalStrength / 12 != lastSignalStrength){
-		display.clear();
-		receptionStrength(signalStrength);
-		displayFrequency(frequency);
+void GUI::displayMenuArea(const unsigned int menuArea){
+	if(menuArea == 0){
+		menuField << "Automatic" << hwlib::flush;
+	} else if (menuArea == 1){
+		menuField << "Manually" << hwlib::flush;
+	}
+}
+
+void GUI::displayFrequency(const unsigned int frequency, const bool change){
+	if(change){
+		frequencyField << "\f" << '<' << frequency / 10 << '.' << (frequency % 10) << '>' << hwlib::flush;
+	} else {
+		frequencyField << "\f" << ' ' << frequency / 10 << '.' << (frequency % 10) << ' ' << hwlib::flush;
+	}
+}
+
+void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea){
+	if(frequency != lastFrequency || change != lastChange){
+		displayFrequency(frequency, change);
 		lastFrequency = frequency;
+		lastChange = change;
+	}
+	if(signalStrength / 12 != lastSignalStrength){
+		receptionStrength(signalStrength);
 		lastSignalStrength = signalStrength / 12;
-		window.flush();
+	}
+	if(voltage != lastVoltage){
+		batteryPercentage(voltage);
+		lastVoltage = voltage;
+	}
+	if(stereo != lastStereo){
+		displayStereo(stereo);
+		lastStereo = stereo;
+	}
+	if(menuArea != lastMenuArea){
+		displayMenuArea(menuArea);
+		lastMenuArea = menuArea;
 	}
 }
 
