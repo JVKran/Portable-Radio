@@ -57,13 +57,14 @@ int main( void ){
 
 //                        Initialization
 //<<<--------------------------------------------------------->>>
-  auto display = GUI(window, oled, button, stereoField, signalWindow, batteryWindow, frequencyField, menuField, settingsField);
+  auto display = GUI(window, oled, button, stereoField, signalWindow, batteryWindow, frequencyField, menuField, settingsField, stationField);
 
-  radio.setFrequency(101.2);
+  radio.setFrequency(107.5);
   hwlib::wait_ms(3000);
   unsigned int iterations = 0;
   int lastKnownPos = 0;
   button.setPos(0);
+
 
 //                        Menu Navigation Handling
 //<<<-------------------------------------------------------->>>
@@ -71,7 +72,7 @@ int main( void ){
   bool wasPressed = false;
   unsigned int menuArea = 0;      //0 for autoSearch, 1 for manualSearch
   bool bassBoost = false;
-  bool showRadioDataStationName = true;
+  bool showRadioDataStationName = false;
 
   //std::array<float, 12> stations = {90.7, 92.6, 93.4, 94.7, 95.2, 97.6, 98.9, 100.1, 100.7, 101.2, 102.1, 107.5};
   for(;;){
@@ -146,14 +147,14 @@ int main( void ){
 
     wasPressed = false;
 
-    if(iterations > 2000){
+    if(iterations > 20000){
       iterations = 0;
       button.getPos();
-      display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName);
       if(showRadioDataStationName){
-        //stationField << "\f" << radio.radioData.getStationName() << hwlib::flush;
+        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, &radio.radioData.getStationName()[0]);
       } else {
-
+        char newData[] = {"SKYRADIO"};
+        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, newData);
       }
     }
   }

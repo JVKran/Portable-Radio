@@ -46,6 +46,8 @@ class GUI{
 		hwlib::terminal & frequencyField;
 		hwlib::terminal & menuField;
 		hwlib::terminal & settingsField;
+		hwlib::terminal & stationField;
+		char lastStationName[9] = {"        "};
 	public:
 		GUI(hwlib::window & window_part, hwlib::glcd_oled & display, KY040 & button, 
 			hwlib::terminal_from & stereoField, 
@@ -53,7 +55,8 @@ class GUI{
 			hwlib::window & batteryWindow,
 			hwlib::terminal_from & frequencyField,
 			hwlib::terminal_from & menuField,
-			hwlib::terminal_from & settingsField
+			hwlib::terminal_from & settingsField,
+			hwlib::terminal_from & stationField
 		);
 		void receptionStrength(const unsigned int signalStrength);
 		void batteryPercentage(const unsigned int voltage);
@@ -61,7 +64,7 @@ class GUI{
 		void displayStationName(const char & stationName);
 		void displayFrequency(const unsigned int frequency, const bool change);
 		void displayMenuArea(const unsigned int menuArea);
-		void displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const bool force = false);
+		void displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const char* stationName, const bool force = false);
 		void displaySettings();
 		void showSettings(KY040 & button, Radio & radio, unsigned int & menuArea);
 };
