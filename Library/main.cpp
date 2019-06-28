@@ -5,6 +5,36 @@
 #include "KY040.hpp"
 #include "A24C256.hpp"
 
+void setTestPresets(A24C256 & memory){
+  //4 Presets:
+  memory.write(0, 4);
+
+  //Q-Music, 100.7
+  memory.write(1, 100);
+  memory.write(2, 7);
+  char Qdata[]={"Q-Music "};    //Space to make sure no data at next index. Entire memory is filled with testcode.
+  memory.write(3, Qdata);
+
+  //Sky Radio 101.2
+  memory.write(11, 101);
+  memory.write(12, 2);
+  char Sdata[]={"SKYRADIO"};
+  memory.write(13, Sdata);
+
+  //Midland FM, 107.5
+  memory.write(21, 107);
+  memory.write(22, 5);
+  char Mdata[]={"MIDLAND "};
+  memory.write(23, Mdata);
+
+  //Radio 538, 100.1
+  memory.write(31, 100);
+  memory.write(32, 1);
+  char Rdata[]={"RADIO538"};
+  memory.write(33, Rdata);
+}
+
+
 int main( void ){
   namespace target = hwlib::target;
 
@@ -63,20 +93,22 @@ int main( void ){
   auto batteryWindow = hwlib::window_part(oled, hwlib::xy(90, 0), hwlib::xy(105, 10));
 
   oled.clear();
+
 //                        Initialization
 //<<<--------------------------------------------------------->>>
   auto display = GUI(window, oled, button, stereoField, signalWindow, batteryWindow, frequencyField, menuField, settingsField, stationField);
 
   radio.setFrequency(107.5);
   hwlib::wait_ms(3000);
-  unsigned int iterations = 0;
-  int lastKnownPos = 0;
   button.setPos(0);
 
+  setTestPresets(memory);
 
 //                        Menu Navigation Handling
 //<<<-------------------------------------------------------->>>
   bool inPressedArea = false;
+  unsigned int iterations = 0;
+  int lastKnownPos = 0;
   bool wasPressed = false;
   unsigned int menuArea = 0;      //0 for autoSearch, 1 for manualSearch
   bool bassBoost = false;
@@ -86,22 +118,26 @@ int main( void ){
 //                        Retrieving Saved Stations from Memory
 //<<<-------------------------------------------------------------------------->>>
   unsigned int amountOfPresets = memory.read(0);
-  int curTunedPreset = 0;
+  unsigned int curTunedPreset = 0;
+  unsigned int lastCheckedPreset = curTunedPreset - 1; //To force update
   uint8_t newData[] = {"        "};
 
   std::array<float, 20> stations = {};    //A total of 20 stations can be saved and thus, retrieved.
-  //Index 1 contains frequency as int, 2 - 10 contain the name. 11 contains frequency, 12 - 20 contain the name. etc.
+  //Index 1 contains first whole digit from frequency as int, 2 contains comma number 3 - 10 contain the name. 11 and 12 contain frequency 13 - 20 contain the name. etc.
+
   for(unsigned int i = 0; i < amountOfPresets; i++){
-    stations[i] = memory.read(i * 10 + 1);
+    stations[i] = float(memory.read(i * 10 + 1) * 10 + (memory.read(i * 10 + 2))) / 10;       //So frequency = 81 + content.
+    hwlib::cout << int(stations[i] * 10) << hwlib::endl;
   }
 
-  memory.read(curTunedPreset * 10 + 2, curTunedPreset * 20, newData);
+  memory.read(curTunedPreset * 10 + 2, curTunedPreset * 10 + 10, newData);
   char* stationName = (char*)newData;
   display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)newData);
 
 
   timeField << "14:12" << hwlib::flush;
 
+  menuArea = 0;
   stations = {90.7, 92.6, 93.4, 94.7, 95.2, 97.6, 98.9, 100.1, 100.7, 101.2, 102.1, 107.5};
   for(;;){
     iterations++;
@@ -126,7 +162,7 @@ int main( void ){
           radio.setFrequency(newFrequency);
         } else {
           curTunedPreset++;
-          radio.setFrequency(stations[curTunedPreset]);
+          radio.setFrequency(float(stations[curTunedPreset] / 10));
         }
         //Down in Pressed Area
       } else if (inPressedArea && menuArea < 3){
@@ -138,7 +174,7 @@ int main( void ){
           radio.setFrequency(newFrequency);
         } else {
           curTunedPreset--;
-          radio.setFrequency(stations[curTunedPreset]);
+          radio.setFrequency(float(stations[curTunedPreset] / 10));
         }
         //Not in Pressed Area
       }
@@ -192,6 +228,11 @@ int main( void ){
       if(showRadioDataStationName){
         display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, &radio.radioData.getStationName()[0]);
       } else {
+        if(curTunedPreset != lastCheckedPreset){
+          memory.read(curTunedPreset * 10 + 2, curTunedPreset * 10 + 10, newData);
+          stationName = (char*)newData;
+          lastCheckedPreset = curTunedPreset;
+        }
         display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0]);
       }
     }
