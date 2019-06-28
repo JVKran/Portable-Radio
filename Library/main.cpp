@@ -5,6 +5,35 @@
 #include "KY040.hpp"
 #include "A24C256.hpp"
 
+/*
+void setTestPresets(A24C256 & memory){
+  char data[]={"        "};
+
+  //4 Presets
+  memory.write(0, 4);
+
+  //Q-Music, 100.7
+  memory.write(1, 1007);
+  data={"Q-Music"};
+  memory.write(2, data);
+
+  //Sky Radio 101.2
+  memory.write(11, 1012);
+  data={"SKYRADIO"};
+  memory.write(12, data);
+
+  //Midland FM, 107.5
+  memory.write(21, 1075);
+  data={"MIDLAND"};
+  memory.write(22, data);
+
+  //Radio 538, 100.1
+  memory.write(31, 1075);
+  data={"RADIO538"};
+  memory.write(32, data);
+}
+*/
+
 int main( void ){
   namespace target = hwlib::target;
 
@@ -13,26 +42,36 @@ int main( void ){
   auto CLK = hwlib::target::pin_in( hwlib::target::pins::d36 );
   auto DT = hwlib::target::pin_in( hwlib::target::pins::d38 );
   auto SW = hwlib::target::pin_in( hwlib::target::pins::d40 );
-  
-  auto button = KY040(CLK, DT, SW);
 
   auto scl = target::pin_oc( target::pins::d8 );
   auto sda = target::pin_oc( target::pins::d9 );
   auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
+//                         Objects
+//<<<-------------------------------------------------------------------->>>
   auto radio = RDA5807(i2c_bus);
   radio.begin();
-  auto oled = hwlib::glcd_oled( i2c_bus, 0x3c );
+
+  auto button = KY040(CLK, DT, SW);
+
+  auto oled = hwlib::glcd_oled( i2c_bus, 0x3C );
+
+  auto memory = A24C256(i2c_bus);
+  // /setTestPresets();
 
 //                        Window Parts
-//<<<--------------------------------------------------------->>
+//<<<--------------------------------------------------------------------->>
   auto frequencyArea = hwlib::window_part(oled, hwlib::xy( 0, 0 ), hwlib::xy( 30, 10 ));   
   auto font = hwlib::font_default_8x8();
   //auto textArea = hwlib::terminal_from(frequencyArea, font);
 
   auto window = hwlib::window_part(oled, hwlib::xy(0, 0), hwlib::xy(128, 64));
 
-  auto stereoWindow = hwlib::window_part(oled, hwlib::xy(0, 0), hwlib::xy(20, 10));
+  auto timeWindow = hwlib::window_part(oled, hwlib::xy(0, 0), hwlib::xy(40, 10));
+  auto timeFont = hwlib::font_default_8x8();
+  auto timeField = hwlib::terminal_from(timeWindow, timeFont);
+
+  auto stereoWindow = hwlib::window_part(oled, hwlib::xy(0, 54), hwlib::xy(50, 64));
   auto stereoFont = hwlib::font_default_8x8();
   auto stereoField = hwlib::terminal_from(stereoWindow, stereoFont);
 
@@ -55,8 +94,8 @@ int main( void ){
   auto signalWindow = hwlib::window_part(oled, hwlib::xy(108, 0), hwlib::xy(128, 15));
   auto batteryWindow = hwlib::window_part(oled, hwlib::xy(90, 0), hwlib::xy(105, 10));
 
-//                        Initialization
-//<<<--------------------------------------------------------->>>
+//                        Initialization-
+//<<<------------------------------------------------------------------------>>>
   auto display = GUI(window, oled, button, stereoField, signalWindow, batteryWindow, frequencyField, menuField, settingsField, stationField);
 
   radio.setFrequency(107.5);
@@ -65,16 +104,34 @@ int main( void ){
   int lastKnownPos = 0;
   button.setPos(0);
 
-
 //                        Menu Navigation Handling
-//<<<-------------------------------------------------------->>>
+//<<<------------------------------------------------------------------------->>>
   bool inPressedArea = false;
   bool wasPressed = false;
   unsigned int menuArea = 0;      //0 for autoSearch, 1 for manualSearch
   bool bassBoost = false;
   bool showRadioDataStationName = false;
+  bool inPreset = false;
 
-  //std::array<float, 12> stations = {90.7, 92.6, 93.4, 94.7, 95.2, 97.6, 98.9, 100.1, 100.7, 101.2, 102.1, 107.5};
+  uint8_t newData[] = {"        "};
+  
+  timeField << "10:19" << hwlib::flush;
+
+//                        Retrieving Saved Stations from Memory
+//<<<-------------------------------------------------------------------------->>>
+  unsigned int amountOfPresets = memory.read(0);
+  int curTunedPreset = 0;
+  std::array<float, 20> stations = {};    //A total of 20 stations can be saved and thus, retrieved.
+  //Index 1 contains frequency as int, 2 - 10 contain the name. 11 contains frequency, 12 - 20 contain the name. etc.
+  for(unsigned int i = 0; i < amountOfPresets; i++){
+    stations[i] = memory.read(i * 10 + 1);
+  }
+
+  memory.read(curTunedPreset * 10 + 2, curTunedPreset * 20, newData);
+  char* stationName = (char*)newData;
+  display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)newData);
+
+
   for(;;){
     iterations++;
     button.update();
@@ -85,6 +142,12 @@ int main( void ){
     }
     if(wasPressed && menuArea < 3){
       inPressedArea = !inPressedArea;
+      if(inPressedArea && menuArea == 2){
+        inPreset = true;
+      }
+      if (menuArea != 2){
+        inPreset = false;
+      }
       //frequencyWindow.clear();  Does not work to get rid of dots. Of by one error in HWLIB
     }
     if(button.getPos() != lastKnownPos){
@@ -96,6 +159,9 @@ int main( void ){
           auto newFrequency = radio.getFrequency() + 0.12;      //Instead of 0.1 to compensate for autotune
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
+        } else if (menuArea == 2){
+          curTunedPreset++;
+          radio.setFrequency(stations[curTunedPreset]);
         }
         //Down in Pressed Area
       } else if (inPressedArea && menuArea < 3){
@@ -105,6 +171,9 @@ int main( void ){
           auto newFrequency = radio.getFrequency() - 0.12;
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
+        } else if (menuArea == 2){
+          curTunedPreset--;
+          radio.setFrequency(stations[curTunedPreset]);
         }
         //Not in Pressed Area
       }
@@ -114,11 +183,11 @@ int main( void ){
           menuArea++;
         } else {
           menuArea--;
-        }    //Button Turn outside inPressedArea means change of functionality
-        if(menuArea > 6){
-          menuArea = 6;
-        } else if (menuArea < 0){
+        }    //Button Turn outside inPressedArea means change of functionality window settings. Circular pattern.
+        if(menuArea > 7){
           menuArea = 0;
+        } else if (menuArea < 0){
+          menuArea = 7;
         }
       }
       lastKnownPos = button.getPos();
@@ -145,16 +214,21 @@ int main( void ){
       showRadioDataStationName = !showRadioDataStationName;
     }
 
+    if(menuArea == 7 && wasPressed){
+      //Preset wants to be set
+
+    }
+
     wasPressed = false;
 
-    if(iterations > 20000){
+    if(iterations > 40000){
       iterations = 0;
       button.getPos();
       if(showRadioDataStationName){
-        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, &radio.radioData.getStationName()[0]);
+        radio.radioData.update();
+        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, &radio.radioData.stationName()[0]);
       } else {
-        char newData[] = {"SKYRADIO"};
-        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, newData);
+        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0]);
       }
     }
   }

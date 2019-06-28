@@ -131,6 +131,8 @@ void GUI::displayMenuArea(const unsigned int menuArea){
 		menuField << "\f" << "      Auto " << hwlib::flush;
 	} else if (menuArea == 1){
 		menuField << "\f" << "     Manual" << hwlib::flush;
+	} else if (menuArea == 2){
+		menuField << "\f" << "     Presets" << hwlib::flush;
 	}
 }
 
@@ -146,6 +148,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 	if(frequency != lastFrequency || change != lastChange || force){
 		displayFrequency(frequency, change);
 		displayMenuArea(menuArea);
+		displayStereo(stereo);
+		lastStereo = stereo;
 		lastFrequency = frequency;
 		lastChange = change;
 	}
@@ -170,8 +174,10 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 	if((menuArea != lastMenuArea || force) && menuArea < 3){
 		displayMenuArea(menuArea);
 		lastMenuArea = menuArea;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
-	if(menuArea == 3){
+	if(menuArea == 3 && menuArea != lastMenuArea){
 		menuField << hwlib::boolalpha;
 		menuField << "\f" << " Bass ";
 		if(radio.bassBoosted()){
@@ -181,8 +187,9 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		}
 		menuField << hwlib::flush;
 		lastVolume = radio.getVolume();
+		lastMenuArea = menuArea;
 	}
-	if(menuArea == 4){
+	if(menuArea == 4 && menuArea != lastMenuArea){
 		menuField << hwlib::boolalpha;
 		if(radio.isMuted()){
 			menuField << "\f" << "     Muted";
@@ -190,8 +197,9 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 			menuField << "\f" << "    Unmuted";
 		}
 		menuField << hwlib::flush;
+		lastMenuArea = menuArea;
 	}
-	if(menuArea == 5){
+	if(menuArea == 5 && menuArea != lastMenuArea){
 		menuField << hwlib::boolalpha;
 		if(radio.radioDataEnabled()){
 			menuField << "\f" << "  RDS enabled";
@@ -199,8 +207,9 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 			menuField << "\f" << "  RDS disabled";
 		}
 		menuField << hwlib::flush;
+		lastMenuArea = menuArea;
 	}
-	if(menuArea == 6){
+	if(menuArea == 6 && menuArea != lastMenuArea){
 		menuField << hwlib::boolalpha;
 		if(showRadioDataStationName){
 			menuField << "\f" << " 	  RDS Name";
@@ -208,6 +217,7 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 			menuField << "\f" << "   Preset Name";
 		}
 		menuField << hwlib::flush;
+		lastMenuArea = menuArea;
 	}
 }
 
