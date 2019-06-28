@@ -40,6 +40,10 @@ class GUI{
 		bool lastStereo = false;
 		unsigned int lastMenuArea = 0;
 		unsigned int lastVolume = 0;
+		bool lastBoost = false;
+		bool lastMute = false;
+		bool lastEnabled = false;
+		bool lastStationRDS = false;
 		hwlib::terminal & stereoField;
 		hwlib::window & signalWindow;
 		hwlib::window & batteryWindow;

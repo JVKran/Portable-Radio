@@ -171,13 +171,13 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		displayStereo(stereo);
 		lastStereo = stereo;
 	}
-	if((menuArea != lastMenuArea || force) && menuArea < 3){
-		displayMenuArea(menuArea);
-		lastMenuArea = menuArea;
+	if(menuArea != lastMenuArea && menuArea < 3){
 		displayStereo(stereo);
 		lastStereo = stereo;
+		displayMenuArea(menuArea);
+		lastMenuArea = menuArea;
 	}
-	if(menuArea == 3 && menuArea != lastMenuArea){
+	if((menuArea == 3 && menuArea != lastMenuArea) || radio.bassBoosted() != lastBoost){
 		menuField << hwlib::boolalpha;
 		menuField << "\f" << " Bass ";
 		if(radio.bassBoosted()){
@@ -186,10 +186,12 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 			menuField << "Unboosted";
 		}
 		menuField << hwlib::flush;
-		lastVolume = radio.getVolume();
+		lastBoost = radio.bassBoosted();
 		lastMenuArea = menuArea;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
-	if(menuArea == 4 && menuArea != lastMenuArea){
+	if((menuArea == 4 && menuArea != lastMenuArea) || radio.isMuted() != lastMute){
 		menuField << hwlib::boolalpha;
 		if(radio.isMuted()){
 			menuField << "\f" << "     Muted";
@@ -197,9 +199,12 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 			menuField << "\f" << "    Unmuted";
 		}
 		menuField << hwlib::flush;
+		lastMute = radio.isMuted();
 		lastMenuArea = menuArea;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
-	if(menuArea == 5 && menuArea != lastMenuArea){
+	if((menuArea == 5 && menuArea != lastMenuArea) || radio.radioDataEnabled() != lastEnabled){
 		menuField << hwlib::boolalpha;
 		if(radio.radioDataEnabled()){
 			menuField << "\f" << "  RDS enabled";
@@ -207,9 +212,12 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 			menuField << "\f" << "  RDS disabled";
 		}
 		menuField << hwlib::flush;
+		lastEnabled = radio.radioDataEnabled();
 		lastMenuArea = menuArea;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
-	if(menuArea == 6 && menuArea != lastMenuArea){
+	if((menuArea == 6 && menuArea != lastMenuArea) || showRadioDataStationName != lastStationRDS){
 		menuField << hwlib::boolalpha;
 		if(showRadioDataStationName){
 			menuField << "\f" << " 	  RDS Name";
@@ -217,7 +225,10 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 			menuField << "\f" << "   Preset Name";
 		}
 		menuField << hwlib::flush;
+		lastStationRDS = showRadioDataStationName;
 		lastMenuArea = menuArea;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
 }
 
