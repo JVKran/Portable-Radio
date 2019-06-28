@@ -127,7 +127,7 @@ int main( void ){
 
   for(unsigned int i = 0; i < amountOfPresets; i++){
     stations[i] = float(memory.read(i * 10 + 1) * 10 + (memory.read(i * 10 + 2))) / 10;       //So frequency = 81 + content.
-    hwlib::cout << int(stations[i] * 10) << hwlib::endl;
+    hwlib::cout << int(stations[i]) << hwlib::endl;
   }
 
   memory.read(curTunedPreset * 10 + 2, curTunedPreset * 10 + 10, newData);
@@ -138,7 +138,7 @@ int main( void ){
   timeField << "14:12" << hwlib::flush;
 
   menuArea = 0;
-  stations = {90.7, 92.6, 93.4, 94.7, 95.2, 97.6, 98.9, 100.1, 100.7, 101.2, 102.1, 107.5};
+  //stations = {90.7, 92.6, 93.4, 94.7, 95.2, 97.6, 98.9, 100.1, 100.7, 101.2, 102.1, 107.5};
   for(;;){
     iterations++;
     button.update();
@@ -161,8 +161,9 @@ int main( void ){
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
         } else {
-          curTunedPreset++;
-          radio.setFrequency(float(stations[curTunedPreset]));
+          curTunedPreset+=1;
+          hwlib::wait_ms(30);
+          radio.setFrequency(stations[curTunedPreset]);
         }
         //Down in Pressed Area
       } else if (inPressedArea && menuArea < 3){
@@ -173,8 +174,9 @@ int main( void ){
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
         } else {
-          curTunedPreset--;
-          radio.setFrequency(float(stations[curTunedPreset]));
+          curTunedPreset-=1;
+          hwlib::wait_ms(30);
+          radio.setFrequency(stations[curTunedPreset]);
         }
         //Not in Pressed Area
       }
@@ -193,6 +195,12 @@ int main( void ){
       }
       lastKnownPos = button.getPos();
     }
+
+    /*
+    if(menuArea == 2 && wasPressed){
+      inPreset = !inPreset;
+    }
+    */
 
     if(menuArea == 3 && wasPressed){
       bassBoost = !bassBoost;
