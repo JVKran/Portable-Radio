@@ -185,7 +185,6 @@ char* radioDataSystem::getStationText(){
 /// we can interpret the received Data, which is then stored and updated in radioData of type radioDataSystemData.
 void radioDataSystem::update(){
 	getStatus();
-	getStationName();
 	radioData.clearScreenRequest |= (radioData.blockB >> 4) & 1;
 	radioData.trafficProgram = (radioData.blockB >> 5) & 1;
 	for(unsigned int i = 0; i < 4; i++){

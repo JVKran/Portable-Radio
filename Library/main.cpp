@@ -73,7 +73,7 @@ int main( void ){
   auto timeFont = hwlib::font_default_8x8();
   auto timeField = hwlib::terminal_from(timeWindow, timeFont);
 
-  auto frequencyWindow = hwlib::window_part(oled, hwlib::xy(5, 20), hwlib::xy(128, 50));
+  auto frequencyWindow = hwlib::window_part(oled, hwlib::xy(5, 20), hwlib::xy(128, 45));
   auto frequencyFont = hwlib::font_default_16x16();
   auto frequencyField = hwlib::terminal_from(frequencyWindow, frequencyFont);
 
@@ -111,8 +111,9 @@ int main( void ){
   int lastKnownPos = 0;
   bool wasPressed = false;
   unsigned int menuArea = 0;      //0 for autoSearch, 1 for manualSearch
+  bool firstTimeFrequency = false;
   bool bassBoost = false;
-  bool showRadioDataStationName = false;
+  bool showRadioDataStationName = true;
   //bool inPreset = false;
 
 //                        Retrieving Saved Stations from Memory
@@ -156,11 +157,16 @@ int main( void ){
       if(button.getPos() > lastKnownPos && inPressedArea && menuArea < 3){
         if(menuArea == 0){
           radio.seekChannel(1);
+          firstTimeFrequency = true;
+          showRadioDataStationName = true;
         } else if(menuArea == 1){  //Manual Search
+          showRadioDataStationName = true;
+          firstTimeFrequency = true;
           auto newFrequency = radio.getFrequency() + 0.12;      //Instead of 0.1 to compensate for autotune
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
         } else {
+          showRadioDataStationName = false;
           curTunedPreset+=1;
           hwlib::wait_ms(30);
           radio.setFrequency(stations[curTunedPreset]);
@@ -168,12 +174,17 @@ int main( void ){
         //Down in Pressed Area
       } else if (inPressedArea && menuArea < 3){
         if(menuArea == 0){
+          firstTimeFrequency = true;
+          showRadioDataStationName = true;
           radio.seekChannel(0);
         } else if(menuArea == 1){  //Manual Search
+          firstTimeFrequency = true;
+          showRadioDataStationName = true;
           auto newFrequency = radio.getFrequency() - 0.12;
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
         } else {
+          showRadioDataStationName = false;
           curTunedPreset-=1;
           hwlib::wait_ms(30);
           radio.setFrequency(stations[curTunedPreset]);
@@ -226,11 +237,17 @@ int main( void ){
 
     wasPressed = false;
 
-    if(iterations > 20000){
+    if(iterations > 200){
       iterations = 0;
       button.getPos();
       if(showRadioDataStationName){
-        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, &radio.radioData.getStationName()[0]);
+        if(firstTimeFrequency){
+          stationName = &radio.radioData.getStationName()[0];
+          display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, stationName);
+          firstTimeFrequency = false;
+        } else {
+          display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0]);
+       }
       } else {
         if(curTunedPreset != lastCheckedPreset){
           memory.read(curTunedPreset * 10 + 2, 8, newData);
