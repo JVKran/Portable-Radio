@@ -237,7 +237,6 @@ int main( void ){
           stationName = (char*)newData;
           lastCheckedPreset = curTunedPreset;
         }
-        stationField << "\f" << stationName << hwlib::flush;
         display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0]);
       }
     }
