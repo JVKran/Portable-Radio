@@ -51,7 +51,7 @@ class GUI{
 		hwlib::terminal & menuField;
 		hwlib::terminal & settingsField;
 		hwlib::terminal & stationField;
-		char lastStationName[9] = {"        "};
+		char lastStationName[10] = {"         "};
 	public:
 		GUI(hwlib::window & window_part, hwlib::glcd_oled & display, KY040 & button, 
 			hwlib::terminal_from & stereoField, 

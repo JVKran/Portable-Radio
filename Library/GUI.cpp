@@ -154,8 +154,7 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		lastChange = change;
 	}
 	if(stationName != lastStationName){
-		stationField << "\f" << stationName << hwlib::flush;
-		for(unsigned int i = 0; i < 8; i++){
+		for(unsigned int i = 0; i < 9; i++){
 			lastStationName[i] = stationName[i];
 		}
 	}

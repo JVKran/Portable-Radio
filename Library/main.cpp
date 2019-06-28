@@ -77,7 +77,7 @@ int main( void ){
   auto frequencyFont = hwlib::font_default_16x16();
   auto frequencyField = hwlib::terminal_from(frequencyWindow, frequencyFont);
 
-  auto stationWindow = hwlib::window_part(oled, hwlib::xy(60, 54), hwlib::xy(128, 64));
+  auto stationWindow = hwlib::window_part(oled, hwlib::xy(50, 54), hwlib::xy(128, 64));
   auto stationFont = hwlib::font_default_8x8();
   auto stationField = hwlib::terminal_from(stationWindow, stationFont);
 
@@ -119,7 +119,7 @@ int main( void ){
 //<<<-------------------------------------------------------------------------->>>
   unsigned int amountOfPresets = memory.read(0);
   unsigned int curTunedPreset = 0;
-  //unsigned int lastCheckedPreset = curTunedPreset - 1; //To force update
+  unsigned int lastCheckedPreset = curTunedPreset - 1; //To force update
   uint8_t newData[] = {"        "};
 
   std::array<float, 20> stations = {};    //A total of 20 stations can be saved and thus, retrieved.
@@ -130,7 +130,7 @@ int main( void ){
     hwlib::cout << int(stations[i]) << hwlib::endl;
   }
 
-  memory.read(curTunedPreset * 10 + 2, curTunedPreset * 10 + 10, newData);
+  memory.read(curTunedPreset * 10 + 2, 8, newData);
   char* stationName = (char*)newData;
   display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)newData);
 
@@ -232,13 +232,12 @@ int main( void ){
       if(showRadioDataStationName){
         display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, &radio.radioData.getStationName()[0]);
       } else {
-        /*
         if(curTunedPreset != lastCheckedPreset){
-          memory.read(curTunedPreset * 10 + 2, curTunedPreset * 10 + 10, newData);
+          memory.read(curTunedPreset * 10 + 2, 8, newData);
           stationName = (char*)newData;
           lastCheckedPreset = curTunedPreset;
         }
-        */
+        stationField << "\f" << stationName << hwlib::flush;
         display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0]);
       }
     }
