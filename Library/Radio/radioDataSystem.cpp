@@ -187,7 +187,7 @@ void radioDataSystem::update(){
 	getStatus();
 	radioData.clearScreenRequest |= (radioData.blockB >> 4) & 1;
 	radioData.trafficProgram = (radioData.blockB >> 5) & 1;
-	for(unsigned int i = 0; i < 4; i++){
+	for(unsigned int i = 0; i < 2; i++){
 		if(radioDataErrors(0) + radioDataErrors(1) == 0 && radioDataSynced()){
 			if((radioData.blockB >> 11) & 1){		//Message Version A
 				switch(((radioData.blockB & 0xF000) >> 12)){		//Group Type

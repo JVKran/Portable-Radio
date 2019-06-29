@@ -92,8 +92,6 @@ int main( void ){
   auto signalWindow = hwlib::window_part(oled, hwlib::xy(108, 0), hwlib::xy(128, 15));
   auto batteryWindow = hwlib::window_part(oled, hwlib::xy(90, 0), hwlib::xy(105, 10));
 
-  oled.clear();
-
 //                        Initialization
 //<<<--------------------------------------------------------->>>
   auto display = GUI(window, oled, button, stereoField, signalWindow, batteryWindow, frequencyField, menuField, settingsField, stationField);
@@ -118,27 +116,27 @@ int main( void ){
 
 //                        Retrieving Saved Stations from Memory
 //<<<-------------------------------------------------------------------------->>>
-  unsigned int amountOfPresets = memory.read(0);
-  unsigned int curTunedPreset = 0;
-  unsigned int lastCheckedPreset = curTunedPreset - 1; //To force update
-  uint8_t newData[] = {"        "};
+  int amountOfPresets = memory.read(0);
+  int curTunedPreset = 0;
+  int lastCheckedPreset = curTunedPreset - 1; //To force update
+  uint8_t newData[] = {"         "};
 
   std::array<float, 20> stations = {};    //A total of 20 stations can be saved and thus, retrieved.
   //Index 1 contains first whole digit from frequency as int, 2 contains comma number 3 - 10 contain the name. 11 and 12 contain frequency 13 - 20 contain the name. etc.
 
-  for(unsigned int i = 0; i < amountOfPresets; i++){
+  for(int i = 0; i < amountOfPresets; i++){
     stations[i] = float(memory.read(i * 10 + 1) * 10 + (memory.read(i * 10 + 2))) / 10;       //So frequency = 81 + content.
     hwlib::cout << int(stations[i]) << hwlib::endl;
   }
 
   memory.read(curTunedPreset * 10 + 2, 8, newData);
   char* stationName = (char*)newData;
-  display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)newData);
+  //display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)newData);
 
 
   timeField << "14:12" << hwlib::flush;
 
-  menuArea = 0;
+  //menuArea = 0;
   //stations = {90.7, 92.6, 93.4, 94.7, 95.2, 97.6, 98.9, 100.1, 100.7, 101.2, 102.1, 107.5};
   for(;;){
     iterations++;
@@ -167,7 +165,10 @@ int main( void ){
           radio.setFrequency(newFrequency);
         } else {
           showRadioDataStationName = false;
-          curTunedPreset+=1;
+          curTunedPreset++;
+          if(curTunedPreset > amountOfPresets){
+            curTunedPreset = 0;
+          }
           hwlib::wait_ms(30);
           radio.setFrequency(stations[curTunedPreset]);
         }
@@ -185,7 +186,10 @@ int main( void ){
           radio.setFrequency(newFrequency);
         } else {
           showRadioDataStationName = false;
-          curTunedPreset-=1;
+          curTunedPreset--;
+          if(curTunedPreset < 0){
+            curTunedPreset = amountOfPresets - 1;
+          }
           hwlib::wait_ms(30);
           radio.setFrequency(stations[curTunedPreset]);
         }
@@ -199,9 +203,9 @@ int main( void ){
           menuArea--;
         }    //Button Turn outside inPressedArea means change of functionality
         if(menuArea > 6){
-          menuArea = 6;
-        } else if (menuArea < 0){
           menuArea = 0;
+        } else if (menuArea < 0){
+          menuArea = 6;
         }
       }
       lastKnownPos = button.getPos();

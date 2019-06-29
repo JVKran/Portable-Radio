@@ -122,7 +122,7 @@ void GUI::displayStereo(const bool stereo){
 void GUI::displayStationName(const char & stationName){
 	auto font = hwlib::font_default_8x8();
 	auto textArea = hwlib::terminal_from(window, font);
-	textArea << stationName << hwlib::flush;
+	textArea << hwlib::right << stationName << hwlib::flush;
 	signalIndicator.print(window, 60 / 12);
 }
 
@@ -172,8 +172,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		lastStereo = stereo;
 	}
 	if(menuArea != lastMenuArea && menuArea < 3){
-		displayStereo(stereo);
-		lastStereo = stereo;
+		//displayStereo(stereo);
+		//lastStereo = stereo;
 		displayMenuArea(menuArea);
 		lastMenuArea = menuArea;
 	}
@@ -188,8 +188,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		menuField << hwlib::flush;
 		lastBoost = radio.bassBoosted();
 		lastMenuArea = menuArea;
-		displayStereo(stereo);
-		lastStereo = stereo;
+		//displayStereo(stereo);
+		//lastStereo = stereo;
 	}
 	if((menuArea == 4 && menuArea != lastMenuArea) || radio.isMuted() != lastMute){
 		menuField << hwlib::boolalpha;
@@ -201,8 +201,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		menuField << hwlib::flush;
 		lastMute = radio.isMuted();
 		lastMenuArea = menuArea;
-		displayStereo(stereo);
-		lastStereo = stereo;
+		//displayStereo(stereo);
+		//lastStereo = stereo;
 	}
 	if((menuArea == 5 && menuArea != lastMenuArea) || radio.radioDataEnabled() != lastEnabled){
 		menuField << hwlib::boolalpha;
@@ -214,8 +214,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		menuField << hwlib::flush;
 		lastEnabled = radio.radioDataEnabled();
 		lastMenuArea = menuArea;
-		displayStereo(stereo);
-		lastStereo = stereo;
+		//displayStereo(stereo);
+		//lastStereo = stereo;
 	}
 	if((menuArea == 6 && menuArea != lastMenuArea) || showRadioDataStationName != lastStationRDS){
 		menuField << hwlib::boolalpha;
@@ -227,8 +227,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		menuField << hwlib::flush;
 		lastStationRDS = showRadioDataStationName;
 		lastMenuArea = menuArea;
-		displayStereo(stereo);
-		lastStereo = stereo;
+		//displayStereo(stereo);
+		//lastStereo = stereo;
 	}
 }
 
