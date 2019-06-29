@@ -4,6 +4,7 @@
 #include "GUI.hpp"
 #include "KY040.hpp"
 #include "A24C256.hpp"
+#include "DS3231.hpp"
 
 void setTestPresets(A24C256 & memory){
   //4 Presets:
@@ -56,6 +57,10 @@ int main( void ){
   auto button = KY040(CLK, DT, SW);
 
   auto memory = A24C256(i2c_bus);
+
+  auto clock = DS3231(i2c_bus);
+  timeData time;
+  dateData date;
 
 //                        Window Parts
 //<<<--------------------------------------------------------->>
@@ -134,7 +139,8 @@ int main( void ){
   display.displayMenuUpdate(30, radio.getFrequency() * 10, inPressedArea, 38, false, 1, radio, showRadioDataStationName, (char*)newData, false);   //Force updates
 
 
-  timeField << "14:12" << hwlib::flush;
+  time = clock.getTime();
+  timeField << time.getHours() << ":" << time.getMinutes() << hwlib::flush;
   for(;;){
     iterations++;
     button.update();

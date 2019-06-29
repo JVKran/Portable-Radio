@@ -70,7 +70,7 @@ class DS3231{
 		dateData date;
 	public:
 		DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x68);
-		
+
 		void setTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds = 0);
 		void setDate(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year);
 
@@ -85,6 +85,8 @@ class DS3231{
 
 		void updateAlarms();
 		unsigned int checkAlarms();
+
+		unsigned int getTemperature();
 };
 
 #endif //__DS3231_HPP

@@ -230,3 +230,12 @@ unsigned int DS3231::checkAlarms(){
 		return 0;
 	}
 }
+
+unsigned int DS3231::getTemperature(){
+	bus.write(address).write(0x11);
+	auto transaction = bus.read(address);
+	unsigned int temperature = transaction.read_byte();
+	temperature = (temperature << 2);
+	temperature |= (transaction.read_byte() >> 6);
+	return temperature * 0.25;
+}
