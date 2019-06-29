@@ -144,7 +144,7 @@ void GUI::displayFrequency(const unsigned int frequency, const bool change){
 	}
 }
 
-void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const char*  stationName, const bool force){
+void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const char*  stationName, const bool curMute, const bool force){
 	if(frequency != lastFrequency || change != lastChange || force){
 		displayFrequency(frequency, change);
 		displayMenuArea(menuArea);
@@ -172,10 +172,10 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		lastStereo = stereo;
 	}
 	if(menuArea != lastMenuArea && menuArea < 3){
-		//displayStereo(stereo);
-		//lastStereo = stereo;
 		displayMenuArea(menuArea);
 		lastMenuArea = menuArea;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
 	if((menuArea == 3 && menuArea != lastMenuArea) || radio.bassBoosted() != lastBoost){
 		menuField << hwlib::boolalpha;
@@ -188,21 +188,21 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		menuField << hwlib::flush;
 		lastBoost = radio.bassBoosted();
 		lastMenuArea = menuArea;
-		//displayStereo(stereo);
-		//lastStereo = stereo;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
-	if((menuArea == 4 && menuArea != lastMenuArea) || radio.isMuted() != lastMute){
+	if((menuArea == 4 && menuArea != lastMenuArea) || curMute != lastMute){
 		menuField << hwlib::boolalpha;
-		if(radio.isMuted()){
-			menuField << "\f" << "     Muted";
+		if(curMute){
+			menuField << "\f" << "   Bluetooth";
 		} else {
-			menuField << "\f" << "    Unmuted";
+			menuField << "\f" << "     Radio";
 		}
 		menuField << hwlib::flush;
-		lastMute = radio.isMuted();
+		lastMute = curMute;
 		lastMenuArea = menuArea;
-		//displayStereo(stereo);
-		//lastStereo = stereo;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
 	if((menuArea == 5 && menuArea != lastMenuArea) || radio.radioDataEnabled() != lastEnabled){
 		menuField << hwlib::boolalpha;
@@ -214,8 +214,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		menuField << hwlib::flush;
 		lastEnabled = radio.radioDataEnabled();
 		lastMenuArea = menuArea;
-		//displayStereo(stereo);
-		//lastStereo = stereo;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
 	if((menuArea == 6 && menuArea != lastMenuArea) || showRadioDataStationName != lastStationRDS){
 		menuField << hwlib::boolalpha;
@@ -227,8 +227,8 @@ void GUI::displayMenuUpdate(const unsigned int signalStrength, const float frequ
 		menuField << hwlib::flush;
 		lastStationRDS = showRadioDataStationName;
 		lastMenuArea = menuArea;
-		//displayStereo(stereo);
-		//lastStereo = stereo;
+		displayStereo(stereo);
+		lastStereo = stereo;
 	}
 }
 
