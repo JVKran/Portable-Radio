@@ -11,7 +11,10 @@ int main( void ){
 
   auto clock = DS3231(i2c_bus);
 
-  clock.getStatus();
+  for(;;){
+    clock.getStatus();
+    hwlib::wait_ms(30000);
+  }
   
 
 }

@@ -33,13 +33,15 @@ class DS3231{
 		hwlib::i2c_bus & bus;
 		const uint8_t address;
 		uint8_t data[13] = {};
-		uint8_t status[8] = {};
+		uint8_t status[13] = {};
 		void setData();
 	public:
 		DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x68);
 		timeData time;
 		dateData date;
 		void getStatus();
+		void setTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds = 0);
+		void setDate(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year);
 };
 
 #endif //__DS3231_HPP
