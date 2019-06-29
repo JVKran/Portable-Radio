@@ -11,8 +11,13 @@ int main( void ){
 
   auto clock = DS3231(i2c_bus);
 
+  timeData time;
+  dateData date;
   for(;;){
-    clock.getStatus();
+    time = clock.getTime();
+    date = clock.getDate();
+    hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
+    hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
     hwlib::wait_ms(30000);
   }
   
