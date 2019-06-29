@@ -149,7 +149,12 @@ unsigned int dateData::getYear(){
 
 //<<<------------------------------------------------------------------------------------------->>>
 
-
+/// \brief
+/// Constructor
+/// \details
+/// This constructor has no mandatory parameters. Though the user can provide the matchconditions, as specified
+/// in the datasheet, and wether or not he wants to have the DS3231 to output a high signal at (SKW) when the alarm
+/// triggers.
 alarm::alarm(const unsigned int matchConditions, const bool outputSignal):
 	matchConditions(matchConditions),
 	outputSignal(outputSignal),
@@ -157,21 +162,30 @@ alarm::alarm(const unsigned int matchConditions, const bool outputSignal):
 	date(dateData())
 {}
 
+/// \brief
+/// Set Match Conditions
+/// \details
+/// This function has one mandatory parameter; the match condition the alarm has to meet before it gets triggered.
 void alarm::setMatchConditions(const unsigned int condition){
 	matchConditions = condition;
 }
 
+/// \brief
+/// Set Outputsignal
+/// \details
+/// This function has one mandatory parameter; wether to set or unset the outputsignal when the alarm meets
+/// the match-conditions.
 void alarm::enableOutputSignal(const bool enable){
 	outputSignal = enable;
 }
 
-
-
-
-
 //<<<------------------------------------------------------------------------------------------->>>
 
-
+/// \brief
+/// Constructor
+/// \details
+/// This constructor has one mandatory parameter; the I2C bus. The user can also provide the address. 
+/// The address defaults to 0x68.
 DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address):
 	bus(bus),
 	address(address),
@@ -181,12 +195,21 @@ DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address):
 	date(dateData())
 {}
 
+/// \brief
+/// Send Data
+/// \details
+/// This function sends all available data (the entire data array) to the DS3231. Not used very much since
+/// it also overwrites the kept hours, minutes, seconds, day, month and year.
 void DS3231::setData(){
 	auto transaction = bus.write(address);
 	transaction.write(0x00);
 	transaction.write(data, 8);
 }
 
+/// \brief
+/// Get Status
+/// \details
+/// This function gets and stores all neccesary data from the DS3231 to retrieve the time and date.
 void DS3231::getStatus(){
 	bus.write(address).write(0x00);
 	auto transaction = bus.read(address);
@@ -203,6 +226,12 @@ void DS3231::getStatus(){
 	date.setYear(((status[6] & 0x0F) + (((status[6] >> 4) & 0x0F) * 10) + (2000 - (100 * (status[5] >> 7 & 1)))));
 }
 
+/// \brief
+/// Set Time
+/// \details
+/// This function has two mandatory parameters; the hours and minutes. The amount of seconds is optional since
+/// this precision is mostly not necessary or practical. Though the user can specify it. The specified data will be written
+/// to the DS3231, from which it will keep track of the day, month and year.
 void DS3231::setTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds){
 	time.setHours(hours);
 	time.setMinutes(minutes);
@@ -214,6 +243,11 @@ void DS3231::setTime(const unsigned int hours, const unsigned int minutes, const
 	transaction.write((((hours / 10) & 0x01) << 4) + ((hours % 10) & 0x0F));
 }
 
+/// \brief
+/// Set Data
+/// \details
+/// This function has four mandatory parameters; day of week, day of month, month and year. The specified data will be written
+/// to the DS3231, from which it will keep track of the day, month and year.
 void DS3231::setDate(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year){
 	date.setWeekDay(weekDay);
 	date.setMonthDay(monthDay);
@@ -232,16 +266,30 @@ void DS3231::setDate(const unsigned int weekDay, const unsigned int monthDay, co
 	}
 }
 
+/// \brief
+/// Get Time
+/// \details
+/// This function returns the current time as an object of type timeData. The user can then get the amount of hours, minutes
+/// and seconds from this object by calling the needed function; Respectively getHours(), getMinutes() and getSeconds().
 timeData DS3231::getTime(){
 	getStatus();
 	return time;
 }
 
+/// \brief
+/// Get Date
+/// \details
+/// This function returns the current date as an object of type dateData. The user can then get the day of week, day of month
+/// , month and year from this object by calling the needed function; Respectively getWeekDay(), getMonthDay(), getMonth() and getYear().
 dateData DS3231::getDate(){
 	getStatus();
 	return date;
 }
 
+/// \brief
+/// Set First Alarm
+/// \details
+/// This function enables the alarm at the time set by calling the function changeFirstAlarm().
 void DS3231::setFirstAlarm(const unsigned int matchConditions, const bool outputSignal){
 	firstAlarm.enableOutputSignal(outputSignal);
 	firstAlarm.setMatchConditions(matchConditions);
@@ -254,12 +302,22 @@ void DS3231::setFirstAlarm(const unsigned int matchConditions, const bool output
 	transaction.write((((firstAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((firstAlarm.date.getMonthDay() % 10) & 0x0F));
 }
 
+/// \brief
+/// Change First Alarm Time
+/// \details
+/// This function changes the time at which the alarm is set. When the given time and date are reached,
+/// the output (SKW) becomes high if outputSignal with setFirstAlarm() is set. For the alarm to trigger the updateAlarms()
+/// function has got to be called.
 void DS3231::changeFirstAlarm(const timeData & alarmTime, const dateData & alarmDate){
 	//Change private attibutes
 	firstAlarm.time = alarmTime;
 	firstAlarm.date = alarmDate;
 }
 
+/// \brief
+/// Set SecondAlarm
+/// \details
+/// This function enables the alarm at the time set by calling the function changeSecondAlarm().
 void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool outputSignal){
 	secondAlarm.enableOutputSignal(outputSignal);
 	secondAlarm.setMatchConditions(matchConditions);
@@ -272,12 +330,22 @@ void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool outpu
 	transaction.write((((secondAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((secondAlarm.date.getMonthDay() % 10) & 0x0F));
 }
 
+/// \brief
+/// Change Second Alarm Time
+/// \details
+/// This function changes the time at which the alarm is set. When the given time and date are reached,
+/// the output (SKW) becomes high if outputSignal with setSecondAlarm() is set. For the alarm to trigger the updateAlarms()
+/// function has got to be called.
 void DS3231::changeSecondAlarm(const timeData & alarmTime, const dateData & alarmDate){
 	//Change private attibutes
 	secondAlarm.time = alarmTime;
 	secondAlarm.date = alarmDate;
 }
 
+/// \brief
+/// Update Alarm State
+/// \details
+/// This function retrieves the state of the alarms and puts the state in specific the attributes.
 void DS3231::updateAlarms(){
 	bus.write(address).write(0x0F);
 	auto transaction = bus.read(address);
@@ -286,7 +354,14 @@ void DS3231::updateAlarms(){
 	secondAlarmState = (states >> 1) & 1UL;
 }
 
+/// \brief
+/// Check Alarm State
+/// \details
+/// This function returns the current state of the alarms. It can output 3 (if both alarms are triggered), 
+/// 2 (if alarm 2 is triggered), 1 (if alarm 1 is triggered) or 0 (if none alarm is triggered). Calls updateAlarms()
+/// in the background to execute based on recent values.
 unsigned int DS3231::checkAlarms(){
+	updateAlarms();
 	if(firstAlarmState && secondAlarmState){
 		firstAlarmState = false;
 		secondAlarmState = false;
@@ -306,6 +381,11 @@ unsigned int DS3231::checkAlarms(){
 	}
 }
 
+/// \brief
+/// Get Temperature
+/// \details
+/// This function returns the current temperature of the surrounding area of the chip. Can reach accuracies of up to 
+/// 0.25 Degrees Celcius.
 unsigned int DS3231::getTemperature(){
 	bus.write(address).write(0x11);
 	auto transaction = bus.read(address);
