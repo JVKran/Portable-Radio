@@ -1,38 +1,77 @@
+/// @file
+
 #include "hwlib.hpp"
 #include "DS3231.hpp"
 
+/// \brief
+/// Constructor
+/// \details
+/// This constructor has no mandatory parameters. Though the user can provide the hours, minutes and seconds to initialize
+/// the ADT with those values.
 timeData::timeData(const unsigned int hours, const unsigned int minutes, const unsigned int seconds):
 	hours(hours),
 	minutes(minutes),
 	seconds(seconds)
 {}
 
+/// \brief
+/// Set Hours
+/// \details
+/// This function has one mandatory parameter; the current amount of hours. This function sets the hours to the
+/// given amount.
 void timeData::setHours(const unsigned int recHours){
 	hours = recHours;
 }
 
+/// \brief
+/// Set Minutes
+/// \details
+/// This function has one mandatory parameter; the current amount of minutes. This function sets the minutes to the
+/// given amount.
 void timeData::setMinutes(const unsigned int recMinutes){
 	minutes = recMinutes;
 }
 
+/// \brief
+/// Set Seconds
+/// \details
+/// This function has one mandatory parameter; the current amount of seconds. This function sets the seconds to the
+/// given amount.
 void timeData::setSeconds(const unsigned int recSeconds){
 	seconds = recSeconds;
 }
 
+/// \brief
+/// Get Hours
+/// \details
+/// This function returns the current set hours.
 unsigned int timeData::getHours(){
 	return hours;
 }
 
+/// \brief
+/// Get Minutes
+/// \details
+/// This function returns the current set minutes.
 unsigned int timeData::getMinutes(){
 	return minutes;
 }
 
+/// \brief
+/// Get Seconds
+/// \details
+/// This function returns the current set seconds.
 unsigned int timeData::getSeconds(){
 	return seconds;
 }
 
 //<<<------------------------------------------------------------------------------------------>>>
 
+/// \brief
+/// Constructor
+/// \details
+/// This constructor has no mandatory parameters. Though the user can provide the Day of Week, Day of Month, Month and year to
+/// initialize the ADT with those values.
 dateData::dateData(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year):
 	weekDay(weekDay),
 	monthDay(monthDay),
@@ -40,34 +79,70 @@ dateData::dateData(const unsigned int weekDay, const unsigned int monthDay, cons
 	year(year)
 {}
 
+/// \brief
+/// Set Day of Week
+/// \details
+/// This constructor has one mandatory parameter; the day of week. This function sets the Day of Week
+/// to the given amount.
 void dateData::setWeekDay(const unsigned int recWeekDay){
 	weekDay = recWeekDay;
 }
 
+/// \brief
+/// Set Day of Month
+/// \details
+/// This constructor has one mandatory parameter; the day of Month. This function sets the Day of Month
+/// to the given amount.
 void dateData::setMonthDay(const unsigned int recMonthDay){
 	monthDay = recMonthDay;
 }
 
+/// \brief
+/// Set Month
+/// \details
+/// This constructor has one mandatory parameter; the Month. This function sets the Month
+/// to the given amount.
 void dateData::setMonth(const unsigned int recMonth){
 	month = recMonth;
 }
 
+/// \brief
+/// Set Year
+/// \details
+/// This constructor has one mandatory parameter; the year. This function sets the year
+/// to the given amount.
 void dateData::setYear(const unsigned int recYear){
 	year = recYear;
 }
 
+/// \brief
+/// Get Day of Week
+/// \details
+/// This function returns the currently set Day of Week;
 unsigned int dateData::getWeekDay(){
 	return weekDay;
 }
 
+/// \brief
+/// Get Day of Month
+/// \details
+/// This function returns the currently set Day of Month;
 unsigned int dateData::getMonthDay(){
 	return monthDay;
 }
 
+/// \brief
+/// Get Month
+/// \details
+/// This function returns the currently set Month;
 unsigned int dateData::getMonth(){
 	return month;
 }
 
+/// \brief
+/// Get Year
+/// \details
+/// This function returns the currently set Year;
 unsigned int dateData::getYear(){
 	return year;
 }

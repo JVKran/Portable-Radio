@@ -59,6 +59,7 @@ int main( void ){
   auto memory = A24C256(i2c_bus);
 
   auto clock = DS3231(i2c_bus);
+  unsigned int lastMinutes = 0;
   timeData time;
   dateData date;
 
@@ -131,7 +132,6 @@ int main( void ){
 
   for(int i = 0; i < amountOfPresets; i++){
     stations[i] = float(memory.read(i * 10 + 1) * 10 + (memory.read(i * 10 + 2))) / 10;
-    hwlib::cout << int(stations[i]) << hwlib::endl;
   }
 
   memory.read(curTunedPreset * 10 + 2, 8, newData);
@@ -260,6 +260,20 @@ int main( void ){
           lastCheckedPreset = curTunedPreset;
         }
         display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0], curMute);
+      }
+      time = clock.getTime();
+      if(time.getMinutes() != lastMinutes){
+        lastMinutes = time.getMinutes();
+        if(time.getHours() < 10){
+          timeField << "0" << time.getHours();
+        } else {
+          timeField << time.getHours();
+        }
+        if(lastMinutes < 10){
+          timeField << ":0" << time.getMinutes() << hwlib::flush;
+        } else {
+          timeField << ":" << time.getMinutes() << hwlib::flush;
+        }
       }
     }
   }

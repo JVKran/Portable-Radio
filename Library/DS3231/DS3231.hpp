@@ -1,12 +1,18 @@
+/// @file
+
 #ifndef __DS3231_HPP
 #define __DS3231_HPP
 
+/// \brief
+/// Time ADT
+/// \details
+/// This is an ADT that is able to store hours, minutes and seconds. It is also possible to do simple operations
+/// and change or get the stored values.
 class timeData{
 	private:
 		unsigned int hours;
 		unsigned int minutes;
 		unsigned int seconds;
-		bool PM = false;
 	public:
 		timeData(const unsigned int hours = 0, const unsigned int minutes = 0, const unsigned int seconds = 0);
 
@@ -19,6 +25,11 @@ class timeData{
 		unsigned int getSeconds();
 };
 
+/// \brief
+/// Date ADT
+/// \details
+/// This is an ADT that is able to store the Day of Week, Daynumber, Month and Year. It is also possible to do simple operations
+/// and change or get the stored values.
 class dateData{
 	private:
 		unsigned int weekDay;
@@ -39,6 +50,11 @@ class dateData{
 		unsigned int getYear();
 };
 
+/// \brief
+/// Alarm Class
+/// \details
+/// This is a class that keeps track of the set alarm; managing when it should be triggered and how it should be triggered.
+/// It is also possible to determine if the output (SKW-pin) should be set high if the alarm triggers.
 class alarm{
 	private:
 		unsigned int matchConditions;
@@ -52,6 +68,12 @@ class alarm{
 		dateData date;
 };
 
+/// \brief
+/// DS3231 Interface
+/// \details
+/// This is an Interface for the DS3231 RTC (Realtime-Clock) that makes it easier to retrieve the current time and date. It also
+/// simplifies the setting of the current time and date since it is also handling the change of century. It is also possible to
+/// get the temperature from the onboard thermometer which can supply an accuracy of up to 0.25 Degrees Celcius.
 class DS3231{
 	private:
 		hwlib::i2c_bus & bus;
