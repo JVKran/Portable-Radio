@@ -115,16 +115,16 @@ int main( void ){
   hwlib::cout << (clock.getTime() == timeData(0, 0, 0)) << hwlib::endl;
 
   auto curTime = clock.getTime();
-  curTime.setSeconds(30);
+  curTime.setSeconds(curTime.getSeconds() + 10);
   clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
   clock.setFirstAlarm(14);
-  hwlib::cout << "Alarm set, should go in 5 seconds: ";
+  hwlib::cout << "Alarm set, should go in 10 seconds: ";
 
-  hwlib::wait_ms(30);
   clock.clearAlarm(1);
+  
+  hwlib::wait_ms(30);
 
-  for(;;){
-    hwlib::cout << clock.checkAlarms() << hwlib::endl;
+  while(clock.checkAlarms() == 0){
     hwlib::wait_ms(200);
   }
 

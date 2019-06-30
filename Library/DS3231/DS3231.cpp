@@ -695,7 +695,9 @@ void DS3231::clearAlarm(const unsigned int alarmNumber){
 	} else {
 		status[0] &= ~2UL;
 	}
-	bus.write(address).write(status[0]);
+	auto transaction = bus.write(address);
+	transaction.write(0x0F);
+	transaction.write(status[0]);
 }
 
 /// \brief
