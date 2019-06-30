@@ -14,15 +14,27 @@ class timeData{
 		unsigned int minutes;
 		unsigned int seconds;
 	public:
-		timeData(const unsigned int hours = 0, const unsigned int minutes = 0, const unsigned int seconds = 0);
+		timeData(const unsigned int givenHours = 0, const unsigned int givenMinutes = 0, const unsigned int givenSeconds = 0);
 
-		void setHours(const unsigned int recHours);
-		void setMinutes(const unsigned int recMinutes);
-		void setSeconds(const unsigned int recSeconds);
+		void setHours(const unsigned int rgivenHours);
+		void setMinutes(const unsigned int givenMinutes);
+		void setSeconds(const unsigned int givenSeconds);
+		void setTime(const unsigned int givenHours = 0, const unsigned int givenMinutes = 0, const unsigned int givenSeconds = 0);
 
-		unsigned int getHours();
-		unsigned int getMinutes();
-		unsigned int getSeconds();
+		unsigned int getHours() const;
+		unsigned int getMinutes() const;
+		unsigned int getSeconds() const;
+
+		timeData operator+(const timeData & rhs) const;
+		timeData & operator+=(const timeData & rhs);
+
+		timeData operator-(const timeData & rhs) const;
+		timeData & operator-=(const timeData & rhs);
+
+		timeData operator*(const timeData & rhs) const;
+		timeData & operator*=(const timeData & rhs);
+
+		bool operator==(const timeData & rhs) const;
 };
 
 /// \brief
@@ -48,6 +60,17 @@ class dateData{
 		unsigned int getMonthDay();
 		unsigned int getMonth();
 		unsigned int getYear();
+
+		/*
+		dateData operator+(const dateData & rhs) const;
+		dateData & operator+=(const dateData & rhs);
+
+		dateData operator-(const dateData & rhs) const;
+		dateData & operator-=(const dateData & rhs);
+
+		dateData operator*(const dateData & rhs) const;
+		dateData & operator*=(const dateData & rhs);
+		*/
 };
 
 /// \brief

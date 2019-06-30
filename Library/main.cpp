@@ -1,67 +1,49 @@
 #include "hwlib.hpp"
-#include "A24C256.hpp"
+#include "DS3231.hpp"
+
+hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
+  lhs << rhs.getHours() << ":" << rhs.getMinutes() << ":" << rhs.getSeconds();
+  return lhs;
+}
 
 int main( void ){
-  namespace target = hwlib::target; 
+  namespace target = hwlib::target;
 
   auto scl = target::pin_oc( target::pins::d8 );
   auto sda = target::pin_oc( target::pins::d9 );
   auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
-  hwlib::wait_ms(1000);   //Wait for terminal
+  auto clock = DS3231(i2c_bus);
 
-  auto memory = A24C256(i2c_bus);
-  auto largeMemory = A24C256(i2c_bus, 512);
-  auto addressMemory = A24C256(i2c_bus, 256, 0x10);
-  auto falseMemory = A24C256(i2c_bus, 230);
+  auto time = timeData(15, 20, 10);
+  auto lastTime = timeData(5, 30);
+  auto bigTime = timeData(50, 60, 80);
+  auto date = dateData(7, 30, 6, 2019);
 
-  hwlib::cout << hwlib::boolalpha << hwlib::setw(100) << hwlib::left << "Initizalisation with valid parameters: " << ((addressMemory.getAddress() == 0x10) && (addressMemory.getMemorySize() == 256) ) << hwlib::endl;
-  hwlib::cout << hwlib::boolalpha << hwlib::setw(100) << hwlib::left << "Initizalisation with correction of invalid parameters: " << ((falseMemory.getAddress() == 0x50) && (falseMemory.getMemorySize() == 256) ) << hwlib::endl;
+  hwlib::wait_ms(1000);
 
-  memory.write(40000, 'c');
-  hwlib::cout << hwlib::setw(100) << hwlib::left << "Invalid location protection prevents writing and reading on and from non-existing places: " << hwlib::boolalpha << (int(memory.read(40000)) == 0) << hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Initialization: " << ((time.getHours() == 15) && time.getMinutes() == 20 && time.getSeconds() == 10) << hwlib::endl;
 
-  largeMemory.write(50000, 'c');
-  hwlib::cout << hwlib::setw(100) << hwlib::left << "Chips with larger memory have more addresses: " << hwlib::boolalpha << (char(largeMemory.read(50000)) == 'c') << hwlib::endl;
-  
-  
-  char data[]={"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio."};
-  memory.write(0, data);
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Initialization Handling: " << ((bigTime.getHours() == 0) && bigTime.getMinutes() == 0 && bigTime.getSeconds() == 0) << hwlib::endl;
 
-  uint8_t receivedData[353];
-  memory.read(0, 353, receivedData);
+  time.setTime(11, 40, 55);
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Setting: " << ((time.getHours() == 11) && time.getMinutes() == 40 && time.getSeconds() == 55) << hwlib::endl;
 
-  hwlib::cout << hwlib::endl << "Saved Text: " << hwlib::endl;
+  time.setTime(80, 90, 100);
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << ((time.getHours() == 0) && time.getMinutes() == 0 && time.getSeconds() == 0) << hwlib::endl;
 
-  for(unsigned int i = 0; i < 353; i++){
-    hwlib::cout << char(receivedData[i]);
-    if(char(receivedData[i]) != data[i]){
-      hwlib::cout << hwlib::endl << hwlib::endl << hwlib::setw(100) << hwlib::left << "Multi-Page Multi-Byte values are written and read correctly: " << false << hwlib::endl;
-    }
-    if(i == 352){
-      hwlib::cout << hwlib::endl << hwlib::endl << hwlib::setw(100) << hwlib::left << "Multi-Page Multi-Byte values are written and read correctly: " << true << hwlib::endl;
-    }
+  time.setTime(10, 30);
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Addition: " << time << " + " << lastTime << " = " << (time + lastTime) << ((time + lastTime) == timeData(16, 0, 0)) <<  hwlib::endl;
+
+
+  for(;;){
+    time = clock.getTime();
+    date = clock.getDate();
+    hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
+    hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
+    hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
+    hwlib::wait_ms(30000);
   }
-
-  char newData[]={"At vero eos et accusamus."};
-  memory.write(0, newData);
-
-  uint8_t newReceivedData[25];
-  memory.read(0, 25, newReceivedData);
-
-  for(unsigned int i = 0; i < 25; i++){
-    if(char(receivedData[i]) != data[i]){
-      hwlib::cout << hwlib::setw(100) << hwlib::left  << "Single-Page Multi-Byte values are written and read correctly: " << false << hwlib::endl;
-    }
-    if(i == 24){
-      hwlib::cout << hwlib::setw(100) << hwlib::left << "Single-Page Multi-Byte values are written and read correctly: " << true << hwlib::endl;
-    }
-  }
-
-  memory.write(386, 'c');
-  hwlib::cout << hwlib::setw(100) << hwlib::left << "Single-Byte values are written and read correctly: " << hwlib::boolalpha << (char(memory.read(386)) == 'c') << hwlib::endl;
-
-  memory.write(32760, data);
-  hwlib::cout << hwlib::setw(100) << hwlib::left << "Multi-Byte values are not written if they exceed maximum memory-address: " << hwlib::boolalpha << (char(memory.read(32760)) != 'A') << hwlib::endl;
+  
 
 }

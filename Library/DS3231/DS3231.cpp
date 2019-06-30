@@ -8,19 +8,29 @@
 /// \details
 /// This constructor has no mandatory parameters. Though the user can provide the hours, minutes and seconds to initialize
 /// the ADT with those values.
-timeData::timeData(const unsigned int hours, const unsigned int minutes, const unsigned int seconds):
-	hours(hours),
-	minutes(minutes),
-	seconds(seconds)
-{}
+timeData::timeData(const unsigned int givenHours, const unsigned int givenMinutes, const unsigned int givenSeconds):
+	hours(givenHours),
+	minutes(givenMinutes),
+	seconds(givenSeconds)
+{
+	if(hours > 23){
+		hours = 0;
+	}
+	if(minutes > 59){
+		minutes = 0;
+	}
+	if(seconds > 59){
+		seconds = 0;
+	}
+}
 
 /// \brief
 /// Set Hours
 /// \details
 /// This function has one mandatory parameter; the current amount of hours. This function sets the hours to the
 /// given amount.
-void timeData::setHours(const unsigned int recHours){
-	hours = recHours;
+void timeData::setHours(const unsigned int givenHours){
+	hours = givenHours;
 }
 
 /// \brief
@@ -28,8 +38,8 @@ void timeData::setHours(const unsigned int recHours){
 /// \details
 /// This function has one mandatory parameter; the current amount of minutes. This function sets the minutes to the
 /// given amount.
-void timeData::setMinutes(const unsigned int recMinutes){
-	minutes = recMinutes;
+void timeData::setMinutes(const unsigned int givenMinutes){
+	minutes = givenMinutes;
 }
 
 /// \brief
@@ -37,15 +47,30 @@ void timeData::setMinutes(const unsigned int recMinutes){
 /// \details
 /// This function has one mandatory parameter; the current amount of seconds. This function sets the seconds to the
 /// given amount.
-void timeData::setSeconds(const unsigned int recSeconds){
-	seconds = recSeconds;
+void timeData::setSeconds(const unsigned int givenSeconds){
+	seconds = givenSeconds;
+}
+
+void timeData::setTime(const unsigned int givenHours, const unsigned int givenMinutes, const unsigned int givenSeconds){
+	hours = givenHours;
+	minutes = givenMinutes;
+	seconds = givenSeconds;
+	if(hours > 23){
+		hours = 0;
+	}
+	if(minutes > 59){
+		minutes = 0;
+	}
+	if(seconds > 59){
+		seconds = 0;
+	}
 }
 
 /// \brief
 /// Get Hours
 /// \details
 /// This function returns the current set hours.
-unsigned int timeData::getHours(){
+unsigned int timeData::getHours() const {
 	return hours;
 }
 
@@ -53,7 +78,7 @@ unsigned int timeData::getHours(){
 /// Get Minutes
 /// \details
 /// This function returns the current set minutes.
-unsigned int timeData::getMinutes(){
+unsigned int timeData::getMinutes()const {
 	return minutes;
 }
 
@@ -61,9 +86,74 @@ unsigned int timeData::getMinutes(){
 /// Get Seconds
 /// \details
 /// This function returns the current set seconds.
-unsigned int timeData::getSeconds(){
+unsigned int timeData::getSeconds()const {
 	return seconds;
 }
+
+timeData timeData::operator+(const timeData & rhs) const{
+	timeData temp;
+	temp = *this;
+	temp += rhs;
+	return temp;
+}
+
+timeData & timeData::operator+=(const timeData & rhs){
+	seconds += rhs.seconds;
+	if(seconds > 59){
+		minutes += (seconds / 60);
+		seconds = (seconds % 60);
+	}
+	minutes += rhs.minutes;
+	if(minutes > 59){
+		hours += (minutes / 60);
+		minutes = (minutes % 60);
+	}
+	hours += rhs.hours;
+	if(hours > 24){
+		hours = (hours % 24);
+	}
+	return *this;
+}
+
+timeData timeData::operator-(const timeData & rhs) const{
+	timeData temp;
+	temp = *this;
+	temp -= rhs;
+	return temp;
+	//retrn timeData(hours - rhs.hours, minutes - rhs.minutes, seconds - rhs.seconds);
+}
+
+timeData & timeData::operator-=(const timeData & rhs){
+	hours -= rhs.hours;
+	minutes -= rhs.minutes;
+	seconds -= rhs.seconds;
+	return *this;
+}
+
+timeData timeData::operator*(const timeData & rhs) const{
+	timeData temp;
+	temp = *this;
+	temp *= rhs;
+	return temp;
+}
+
+timeData & timeData::operator*=(const timeData & rhs){
+	hours *= rhs.hours;
+	minutes *= rhs.minutes;
+	seconds *= rhs.seconds;
+	return *this;
+}
+
+bool timeData::operator==(const timeData & rhs) const{
+	return (hours == rhs.hours && minutes == rhs.minutes && seconds == rhs.seconds);
+}
+
+/*
+hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
+	lhs << rhs.getHours() << ":" << rhs.getMinutes() << ":" << rhs.getSeconds();
+	return lhs;
+}
+*/
 
 //<<<------------------------------------------------------------------------------------------>>>
 
@@ -147,6 +237,33 @@ unsigned int dateData::getYear(){
 	return year;
 }
 
+/*
+dateData dateData::operator+(const dateData & rhs) const{
+
+}
+
+dateData & dateData::operator+=(const dateData & rhs){
+	weekDay += rhs.weekDay;
+	monthDay += rhs.monthDay;
+	month += rhs.month;
+}
+
+dateData dateData::operator-(const dateData & rhs) const{
+
+}
+
+dateData & dateData::operator-=(const dateData & rhs){
+
+}
+
+dateData dateData::operator*(const dateData & rhs) const{
+
+}
+
+dateData & dateData::operator*=(const dateData & rhs){
+
+}
+*/
 //<<<------------------------------------------------------------------------------------------->>>
 
 /// \brief
