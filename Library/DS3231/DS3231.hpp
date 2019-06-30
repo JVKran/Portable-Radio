@@ -31,10 +31,8 @@ class timeData{
 		timeData operator-(const timeData & rhs) const;
 		timeData & operator-=(const timeData & rhs);
 
-		timeData operator*(const timeData & rhs) const;
-		timeData & operator*=(const timeData & rhs);
-
 		bool operator==(const timeData & rhs) const;
+		bool operator!=(const timeData & rhs) const;
 };
 
 /// \brief
@@ -49,28 +47,27 @@ class dateData{
 		unsigned int month;
 		unsigned int year;
 	public:
-		dateData(const unsigned int weekDay = 0, const unsigned int monthDay = 0, const unsigned int month = 0, const unsigned int year = 0);
+		dateData(const unsigned int givenWeekDay = 0, const unsigned int givenMonthDay = 0, const unsigned int givenMonth = 0, const unsigned int givenYear = 0);
 
-		void setWeekDay(const unsigned int recWeekDay);
-		void setMonthDay(const unsigned int recMonthDay);
-		void setMonth(const unsigned int recMonth);
-		void setYear(const unsigned int recYear);
+		void setWeekDay(const unsigned int givenWeekDay);
+		void setMonthDay(const unsigned int givenMonthDay);
+		void setMonth(const unsigned int givenMonth);
+		void setYear(const unsigned int givenYear);
+		void setDate(const unsigned int givenWeekDay = 0, const unsigned int givenMonthDay = 0, const unsigned int givenMonth = 0, const unsigned int givenYear = 0);
 
-		unsigned int getWeekDay();
-		unsigned int getMonthDay();
-		unsigned int getMonth();
-		unsigned int getYear();
+		unsigned int getWeekDay() const;
+		unsigned int getMonthDay() const;
+		unsigned int getMonth() const;
+		unsigned int getYear() const;
 
-		/*
 		dateData operator+(const dateData & rhs) const;
 		dateData & operator+=(const dateData & rhs);
 
 		dateData operator-(const dateData & rhs) const;
 		dateData & operator-=(const dateData & rhs);
 
-		dateData operator*(const dateData & rhs) const;
-		dateData & operator*=(const dateData & rhs);
-		*/
+		bool operator==(const dateData & rhs) const;
+		bool operator!=(const dateData & rhs) const;
 };
 
 /// \brief

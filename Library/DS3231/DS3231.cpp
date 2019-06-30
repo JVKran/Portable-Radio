@@ -30,7 +30,9 @@ timeData::timeData(const unsigned int givenHours, const unsigned int givenMinute
 /// This function has one mandatory parameter; the current amount of hours. This function sets the hours to the
 /// given amount.
 void timeData::setHours(const unsigned int givenHours){
-	hours = givenHours;
+	if(givenHours < 24){
+		hours = givenHours;
+	}
 }
 
 /// \brief
@@ -39,7 +41,9 @@ void timeData::setHours(const unsigned int givenHours){
 /// This function has one mandatory parameter; the current amount of minutes. This function sets the minutes to the
 /// given amount.
 void timeData::setMinutes(const unsigned int givenMinutes){
-	minutes = givenMinutes;
+	if(givenMinutes < 60){
+		minutes = givenMinutes;
+	}
 }
 
 /// \brief
@@ -48,22 +52,15 @@ void timeData::setMinutes(const unsigned int givenMinutes){
 /// This function has one mandatory parameter; the current amount of seconds. This function sets the seconds to the
 /// given amount.
 void timeData::setSeconds(const unsigned int givenSeconds){
-	seconds = givenSeconds;
+	if(givenSeconds < 60){
+		seconds = givenSeconds;
+	}
 }
 
 void timeData::setTime(const unsigned int givenHours, const unsigned int givenMinutes, const unsigned int givenSeconds){
-	hours = givenHours;
-	minutes = givenMinutes;
-	seconds = givenSeconds;
-	if(hours > 23){
-		hours = 0;
-	}
-	if(minutes > 59){
-		minutes = 0;
-	}
-	if(seconds > 59){
-		seconds = 0;
-	}
+	setHours(givenHours);
+	setMinutes(givenMinutes);
+	setSeconds(givenSeconds);
 }
 
 /// \brief
@@ -124,28 +121,35 @@ timeData timeData::operator-(const timeData & rhs) const{
 }
 
 timeData & timeData::operator-=(const timeData & rhs){
-	hours -= rhs.hours;
-	minutes -= rhs.minutes;
-	seconds -= rhs.seconds;
-	return *this;
-}
-
-timeData timeData::operator*(const timeData & rhs) const{
-	timeData temp;
-	temp = *this;
-	temp *= rhs;
-	return temp;
-}
-
-timeData & timeData::operator*=(const timeData & rhs){
-	hours *= rhs.hours;
-	minutes *= rhs.minutes;
-	seconds *= rhs.seconds;
+	int negSeconds = seconds - rhs.seconds;
+	if(negSeconds < -59){
+		minutes -= (negSeconds / -60);
+		seconds = (negSeconds % -60);
+	} else {
+		seconds -= rhs.seconds;
+	}
+	int negMinutes = minutes - rhs.minutes;
+	if(negMinutes < -59){
+		hours -= (negMinutes / -60);
+		minutes = (negMinutes % -60);
+	} else {
+		minutes -= rhs.minutes;
+	}
+	int negHours = hours - rhs.hours;
+	if(negHours < 0){
+		hours = (24 + negHours);
+	} else {
+		hours -= rhs.hours;
+	}
 	return *this;
 }
 
 bool timeData::operator==(const timeData & rhs) const{
 	return (hours == rhs.hours && minutes == rhs.minutes && seconds == rhs.seconds);
+}
+
+bool timeData::operator!=(const timeData & rhs) const{
+	return (hours != rhs.hours || minutes != rhs.minutes || seconds != rhs.seconds);
 }
 
 /*
@@ -162,20 +166,32 @@ hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
 /// \details
 /// This constructor has no mandatory parameters. Though the user can provide the Day of Week, Day of Month, Month and year to
 /// initialize the ADT with those values.
-dateData::dateData(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year):
-	weekDay(weekDay),
-	monthDay(monthDay),
-	month(month),
-	year(year)
-{}
+dateData::dateData(const unsigned int givenWeekDay, const unsigned int givenMonthDay, const unsigned int givenMonth, const unsigned int givenYear):
+	weekDay(givenWeekDay),
+	monthDay(givenMonthDay),
+	month(givenMonth),
+	year(givenYear)
+{
+	if(weekDay > 7){
+		weekDay = 7;
+	}
+	if(monthDay > 31){
+		monthDay = 31;
+	}
+	if(month > 12){
+		month = 12;
+	}
+}
 
 /// \brief
 /// Set Day of Week
 /// \details
 /// This constructor has one mandatory parameter; the day of week. This function sets the Day of Week
 /// to the given amount.
-void dateData::setWeekDay(const unsigned int recWeekDay){
-	weekDay = recWeekDay;
+void dateData::setWeekDay(const unsigned int givenWeekDay){
+	if(givenWeekDay < 8){
+		weekDay = givenWeekDay;
+	}
 }
 
 /// \brief
@@ -183,8 +199,10 @@ void dateData::setWeekDay(const unsigned int recWeekDay){
 /// \details
 /// This constructor has one mandatory parameter; the day of Month. This function sets the Day of Month
 /// to the given amount.
-void dateData::setMonthDay(const unsigned int recMonthDay){
-	monthDay = recMonthDay;
+void dateData::setMonthDay(const unsigned int givenMonthDay){
+	if(givenMonthDay < 32){
+		monthDay = givenMonthDay;
+	}
 }
 
 /// \brief
@@ -192,8 +210,10 @@ void dateData::setMonthDay(const unsigned int recMonthDay){
 /// \details
 /// This constructor has one mandatory parameter; the Month. This function sets the Month
 /// to the given amount.
-void dateData::setMonth(const unsigned int recMonth){
-	month = recMonth;
+void dateData::setMonth(const unsigned int givenMonth){
+	if(givenMonth < 13){
+		month = givenMonth;
+	}
 }
 
 /// \brief
@@ -201,15 +221,22 @@ void dateData::setMonth(const unsigned int recMonth){
 /// \details
 /// This constructor has one mandatory parameter; the year. This function sets the year
 /// to the given amount.
-void dateData::setYear(const unsigned int recYear){
-	year = recYear;
+void dateData::setYear(const unsigned int givenYear){
+	year = givenYear;
+}
+
+void dateData::setDate(const unsigned int givenWeekDay, const unsigned int givenMonthDay, const unsigned int givenMonth, const unsigned int givenYear){
+	setWeekDay(givenWeekDay);
+	setMonthDay(givenMonthDay);
+	setMonth(givenMonth);
+	setYear(givenYear);
 }
 
 /// \brief
 /// Get Day of Week
 /// \details
 /// This function returns the currently set Day of Week;
-unsigned int dateData::getWeekDay(){
+unsigned int dateData::getWeekDay() const{
 	return weekDay;
 }
 
@@ -217,7 +244,7 @@ unsigned int dateData::getWeekDay(){
 /// Get Day of Month
 /// \details
 /// This function returns the currently set Day of Month;
-unsigned int dateData::getMonthDay(){
+unsigned int dateData::getMonthDay() const{
 	return monthDay;
 }
 
@@ -225,7 +252,7 @@ unsigned int dateData::getMonthDay(){
 /// Get Month
 /// \details
 /// This function returns the currently set Month;
-unsigned int dateData::getMonth(){
+unsigned int dateData::getMonth() const{
 	return month;
 }
 
@@ -233,37 +260,77 @@ unsigned int dateData::getMonth(){
 /// Get Year
 /// \details
 /// This function returns the currently set Year;
-unsigned int dateData::getYear(){
+unsigned int dateData::getYear() const{
 	return year;
 }
 
-/*
 dateData dateData::operator+(const dateData & rhs) const{
-
+	dateData temp;
+	temp = *this;
+	temp += rhs;
+	return temp;
 }
 
 dateData & dateData::operator+=(const dateData & rhs){
-	weekDay += rhs.weekDay;
-	monthDay += rhs.monthDay;
-	month += rhs.month;
+	if(weekDay + rhs.weekDay > 7){
+		weekDay = (weekDay + rhs.weekDay) - 7;
+	} else {
+		weekDay += rhs.weekDay;
+	}
+	if(monthDay + rhs.monthDay > 30){
+		month++;
+		monthDay = (monthDay + rhs.monthDay) - 30;
+	} else {
+		monthDay += rhs.monthDay;
+	}
+	if(month + rhs.month > 12){
+		year++;
+		month = (month + rhs.month) - 12;
+	}
+	year += rhs.year;
+	return *this;
 }
 
 dateData dateData::operator-(const dateData & rhs) const{
-
+	dateData temp;
+	temp = *this;
+	temp -= rhs;
+	return temp;
 }
 
 dateData & dateData::operator-=(const dateData & rhs){
-
+	int negWeekDay = weekDay - rhs.weekDay;
+	if(negWeekDay < 0){
+		weekDay = negWeekDay + 7;
+	} else {
+		weekDay -= rhs.weekDay;
+	}
+	int negMonthDay = monthDay - rhs.monthDay;
+	if(negMonthDay < 0){
+		monthDay = negMonthDay + 31;
+		month--;
+	} else {
+		monthDay += rhs.monthDay;
+	}
+	int negMonth = month - rhs.month;
+	if(month + rhs.month > 12){
+		month = negMonth + 12;
+		year--;
+	} else {
+		month -= rhs.month;
+	}
+	year -= rhs.year;
+	return *this;
 }
 
-dateData dateData::operator*(const dateData & rhs) const{
-
+bool dateData::operator==(const dateData & rhs) const{
+	return (weekDay == rhs.weekDay && monthDay == rhs.monthDay && month == rhs.month && year == rhs.year);
 }
 
-dateData & dateData::operator*=(const dateData & rhs){
-
+bool dateData::operator!=(const dateData & rhs) const{
+	return (weekDay != rhs.weekDay || monthDay != rhs.monthDay || month != rhs.month || year != rhs.year);
 }
-*/
+
 //<<<------------------------------------------------------------------------------------------->>>
 
 /// \brief
