@@ -7,7 +7,7 @@ hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
 }
 
 hwlib::ostream & operator<<(hwlib::ostream & lhs, const dateData & rhs){
-  lhs << rhs.getWeekDay() << ", " << rhs.getMonthDay() << "-" << rhs.getMonth() << "-" << rhs.getYear();
+  lhs << rhs.getMonthDay() << "-" << rhs.getMonth() << "-" << rhs.getYear();
   return lhs;
 }
 
@@ -27,6 +27,7 @@ int main( void ){
 
   hwlib::wait_ms(1000);
 
+  /*
   hwlib::cout << "---------------------------------TIME------------------------------" << hwlib::endl << hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::boolalpha << hwlib::setw(45) << "Initialization: " << ((time.getHours() == 15) && time.getMinutes() == 20 && time.getSeconds() == 10) << hwlib::endl;
 
@@ -72,27 +73,29 @@ int main( void ){
 
   date.setDate(1, 1, 1, 2019);
   lastDate.setDate(7, 30, 6, 0);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Addition: " << date << " + " << lastDate << " = " << (date + lastDate) <<  hwlib::boolalpha << " " << ((date + lastDate) == dateData(1, 1, 8, 2019)) <<  hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Addition: " << date.getWeekDay() << ", " << date << " + " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date + lastDate) <<  hwlib::boolalpha << " " << ((date + lastDate) == dateData(1, 1, 8, 2019)) <<  hwlib::endl;
 
   lastDate.setWeekDay(5);
   lastDate.setMonthDay(15);
   lastDate.setMonth(8);
   lastDate.setYear(2000);
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Addition: " << date << " + " << lastDate << " = " << (date + lastDate) <<  hwlib::boolalpha << " " << ((date + lastDate) == dateData(6, 16, 9, 4019)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Addition: " << date.getWeekDay() << ", " << date << " + " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date + lastDate) <<  hwlib::boolalpha << " " << ((date + lastDate) == dateData(6, 16, 9, 4019)) <<  hwlib::endl;
 
   date.setDate(5, 8, 10, 2019);
   lastDate.setDate(4, 30, 8, 2000);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << date << " - " << lastDate << " = " << (date - lastDate) << hwlib::boolalpha << "  " << ((date - lastDate) == dateData(1, 22, 1, 19)) <<  hwlib::endl;
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastDate << " - " << date << " = " << (lastDate - date) << hwlib::boolalpha << " " << ((lastDate - date) == dateData(6, 22, 11, 0)) <<  hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << date.getWeekDay() << ", " << date << " - " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date - lastDate) << hwlib::boolalpha << "  " << ((date - lastDate) == dateData(1, 22, 1, 19)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastDate.getWeekDay() << ", " << lastDate << " - " << date.getWeekDay() << ", " << date << " = " << (lastDate - date) << hwlib::boolalpha << " " << ((lastDate - date) == dateData(6, 22, 11, 0)) <<  hwlib::endl;
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << date << " == " << lastDate << " = " << (date == lastDate) <<  hwlib::endl;
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << date << " != " << lastDate << " = " << (date != lastDate) <<  hwlib::endl << hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << dfate.getWeekDay() << ", " << date << " == " << alstDate.getWeekDay() << ", " << lastDate << " = " << (date == lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << date.getWeekDay() << ", " << date << " != " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date != lastDate) <<  hwlib::endl << hwlib::endl;
 
+*/
 
   hwlib::cout << "-------------------------------DS3231--------------------------------" << hwlib::endl << hwlib::endl;
 
+  auto date = dateData(7, 30, 6, 2019);
 
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Initialization: " << (clock.getAddress() == 0x68) << hwlib::endl;
 
@@ -100,12 +103,29 @@ int main( void ){
   for(unsigned int i = 0; i < 3; i++){
     time = clock.getTime();
     date = clock.getDate();
-    hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
+    hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
     hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
-    hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
+    hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
     hwlib::wait_ms(3000);
   }
   hwlib::cout << hwlib::endl;
   
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Set time to 0:0:0 : ";
+  clock.setTime(0, 0, 0);
+  hwlib::cout << (clock.getTime() == timeData(0, 0, 0)) << hwlib::endl;
+
+  auto curTime = clock.getTime();
+  curTime.setSeconds(curTime.getSeconds() + 10);
+  clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+  clock.setFirstAlarm(13);
+  hwlib::cout << "Alarm set, should go in 5 seconds: ";
+
+  hwlib::wait_ms(30);
+
+  while(clock.checkAlarms() == 0){
+    hwlib::wait_ms(200);
+  }
+
+  hwlib::cout << "Triggered!" << hwlib::endl;
 
 }

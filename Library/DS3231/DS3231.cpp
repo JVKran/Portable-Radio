@@ -57,6 +57,12 @@ void timeData::setSeconds(const unsigned int givenSeconds){
 	}
 }
 
+/// \brief
+/// Set Time
+/// \details
+/// This function has two mandatory parameters. The amount of hours and minutes. Most of the time the amount of seconds
+/// is irrelevant; it defaults to 0. This function sets the amount of hours, minutes and seconds at once, instead of
+/// one by one. Alternative to setHours(), setMinutes() and setSeconds() all together.
 void timeData::setTime(const unsigned int givenHours, const unsigned int givenMinutes, const unsigned int givenSeconds){
 	setHours(givenHours);
 	setMinutes(givenMinutes);
@@ -87,6 +93,11 @@ unsigned int timeData::getSeconds()const {
 	return seconds;
 }
 
+/// \brief
+/// Operator+
+/// \details
+/// This function adds two timeData objects. Increasing of minutes and hours when respectively seconds and minutes
+/// reach 60 is taken care of. When the amount of hours reaches 24 it is reset to 0.
 timeData timeData::operator+(const timeData & rhs) const{
 	timeData temp;
 	temp = *this;
@@ -94,6 +105,11 @@ timeData timeData::operator+(const timeData & rhs) const{
 	return temp;
 }
 
+/// \brief
+/// Operator+=
+/// \details
+/// This function adds two timeData objects and stores the result in the object it is called on. Increasing of minutes 
+/// and hours when respectively seconds and minutes reach 60 is taken care of. When the amount of hours reaches 24 it is reset to 0.
 timeData & timeData::operator+=(const timeData & rhs){
 	seconds += rhs.seconds;
 	if(seconds > 59){
@@ -112,14 +128,23 @@ timeData & timeData::operator+=(const timeData & rhs){
 	return *this;
 }
 
+/// \brief
+/// Operator-
+/// \details
+/// This function substracts two timeData objects. Decreasing of minutes and hours when respectively seconds and minutes
+/// reach 0 is taken care of. When the amount of hours reaches 0 it is reset to 23.
 timeData timeData::operator-(const timeData & rhs) const{
 	timeData temp;
 	temp = *this;
 	temp -= rhs;
 	return temp;
-	//retrn timeData(hours - rhs.hours, minutes - rhs.minutes, seconds - rhs.seconds);
 }
 
+/// \brief
+/// Operator-=
+/// \details
+/// This function substracts two timeData objects and stores the result in the object it is called on. Decreasing of minutes 
+/// and hours when respectively seconds and minutes reach 0 is taken care of. When the amount of hours reaches 0 it is reset to 23.
 timeData & timeData::operator-=(const timeData & rhs){
 	int negSeconds = seconds - rhs.seconds;
 	if(negSeconds < -59){
@@ -144,20 +169,22 @@ timeData & timeData::operator-=(const timeData & rhs){
 	return *this;
 }
 
+/// \brief
+/// Operator==
+/// \details
+/// This function compares two timeData objects and returns true if both objects contain exactly the same.
 bool timeData::operator==(const timeData & rhs) const{
 	return (hours == rhs.hours && minutes == rhs.minutes && seconds == rhs.seconds);
 }
 
+/// \brief
+/// Operator!=
+/// \details
+/// This function compares two timeData objects and returns true if there is only a slightly difference
+/// in content.
 bool timeData::operator!=(const timeData & rhs) const{
 	return (hours != rhs.hours || minutes != rhs.minutes || seconds != rhs.seconds);
 }
-
-/*
-hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
-	lhs << rhs.getHours() << ":" << rhs.getMinutes() << ":" << rhs.getSeconds();
-	return lhs;
-}
-*/
 
 //<<<------------------------------------------------------------------------------------------>>>
 
@@ -172,13 +199,13 @@ dateData::dateData(const unsigned int givenWeekDay, const unsigned int givenMont
 	month(givenMonth),
 	year(givenYear)
 {
-	if(weekDay > 7){
+	if(weekDay > 7 || weekDay < 1){
 		weekDay = 7;
 	}
-	if(monthDay > 31){
+	if(monthDay > 31 || monthDay < 1){
 		monthDay = 31;
 	}
-	if(month > 12){
+	if(month > 12 || month < 1){
 		month = 12;
 	}
 }
@@ -189,7 +216,7 @@ dateData::dateData(const unsigned int givenWeekDay, const unsigned int givenMont
 /// This constructor has one mandatory parameter; the day of week. This function sets the Day of Week
 /// to the given amount.
 void dateData::setWeekDay(const unsigned int givenWeekDay){
-	if(givenWeekDay < 8){
+	if(givenWeekDay < 8 && givenWeekDay > 0){
 		weekDay = givenWeekDay;
 	}
 }
@@ -200,7 +227,7 @@ void dateData::setWeekDay(const unsigned int givenWeekDay){
 /// This constructor has one mandatory parameter; the day of Month. This function sets the Day of Month
 /// to the given amount.
 void dateData::setMonthDay(const unsigned int givenMonthDay){
-	if(givenMonthDay < 32){
+	if(givenMonthDay < 32 && givenMonthDay > 0){
 		monthDay = givenMonthDay;
 	}
 }
@@ -211,7 +238,7 @@ void dateData::setMonthDay(const unsigned int givenMonthDay){
 /// This constructor has one mandatory parameter; the Month. This function sets the Month
 /// to the given amount.
 void dateData::setMonth(const unsigned int givenMonth){
-	if(givenMonth < 13){
+	if(givenMonth < 13 && givenMonth > 0){
 		month = givenMonth;
 	}
 }
@@ -225,6 +252,12 @@ void dateData::setYear(const unsigned int givenYear){
 	year = givenYear;
 }
 
+/// \brief
+/// Set Date
+/// \details
+/// This function has four mandatory parameters. The Day of Week, Day of Month, month and year. Instead
+/// of setting these values one by one, which is the case with setWeekDay(), setMonthDay(), setMonth() and setYear(), 
+/// this function sets these values all in one.
 void dateData::setDate(const unsigned int givenWeekDay, const unsigned int givenMonthDay, const unsigned int givenMonth, const unsigned int givenYear){
 	setWeekDay(givenWeekDay);
 	setMonthDay(givenMonthDay);
@@ -235,7 +268,7 @@ void dateData::setDate(const unsigned int givenWeekDay, const unsigned int given
 /// \brief
 /// Get Day of Week
 /// \details
-/// This function returns the currently set Day of Week;
+/// This function returns the currently set Day of Week.
 unsigned int dateData::getWeekDay() const{
 	return weekDay;
 }
@@ -243,7 +276,7 @@ unsigned int dateData::getWeekDay() const{
 /// \brief
 /// Get Day of Month
 /// \details
-/// This function returns the currently set Day of Month;
+/// This function returns the currently set Day of Month.
 unsigned int dateData::getMonthDay() const{
 	return monthDay;
 }
@@ -251,7 +284,7 @@ unsigned int dateData::getMonthDay() const{
 /// \brief
 /// Get Month
 /// \details
-/// This function returns the currently set Month;
+/// This function returns the currently set Month.
 unsigned int dateData::getMonth() const{
 	return month;
 }
@@ -259,11 +292,16 @@ unsigned int dateData::getMonth() const{
 /// \brief
 /// Get Year
 /// \details
-/// This function returns the currently set Year;
+/// This function returns the currently set Year.
 unsigned int dateData::getYear() const{
 	return year;
 }
 
+/// \brief
+/// Operator+
+/// \details
+/// This adds two dateData objects. Increasing of month and year when respectively 30 and 12 are reached
+/// is taken care of. However, this is a rough estimate.
 dateData dateData::operator+(const dateData & rhs) const{
 	dateData temp;
 	temp = *this;
@@ -271,6 +309,12 @@ dateData dateData::operator+(const dateData & rhs) const{
 	return temp;
 }
 
+/// \brief
+/// Operator+=
+/// \details
+/// This adds two dateData objects and stores the result in the object it is called upon. Increasing of 
+/// month and year when respectively 30 and 12 are reached is taken care of. However, this is a rough estimate 
+/// since a month is assumed to always have 30 days.
 dateData & dateData::operator+=(const dateData & rhs){
 	if(weekDay + rhs.weekDay > 7){
 		weekDay = (weekDay + rhs.weekDay) - 7;
@@ -293,6 +337,11 @@ dateData & dateData::operator+=(const dateData & rhs){
 	return *this;
 }
 
+/// \brief
+/// Operator-
+/// \details
+/// This substracts two dateData objects. Decreasing of month and year when respectively 0 and 0 are reached
+/// is taken care of. However, this is a rough estimate since a month is assumed to always have 30 days.
 dateData dateData::operator-(const dateData & rhs) const{
 	dateData temp;
 	temp = *this;
@@ -300,6 +349,12 @@ dateData dateData::operator-(const dateData & rhs) const{
 	return temp;
 }
 
+/// \brief
+/// Operator-=
+/// \details
+/// This substracts two dateData objects and stores the result in the object it is called upon. Decreasing of month 
+/// and year when respectively 0 and 0 are reached is taken care of. However, this is a rough estimate since a 
+/// month is assumed to always have 30 days.
 dateData & dateData::operator-=(const dateData & rhs){
 	int negWeekDay = weekDay - rhs.weekDay;
 	if(negWeekDay < 0){
@@ -337,10 +392,19 @@ dateData & dateData::operator-=(const dateData & rhs){
 	return *this;
 }
 
+/// \brief
+/// Operator==
+/// \details
+/// This function compares two dateData objects and returns true if both objects contain exactly the same.
 bool dateData::operator==(const dateData & rhs) const{
 	return (weekDay == rhs.weekDay && monthDay == rhs.monthDay && month == rhs.month && year == rhs.year);
 }
 
+/// \brief
+/// Operator!=
+/// \details
+/// This function compares two dateData objects and returns true if there is only a slightly difference
+/// in content.
 bool dateData::operator!=(const dateData & rhs) const{
 	return (weekDay != rhs.weekDay || monthDay != rhs.monthDay || month != rhs.month || year != rhs.year);
 }
@@ -369,6 +433,14 @@ void alarm::setMatchConditions(const unsigned int condition){
 }
 
 /// \brief
+/// Get Match Conditions
+/// \details
+/// This function returns the currently set match conditions before the alarm can trigger.
+unsigned int alarm::getMatchConditions(){
+	return matchConditions;
+}
+
+/// \brief
 /// Set Outputsignal
 /// \details
 /// This function has one mandatory parameter; wether to set or unset the outputsignal when the alarm meets
@@ -393,6 +465,10 @@ DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address):
 	date(dateData())
 {}
 
+/// \brief
+/// Get I2C Address
+/// \details
+/// This function returns the currently set address with which the chip has been initialized.
 unsigned int DS3231::getAddress(){
 	return address;
 }
@@ -491,17 +567,30 @@ dateData DS3231::getDate(){
 /// \brief
 /// Set First Alarm
 /// \details
-/// This function enables the alarm at the time set by calling the function changeFirstAlarm().
-void DS3231::setFirstAlarm(const unsigned int matchConditions, const bool outputSignal){
+/// This function enables the alarm at the time set by calling the function changeFirstAlarm(). The matchconditions determine when
+/// the alarm should be triggered. The available conditions are:
+///		- 15 (alarm once per second)
+///		- 13 (alarm when seconds match; so at least once per minute)
+///		- 12 (alarm when minutes and seconds match; so at least once an hour)
+/// 	- 8 (alarm when hours, minutes and seconds match)
+///		- 0 (alarm when weekDay, hours, minutes and seconds match)
+///		- 16 (alarm when monthDay, hours, minutes and seconds match. 16 to enable easy and fast bit operation)
+/// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered.
+/// Depending on the match conditions, the alarm should be checked every second, minute, hour or day.
+void DS3231::setFirstAlarm(const unsigned int matchConditions, const bool dateCondition, const bool outputSignal){
 	firstAlarm.enableOutputSignal(outputSignal);
 	firstAlarm.setMatchConditions(matchConditions);
 	auto transaction = bus.write(address);
 	transaction.write(0x07);		//0x07 for ALARM1, 0x11 for ALARM2
-	transaction.write((((firstAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((firstAlarm.time.getSeconds() % 10) & 0x0F));
-	transaction.write((((firstAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((firstAlarm.time.getMinutes() % 10) & 0x0F));
-	transaction.write((((firstAlarm.time.getHours() / 10) & 0x01) << 4) + ((firstAlarm.time.getHours() % 10) & 0x0F));
-	transaction.write(firstAlarm.date.getWeekDay() & 0x0F);
-	transaction.write((((firstAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((firstAlarm.date.getMonthDay() % 10) & 0x0F));
+	transaction.write((((firstAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((firstAlarm.time.getSeconds() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x01) << 7));
+	transaction.write((((firstAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((firstAlarm.time.getMinutes() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x02) << 6));
+	transaction.write((((firstAlarm.time.getHours() / 10) & 0x01) << 4) + ((firstAlarm.time.getHours() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x04) << 5));
+	if(dateCondition){
+		//If the Day of Week has to match, 1 has to be written to 6th bit and weekDay has to be written as well.
+		transaction.write((firstAlarm.date.getWeekDay() & 0x0F) + ((firstAlarm.getMatchConditions() & 0x08) << 4) + (((dateCondition) & 1) << 6));
+	} else {
+		transaction.write((((firstAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((firstAlarm.date.getMonthDay() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x08) << 4) + (((dateCondition) & 1) << 6));
+	}
 }
 
 /// \brief
@@ -517,19 +606,30 @@ void DS3231::changeFirstAlarm(const timeData & alarmTime, const dateData & alarm
 }
 
 /// \brief
-/// Set SecondAlarm
+/// Set Second Alarm
 /// \details
-/// This function enables the alarm at the time set by calling the function changeSecondAlarm().
-void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool outputSignal){
+/// This function enables the alarm at the time set by calling the function changeSecondAlarm(). The matchconditions determine when
+/// the alarm should be triggered. The available conditions are:
+///		- 7 (alarm once per minute)
+///		- 6 (alarm when minutes match)
+/// 	- 8 (alarm when hours and minutes)
+///		- 0 (alarm when weekDay, hours and minutes match)
+///		- 16 (alarm when monthDay, hours and minutes match)
+/// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered.
+/// Depending on the match conditions, the alarm should be checked every second, minute, hour or day.
+void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool dateCondition, const bool outputSignal){
 	secondAlarm.enableOutputSignal(outputSignal);
 	secondAlarm.setMatchConditions(matchConditions);
 	auto transaction = bus.write(address);
-	transaction.write(0x07);		//0x07 for ALARM1, 0x11 for ALARM2
-	transaction.write((((secondAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((secondAlarm.time.getSeconds() % 10) & 0x0F));
-	transaction.write((((secondAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((secondAlarm.time.getMinutes() % 10) & 0x0F));
-	transaction.write((((secondAlarm.time.getHours() / 10) & 0x01) << 4) + ((secondAlarm.time.getHours() % 10) & 0x0F));
-	transaction.write(secondAlarm.date.getWeekDay() & 0x0F);
-	transaction.write((((secondAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((secondAlarm.date.getMonthDay() % 10) & 0x0F));
+	transaction.write(0x11);		//0x07 for ALARM1, 0x11 for ALARM2
+	transaction.write((((secondAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((secondAlarm.time.getSeconds() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x01) << 7));
+	transaction.write((((secondAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((secondAlarm.time.getMinutes() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x02) << 6));
+	transaction.write((((secondAlarm.time.getHours() / 10) & 0x01) << 4) + ((secondAlarm.time.getHours() % 10) & 0x0F)  + ((secondAlarm.getMatchConditions() & 0x03) << 5));
+	if(dateCondition){
+		transaction.write((secondAlarm.date.getWeekDay() & 0x0F)  + ((secondAlarm.getMatchConditions() & 0x04) << 7) + (((dateCondition) & 1) << 6));
+	} else {
+		transaction.write((((secondAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((secondAlarm.date.getMonthDay() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x04) << 7) + (((dateCondition) & 1) << 6));
+	}
 }
 
 /// \brief

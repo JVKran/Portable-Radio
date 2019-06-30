@@ -82,8 +82,12 @@ class alarm{
 		unsigned int alarmNumber;
 	public:
 		alarm(const unsigned int matchConditions = 0, const bool outputSignal = 0);
+
 		void setMatchConditions(const unsigned int condition = 0);
+		unsigned int getMatchConditions();
+
 		void enableOutputSignal(const bool enable);
+
 		timeData time;
 		dateData date;
 };
@@ -120,13 +124,14 @@ class DS3231{
 		dateData getDate();
 
 		void changeFirstAlarm(const timeData & alarmTime, const dateData & alarmDate);
-		void setFirstAlarm(const unsigned int matchConditions, const bool outputSignal = false);
+		void setFirstAlarm(const unsigned int matchConditions, const bool dateCondition = true, const bool outputSignal = false);
 
 		void changeSecondAlarm(const timeData & alarmTime, const dateData & alarmDate);
-		void setSecondAlarm(const unsigned int matchConditions, const bool outputSignal = false);
+		void setSecondAlarm(const unsigned int matchConditions, const bool dateCondition = true, const bool outputSignal = false);
 
 		void updateAlarms();
 		unsigned int checkAlarms();
+		void clearAlarm(const unsigned int alarmNumber);
 
 		unsigned int getAddress();
 
