@@ -578,18 +578,19 @@ dateData DS3231::getDate(){
 /// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered.
 /// Depending on the match conditions, the alarm should be checked every second, minute, hour or day.
 void DS3231::setFirstAlarm(const unsigned int matchConditions, const bool dateCondition, const bool outputSignal){
+	clearAlarm(1);
 	firstAlarm.enableOutputSignal(outputSignal);
 	firstAlarm.setMatchConditions(matchConditions);
 	auto transaction = bus.write(address);
 	transaction.write(0x07);		//0x07 for ALARM1, 0x11 for ALARM2
-	transaction.write((((firstAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((firstAlarm.time.getSeconds() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x01) << 7));
-	transaction.write((((firstAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((firstAlarm.time.getMinutes() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x02) << 6));
-	transaction.write((((firstAlarm.time.getHours() / 10) & 0x01) << 4) + ((firstAlarm.time.getHours() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x04) << 5));
+	transaction.write((((firstAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((firstAlarm.time.getSeconds() % 10) & 0x0F));
+	transaction.write((((firstAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((firstAlarm.time.getMinutes() % 10) & 0x0F));
+	transaction.write((((firstAlarm.time.getHours() / 10) & 0x01) << 4) + ((firstAlarm.time.getHours() % 10) & 0x0F));
 	if(dateCondition){
 		//If the Day of Week has to match, 1 has to be written to 6th bit and weekDay has to be written as well.
-		transaction.write((firstAlarm.date.getWeekDay() & 0x0F) + ((firstAlarm.getMatchConditions() & 0x08) << 4) + (((dateCondition) & 1) << 6));
+		transaction.write((firstAlarm.date.getWeekDay() & 0x0F) + ((firstAlarm.getMatchConditions() & 0x08) << 4));
 	} else {
-		transaction.write((((firstAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((firstAlarm.date.getMonthDay() % 10) & 0x0F) + ((firstAlarm.getMatchConditions() & 0x08) << 4) + (((dateCondition) & 1) << 6));
+		transaction.write((((firstAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((firstAlarm.date.getMonthDay() % 10) & 0x0F));
 	}
 }
 
@@ -618,6 +619,7 @@ void DS3231::changeFirstAlarm(const timeData & alarmTime, const dateData & alarm
 /// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered.
 /// Depending on the match conditions, the alarm should be checked every second, minute, hour or day.
 void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool dateCondition, const bool outputSignal){
+	clearAlarm(2);
 	secondAlarm.enableOutputSignal(outputSignal);
 	secondAlarm.setMatchConditions(matchConditions);
 	auto transaction = bus.write(address);
@@ -625,11 +627,13 @@ void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool dateC
 	transaction.write((((secondAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((secondAlarm.time.getSeconds() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x01) << 7));
 	transaction.write((((secondAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((secondAlarm.time.getMinutes() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x02) << 6));
 	transaction.write((((secondAlarm.time.getHours() / 10) & 0x01) << 4) + ((secondAlarm.time.getHours() % 10) & 0x0F)  + ((secondAlarm.getMatchConditions() & 0x03) << 5));
+	/*
 	if(dateCondition){
 		transaction.write((secondAlarm.date.getWeekDay() & 0x0F)  + ((secondAlarm.getMatchConditions() & 0x04) << 7) + (((dateCondition) & 1) << 6));
 	} else {
 		transaction.write((((secondAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((secondAlarm.date.getMonthDay() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x04) << 7) + (((dateCondition) & 1) << 6));
 	}
+	*/
 }
 
 /// \brief
@@ -681,6 +685,17 @@ unsigned int DS3231::checkAlarms(){
 		secondAlarmState = false;
 		return 0;
 	}
+}
+
+void DS3231::clearAlarm(const unsigned int alarmNumber){
+	bus.write(address).write(0x0F);
+	bus.read(address).read(status, 1);
+	if(alarmNumber == 1){
+		status[0] &= ~1UL;
+	} else {
+		status[0] &= ~2UL;
+	}
+	bus.write(address).write(status[0]);
 }
 
 /// \brief
