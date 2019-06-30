@@ -128,6 +128,8 @@ class DS3231{
 		void updateAlarms();
 		unsigned int checkAlarms();
 
+		unsigned int getAddress();
+
 		unsigned int getTemperature();
 };
 

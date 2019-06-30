@@ -286,6 +286,8 @@ dateData & dateData::operator+=(const dateData & rhs){
 	if(month + rhs.month > 12){
 		year++;
 		month = (month + rhs.month) - 12;
+	} else {
+		month += rhs.month;
 	}
 	year += rhs.year;
 	return *this;
@@ -307,19 +309,31 @@ dateData & dateData::operator-=(const dateData & rhs){
 	}
 	int negMonthDay = monthDay - rhs.monthDay;
 	if(negMonthDay < 0){
-		monthDay = negMonthDay + 31;
+		monthDay = negMonthDay * -1;
 		month--;
+	} else if (negMonthDay > 0){
+		monthDay = negMonthDay;
+		month++;
 	} else {
 		monthDay += rhs.monthDay;
 	}
 	int negMonth = month - rhs.month;
-	if(month + rhs.month > 12){
-		month = negMonth + 12;
+	if(negMonth > 12){
+		month = 12 + negMonth;
 		year--;
+	} else if(negMonth > 0){
+		month = negMonth;
+	} else if (negMonth < 0){
+		month = 12 + negMonth;
 	} else {
 		month -= rhs.month;
 	}
-	year -= rhs.year;
+	int negYear = year - rhs.year;
+	if(negYear < 0){
+		year = 0;
+	} else {
+		year -= rhs.year;
+	}
 	return *this;
 }
 
@@ -378,6 +392,10 @@ DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address):
 	time(timeData()),
 	date(dateData())
 {}
+
+unsigned int DS3231::getAddress(){
+	return address;
+}
 
 /// \brief
 /// Send Data

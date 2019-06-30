@@ -11,6 +11,7 @@ hwlib::ostream & operator<<(hwlib::ostream & lhs, const dateData & rhs){
   return lhs;
 }
 
+
 int main( void ){
   namespace target = hwlib::target;
 
@@ -71,24 +72,29 @@ int main( void ){
 
   date.setDate(1, 1, 1, 2019);
   lastDate.setDate(7, 30, 6, 0);
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Addition: " << date << " + " << lastDate << " = " << (date + lastDate) <<  hwlib::boolalpha << " " << ((date + lastDate) == dateData(1, 31, 7, 2019)) <<  hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Addition: " << date << " + " << lastDate << " = " << (date + lastDate) <<  hwlib::boolalpha << " " << ((date + lastDate) == dateData(1, 1, 8, 2019)) <<  hwlib::endl;
+
   lastDate.setWeekDay(5);
   lastDate.setMonthDay(15);
   lastDate.setMonth(8);
   lastDate.setYear(2000);
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Addition: " << date << " + " << lastDate << " = " << (date + lastDate) <<  hwlib::boolalpha << " " << ((date + lastDate) == dateData(6, 16, 9, 4019)) <<  hwlib::endl;
 
-/*
-  lastTime.setTime(5, 30);
-  time.setTime(10, 30);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << time << " - " << lastTime << " = " << (time - lastTime) << hwlib::boolalpha << "  " << ((time - lastTime) == timeData(5, 0, 0)) <<  hwlib::endl;
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastTime << " - " << time << " = " << (lastTime - time) << hwlib::boolalpha << " " << ((lastTime - time) == timeData(19, 0, 0)) <<  hwlib::endl;
+  date.setDate(5, 8, 10, 2019);
+  lastDate.setDate(4, 30, 8, 2000);
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << date << " - " << lastDate << " = " << (date - lastDate) << hwlib::boolalpha << "  " << ((date - lastDate) == dateData(1, 22, 1, 19)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastDate << " - " << date << " = " << (lastDate - date) << hwlib::boolalpha << " " << ((lastDate - date) == dateData(6, 22, 11, 0)) <<  hwlib::endl;
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << time << " == " << lastTime << " = " << (time == lastTime) <<  hwlib::endl;
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << lastTime << " != " << time << " = " << (lastTime != time) <<  hwlib::endl << hwlib::endl;
-*/
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << date << " == " << lastDate << " = " << (date == lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << date << " != " << lastDate << " = " << (date != lastDate) <<  hwlib::endl << hwlib::endl;
+
+
+  hwlib::cout << "-------------------------------DS3231--------------------------------" << hwlib::endl << hwlib::endl;
+
+
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Initialization: " << (clock.getAddress() == 0x68) << hwlib::endl;
 
   hwlib::cout << hwlib::endl;
   for(unsigned int i = 0; i < 3; i++){
