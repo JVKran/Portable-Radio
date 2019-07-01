@@ -2,7 +2,7 @@
 *.project
 *.exe
 main.exe
-Makefil*
+Makefile.*
 *.ld
 *.elf
 *.bin
