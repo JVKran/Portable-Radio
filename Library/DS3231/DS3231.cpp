@@ -157,12 +157,18 @@ timeData & timeData::operator-=(const timeData & rhs){
 	if(negMinutes < -59){
 		hours -= (negMinutes / -60);
 		minutes = (negMinutes % -60);
+	} else if(negMinutes < 0){
+		minutes = 60 + negMinutes;
+		hours--;
 	} else {
 		minutes -= rhs.minutes;
 	}
 	int negHours = hours - rhs.hours;
-	if(negHours < 0){
+	if(negHours <= 0){
 		hours = (24 + negHours);
+		if(hours == 24){
+			hours = 0;
+		}
 	} else {
 		hours -= rhs.hours;
 	}
@@ -363,25 +369,18 @@ dateData & dateData::operator-=(const dateData & rhs){
 		weekDay -= rhs.weekDay;
 	}
 	int negMonthDay = monthDay - rhs.monthDay;
-	if(negMonthDay < 0){
-		monthDay = negMonthDay * -1;
+	if(negMonthDay <= 0){
+		monthDay = 30 + negMonthDay;
 		month--;
-	} else if (negMonthDay > 0){
-		monthDay = negMonthDay;
-		month++;
-	} else {
-		monthDay += rhs.monthDay;
+	} else if (negMonthDay >= 0){
+		monthDay -= rhs.monthDay;
 	}
 	int negMonth = month - rhs.month;
-	if(negMonth > 12){
-		month = 12 + negMonth;
-		year--;
-	} else if(negMonth > 0){
+	if (negMonth > 0){
 		month = negMonth;
 	} else if (negMonth < 0){
 		month = 12 + negMonth;
-	} else {
-		month -= rhs.month;
+		year--;
 	}
 	int negYear = year - rhs.year;
 	if(negYear < 0){
@@ -570,27 +569,26 @@ dateData DS3231::getDate(){
 /// This function enables the alarm at the time set by calling the function changeFirstAlarm(). The matchconditions determine when
 /// the alarm should be triggered. The available conditions are:
 ///		- 15 (alarm once per second)
-///		- 13 (alarm when seconds match; so at least once per minute)
+///		- 14 (alarm when seconds match; so at least once per minute)
 ///		- 12 (alarm when minutes and seconds match; so at least once an hour)
 /// 	- 8 (alarm when hours, minutes and seconds match)
 ///		- 0 (alarm when weekDay, hours, minutes and seconds match)
 ///		- 16 (alarm when monthDay, hours, minutes and seconds match. 16 to enable easy and fast bit operation)
 /// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered.
-/// Depending on the match conditions, the alarm should be checked every second, minute, hour or day.
 void DS3231::setFirstAlarm(const unsigned int matchConditions, const bool dateCondition, const bool outputSignal){
 	clearAlarm(1);
 	firstAlarm.enableOutputSignal(outputSignal);
 	firstAlarm.setMatchConditions(matchConditions);
 	auto transaction = bus.write(address);
 	transaction.write(0x07);		//0x07 for ALARM1, 0x11 for ALARM2
-	transaction.write((((firstAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((firstAlarm.time.getSeconds() % 10) & 0x0F));
-	transaction.write((((firstAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((firstAlarm.time.getMinutes() % 10) & 0x0F));
-	transaction.write((((firstAlarm.time.getHours() / 10) & 0x01) << 4) + ((firstAlarm.time.getHours() % 10) & 0x0F));
+	transaction.write((((firstAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((firstAlarm.time.getSeconds() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x01) << 7));
+	transaction.write((((firstAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((firstAlarm.time.getMinutes() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x02) << 6));
+	transaction.write((((firstAlarm.time.getHours() / 10) & 0x01) << 4) + ((firstAlarm.time.getHours() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x03) << 5));
 	if(dateCondition){
 		//If the Day of Week has to match, 1 has to be written to 6th bit and weekDay has to be written as well.
-		transaction.write((firstAlarm.date.getWeekDay() & 0x0F) + ((firstAlarm.getMatchConditions() & 0x08) << 4));
+		transaction.write((firstAlarm.date.getWeekDay() & 0x0F) + ((firstAlarm.getMatchConditions() & 0x04) << 4) + (((dateCondition) & 1) << 6));
 	} else {
-		transaction.write((((firstAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((firstAlarm.date.getMonthDay() % 10) & 0x0F));
+		transaction.write((((firstAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((firstAlarm.date.getMonthDay() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x04) << 4) + (((dateCondition) & 1) << 6));
 	}
 }
 
@@ -627,13 +625,11 @@ void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool dateC
 	transaction.write((((secondAlarm.time.getSeconds() / 10) & 0x07) << 4) + ((secondAlarm.time.getSeconds() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x01) << 7));
 	transaction.write((((secondAlarm.time.getMinutes() / 10) & 0x07) << 4) + ((secondAlarm.time.getMinutes() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x02) << 6));
 	transaction.write((((secondAlarm.time.getHours() / 10) & 0x01) << 4) + ((secondAlarm.time.getHours() % 10) & 0x0F)  + ((secondAlarm.getMatchConditions() & 0x03) << 5));
-	/*
 	if(dateCondition){
-		transaction.write((secondAlarm.date.getWeekDay() & 0x0F)  + ((secondAlarm.getMatchConditions() & 0x04) << 7) + (((dateCondition) & 1) << 6));
+		transaction.write((secondAlarm.date.getWeekDay() & 0x0F)  + ((secondAlarm.getMatchConditions() & 0x04) << 4) + (((dateCondition) & 1) << 6));
 	} else {
-		transaction.write((((secondAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((secondAlarm.date.getMonthDay() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x04) << 7) + (((dateCondition) & 1) << 6));
+		transaction.write((((secondAlarm.date.getMonthDay() / 10) & 0x03) << 4) + ((secondAlarm.date.getMonthDay() % 10) & 0x0F) + ((secondAlarm.getMatchConditions() & 0x04) << 4) + (((dateCondition) & 1) << 6));
 	}
-	*/
 }
 
 /// \brief
@@ -651,7 +647,7 @@ void DS3231::changeSecondAlarm(const timeData & alarmTime, const dateData & alar
 /// \brief
 /// Update Alarm State
 /// \details
-/// This function retrieves the state of the alarms and puts the state in specific the attributes.
+/// This function retrieves the state of the alarms and puts the state in the representative attributes.
 void DS3231::updateAlarms(){
 	bus.write(address).write(0x0F);
 	auto transaction = bus.read(address);
@@ -666,6 +662,8 @@ void DS3231::updateAlarms(){
 /// This function returns the current state of the alarms. It can output 3 (if both alarms are triggered), 
 /// 2 (if alarm 2 is triggered), 1 (if alarm 1 is triggered) or 0 (if none alarm is triggered). Calls updateAlarms()
 /// in the background to execute based on recent values.
+/// When the alarm is triggered, the alarm bit representing the state of the alarm remains triggered. Thus, the alarm does not have to 
+/// be checked after a specific amount of time.
 unsigned int DS3231::checkAlarms(){
 	updateAlarms();
 	if(firstAlarmState && secondAlarmState){
@@ -687,6 +685,13 @@ unsigned int DS3231::checkAlarms(){
 	}
 }
 
+/// \brief
+/// Clear / Unset Alarms
+/// \details
+/// This function clears / unsets / disarms the alarm whose alarmnumber is equal to the passed argument; it sets / resets the alarm flag
+/// to 0. Howver, there is no such way to tell the chip the alarm should be off. There always is a state in which the alarm will trigger.
+/// Depending on the Match Conditions, the alarm will keep triggering every second, minute, hour, day, month or year. Thus, the result of
+/// checkAlarms() should only be taken seriously after the alarm has been set.
 void DS3231::clearAlarm(const unsigned int alarmNumber){
 	bus.write(address).write(0x0F);
 	bus.read(address).read(status, 1);
