@@ -1,10 +1,10 @@
 # Portable Radio
 This repository contains several Libraries for a couple of different chips and components. Four in total. They all combine in a very nice way and are perfect to make a Portable Radio with.
-### prerequisites
+### Prerequisites
 These libraries are written on top of [HWLIB](https://github.com/wovo/hwlib) and [BMPTK](https://github.com/wovo/bmptk). So before you will be able to use these libraries you will have to pull these repositories and set them up. After that you could take a look at the included examples or go straight to programming yourself. It's up to you!
 ### Documentation
 All code is provided with Doxygen Documentation so there is a general platform to do research after possibilities. When the repository is cloned, one can find the already generated documentation in the [Documentation Folder](/Documentation).
-## Examples
+#### Examples
 All libraries are provided with [Examples](/Examples) where the basic functionality is shown. I strongly recommend to read the Doxygen Documentations and take a look at the examples for a complete image of the possibilities from this strong combination of libraries.
 ### RDA5807 FM-demodulator
 The RDA5807 is a very complete FM-Radio module. It can do basic Radio-Stuff like setting the frequency, muting, searching and getting the signal strength. But it can also gather Radio Data; send by the Radio Data System.
