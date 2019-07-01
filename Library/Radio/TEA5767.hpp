@@ -9,9 +9,33 @@
 /// TEA5767 Interface
 /// \details
 /// This is an interface that simplifies the use of TEA5767 chips. Tuning, Muting
-/// and setting of Frequencies are some possibilities. It is compatible with the module
+/// and setting of Frequencies are some of its abilities. It is compatible with the module
 /// and breakout, though the breakout has hardwareproblems. It doesn't support searching
 /// for channels that well.
+/// 
+///	Some supported operations are:
+///		- Set/Get Frequency
+///		- Set/Get Stereo
+///		- Set/Get Mute
+///		- Set/Get Volume
+///		- Automatic Search
+///		- Set/Get Stand By
+///		- Set/Get Software Programmable Ports
+///
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto scl = target::pin_oc( target::pins::d8 );
+/// auto sda = target::pin_oc( target::pins::d9 );
+/// auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
+/// 
+/// auto radio = TEA5767(i2c_bus);
+/// radio.setStereo(true);
+/// radio.audioSettings(true, true, true);
+/// radio.setFrequency(100.7);
+/// for(;;){
+///     hwlib::cout << radio.signalStrength() << hwlib::endl;
+///     hwlib::wait_ms(10000);
+/// }
+/// ~~~~~~~~~~~~~~~
 class TEA5767 : public Radio {
 	private:
 		// I2C Communication

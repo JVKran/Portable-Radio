@@ -17,6 +17,7 @@ class Radio{
 		const uint8_t address;
 		virtual void setData() = 0;
 		virtual void getStatus() = 0;
+
 		//Important For Legal Frequencies
 		int bandLimit;
 	public:

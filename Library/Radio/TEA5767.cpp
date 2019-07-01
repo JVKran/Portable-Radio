@@ -3,20 +3,12 @@
 #include "hwlib.hpp"
 #include "TEA5767.hpp"
 
-float floor(float input){
-    if(input < 0){
-        return float(int(input - 1));   
-    } else {
-        return float(int(input));
-    }
-}
-
 /// \brief
 /// Constuctor
 /// \details
 /// This constructor has one mandatory parameter; the I2C bus. The address defaults
 /// to 0x60. Leave the bandLimit empty or 0 for no bandlimits (EU/US) or 1 for use in
-/// Japan. The module is automatically muted after initialisation and best settings are set.
+/// Japan. The module is automatically muted after initialisation and madatory settings are set.
 TEA5767::TEA5767(hwlib::i2c_bus_bit_banged_scl_sda & bus, int bandLimit, uint8_t address): Radio(bus, address, bandLimit){
 	setMute(true);
 	audioSettings();
@@ -65,7 +57,8 @@ void TEA5767::setBandLimit(const unsigned int limit){
 /// \details
 /// This function is used to change the Clock Frequeny. The parameter can be 6, 13 or 32. However,
 /// in almost all cases there is no reason to change the standard value 32 (32768kHz). It is also possible
-/// to use an external clock which can be connected to XTAL2. This library only support 32768kHz tuning.
+/// to use an external clock which can be connected to XTAL2. This library only support 32768kHz tuning (used
+/// by singleSearch() and searchLoop()). However, altSearch() will remain functioning.
 void TEA5767::setClockFrequency(const unsigned int frequency){
 	if (frequency == 13){
 		data[3] &= ~(1UL << 4);		//XTAL
@@ -113,6 +106,7 @@ void TEA5767::setPLL(const float frequency, unsigned int hilo){
 /// done by tuning to the frequency with High Side Injection, measuring the Signal Strength,
 /// tuning to the frequeny with Low Side Injection and then comparing the Singnal Strength.
 /// The best kind of injection is returned; low (0), or high (1).
+/// This testing is usefull to prevent the hearing of multiple stations through one another.
 int TEA5767::testHiLo(const float frequency){
 	setPLL(frequency, 1);
 	setData();
@@ -133,7 +127,7 @@ int TEA5767::testHiLo(const float frequency){
 /// Set Frequency
 /// \details
 /// This function tunes to the given frequency. If no frequency is provided, the chip will tune to the first
-/// legal frequency The user can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
+/// legal frequency. The user can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
 /// testHiLo() will be called to determine the best option. During the tuning, the audio is muted
 /// to prevent loud pops and cracks.
 void TEA5767::setFrequency(const float frequency, const int hiLoForce){
@@ -162,7 +156,7 @@ void TEA5767::setFrequency(const float frequency, const int hiLoForce){
 /// legal frequency. The user can also choose to force the tuning with High or Low Side Injection. If nothing is passed,
 /// testHiLo() will be called to determine the best option. During the tuning, the audio is muted
 /// to prevent loud pops. This function in particular makes use of setFrequency(const float, const int) to support
-/// more class independent use of Radio().
+/// more class independent use of the Radio base class.
 void TEA5767::setFrequency(const float frequency){
 	setFrequency(frequency, -1);
 }
@@ -184,10 +178,10 @@ float TEA5767::getFrequency(){
 }
 
 /// \brief
-/// Get Frequency
+/// Get Int Frequency
 /// \details
 /// This function returns the currently tuned frequency as an unsigned integer. In the background
-/// it calls getFrequency(). The returned frequency consequently always up-to-date.
+/// it calls getFrequency(). The returned frequency consequently is always up-to-date.
 unsigned int TEA5767::getIntFrequency(){
 	return int(getFrequency() * 10);
 }
@@ -224,7 +218,9 @@ unsigned int TEA5767::getVolume(){
 /// Mute Unmute L OR R
 /// \details
 /// This function takes two parameters which define what side has to be muted or unmuted. If L or R
-/// is muted, the audio signal will be mono. Otherwise it will be automatically set to stereo.
+/// is muted, the audio signal will be mono. Otherwise it will be automatically set to stereo. If one
+/// or more sides are muted, the mono output will automatically be enabled. If they are both unmuted again,
+/// the stereo output will be enabled automatically.
 void TEA5767::setMute(const char side, const bool mute){
 	if(side == 'l'){
 		if(mute){
@@ -264,7 +260,7 @@ void TEA5767::standBy(const bool sleep){
 /// \brief
 /// Get Signal Strength
 /// \details
-/// This function returns the currently Signal Strength of the current tuned Frequency. It has to overwrite the
+/// This function returns the current Signal Strength of the current tuned Frequency. It has to overwrite the
 /// values for them to update. The Signal Strength is the only value for which this is needed.
 unsigned int TEA5767::signalStrength(){
 	setData(); //According to datasheet: Overwrite values to update
@@ -300,7 +296,7 @@ bool TEA5767::stereoReception(){
 /// \details
 /// This function takes three boolean parameters; Stereo Noise Cancelling (switches to mono in case of a weak signal),
 /// High Cut Control (reduces high frequencies) and Soft Mute (reduces crisps in the signal) where true means they should
-/// be turned on.
+/// be turned on and false that they should be turned off.
 void TEA5767::audioSettings(const bool SNC, const bool HCC, const bool SM){
 	if (SNC){
 		data[3] |= (1UL << 1);
@@ -346,7 +342,7 @@ void TEA5767::setPort(const bool portOne, const bool portTwo, const bool searchI
 /// Seek Channel
 /// \details
 /// This function takes one mandatory parameter, the search direction (1:up, 0:down). This function then calls singleSearch() with the default
-/// quality Threshold.
+/// quality Threshold (3).
 void TEA5767::seek(const unsigned int direction){
 	singleSearch(direction);
 }
@@ -361,12 +357,12 @@ void TEA5767::seek(const unsigned int direction){
 /// (Ready Flag).
 /// If a Band Limit is reached the BLF (Band Limit Flag) will be raised. This function will then set the frequency back to the lowest
 /// possible one (in case of search up) or highest one (in case of search down) so a circulair search is performed until the loop is complete.
-/// If after one band loop no valid Frequency has been found, the loop will exit and the chip will tune back to the Start Frequency.
+/// If after one band loop no valid Frequency has been found, the loop will exit and the chip will tune back to the Start Frequency (the frequency the chip
+/// was tuned to when the search started).
 /// It can occur that one Frequency gets found more than once in one single search or a specific Frequency is found in one search, but not in another.
 /// This can occur because this function asks for realtime info every loop and thus, requires precise timing; You Absolutely should not change any
 /// timings. If you decide to do so be advised this takes large amounts of tuning.
 /// Somehow, this function is very unreliable with HWLIB, but not with Wire.h.
-
 void TEA5767::searchLoop(const unsigned int direction, const unsigned int qualityThreshold){
 	setMute(true);
 	float startFrequency = getFrequency();
@@ -429,7 +425,6 @@ void TEA5767::searchLoop(const unsigned int direction, const unsigned int qualit
 			hwlib::wait_ns(50000);
 		}
 		loops++;
-
 	}
 	foundFrequency = getFrequency();
 	if(foundFrequency != startFrequency){
@@ -691,7 +686,7 @@ bool TEA5767::isMuted(const char side){
 /// \brief
 /// Get High Side Injection
 /// \details
-/// This function returns true if the TEA5767 is tuned with High Side Injection.
+/// This function returns true if the TEA5767 is tuned with High Side Injection or false when tuned with Low Side Injection.
 bool TEA5767::highSide(){
 	return (data[2] >> 4) & 1;
 }
@@ -727,7 +722,7 @@ unsigned int TEA5767::hasBandLimit(){
 }
 
 /// \brief
-/// Get Stereo Prefrence
+/// Get Stereo Preference
 /// \details
 /// This function returns true if the TEA5767's stereo bit is set. This does not
 /// mean it is also receiving stereo audio. This can be determined with function
@@ -749,7 +744,7 @@ bool TEA5767::radioDataEnabled(){
 /// Bass Boosted
 /// \details
 /// This function returns false since the TEA5767, in contrary of the RDA58XX Series,
-/// doesn't support increasing the bass level outputed.
+/// doesn't support increasing the bass level outputted.
 bool TEA5767::bassBoosted(){
 	return false;
 }

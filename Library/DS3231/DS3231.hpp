@@ -98,6 +98,29 @@ class alarm{
 /// This is an Interface for the DS3231 RTC (Realtime-Clock) that makes it easier to retrieve the current time and date. It also
 /// simplifies the setting of the current time and date since it is also handling the change of century. It is also possible to
 /// get the temperature from the onboard thermometer which can supply an accuracy of up to 0.25 Degrees Celcius.
+/// 
+///	All supported operations are:
+///		- Get Time
+///		- Get Date
+///		- Set Alarm
+///		- Unset Alarm
+/// 	- Get Temperature
+///
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto clock = DS3231(i2c_bus);
+/// timeData time;
+/// dateData date;
+/// 
+/// for(;;){
+///     time = clock.getTime();
+///     date = clock.getDate();
+///     
+///     hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
+///     hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
+///     hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
+///     hwlib::wait_ms(10000);
+///   }
+/// ~~~~~~~~~~~~~~~
 class DS3231{
 	private:
 		hwlib::i2c_bus & bus;

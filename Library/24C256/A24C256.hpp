@@ -11,6 +11,30 @@
 /// possible to write and read single bytes (chars, bools, integers) and multi-byte values (char[]). By default
 /// , the chip is unable to write multi-byte values accross multiple pages. However, this is dealt with
 /// from within this library.
+/// 
+///	All supported operations are:
+///		- Write Single Byte
+///		- Write Multiple Bytes
+///		- Read Single Byte
+///		- Read Multiple Bytes
+/// 
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto scl = target::pin_oc( target::pins::d8 );
+/// auto sda = target::pin_oc( target::pins::d9 );
+/// auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
+/// 
+/// auto memory = A24C256(i2c_bus);
+/// 
+/// char data[]={"Hello World!"};
+/// 
+/// memory.write(0, data);      //Save data at memory location 0
+/// 
+/// uint8_t receivedData[12];
+/// memory.read(0, 12, receivedData);
+/// for(unsigned int i = 0; i < 12; i++){
+///     hwlib::cout << char(receivedData[i]);
+/// }
+/// ~~~~~~~~~~~~~~~
 class A24C256{
 	private:
 		hwlib::i2c_bus & bus;
