@@ -6,6 +6,8 @@ These libraries are written on top of [HWLIB](https://github.com/wovo/hwlib) and
 All code is provided with Doxygen Documentation so there is a general platform to do research after possibilities. When the repository is cloned, one can find the already generated documentation in the [Documentation Folder](/Documentation).
 #### Examples
 All libraries are provided with [Examples](/Examples) where the basic functionality is shown. I strongly recommend to read the Doxygen Documentations and take a look at the examples for a complete image of the possibilities from this strong combination of libraries.
+#### Tests
+All libraries have also been tested. If you doubt the correct functioning of the chips you can always perform some tests. These are stored in the Tests folder in each [Library](/Library)
 ### RDA5807 FM-demodulator
 The RDA5807 is a very complete FM-Radio module. It can do basic Radio-Stuff like setting the frequency, muting, searching and getting the signal strength. But it can also gather Radio Data; send by the Radio Data System.
 ```C++
