@@ -2,12 +2,7 @@
 *.project
 *.exe
 main.exe
-*.html
-*.png
-*.css
-*.js
 Makefil*
-Doxyfile
 *.ld
 *.elf
 *.bin
