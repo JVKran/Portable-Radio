@@ -2,6 +2,22 @@
 This repository contains several Libraries for a couple of different chips and components. Four in total. They all combine in a very nice way and are perfect to make a Portable Radio with.
 ### Prerequisites
 These libraries are written on top of [HWLIB](https://github.com/wovo/hwlib) and [BMPTK](https://github.com/wovo/bmptk). So before you will be able to use these libraries you will have to pull these repositories and set them up. After that you could take a look at the included examples or go straight to programming yourself. It's up to you!
+### Hardware
+There's actually quite a lot of hardware needed for this project. In basic form it requires the following:
+- TEA5767
+- RDA5807M
+- DS3231
+- 24CXX Series EEPROM chip
+- Rotary encoder (EC11 or KY040)
+- PAM8403 (or other kind of AMP)
+- SSD1306 OLED
+If you really want it to be portable, you'll also need the following:
+- TP4056 Charger
+- MT3608 Step-up converter
+- LM2596 Step-down converter (for solar panel)
+- Switch
+All of the above components need to be rated at least 2A since the Amplifier can draw that large amount of current. The wiring is as shown below:
+
 ### Documentation
 All code is provided with Doxygen Documentation so there is a general platform to do research after possibilities. When the repository is cloned, one can find the already generated documentation in the [Documentation Folder](/Documentation).
 #### Examples
