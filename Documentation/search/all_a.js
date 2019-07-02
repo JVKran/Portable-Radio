@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['newdemodulate',['newDemodulate',['../class_r_d_a5807.html#a6e9eea5afc8b0dc64ffcd3f7ce8bca28',1,'RDA5807']]],
-  ['normalaudio',['normalAudio',['../class_r_d_a5807.html#a1c8689fc281ba4fb333188ab64423e84',1,'RDA5807']]]
+  ['main',['main',['../24_c256_2_tests_2main_8cpp.html#a840291bc02cba5474a4cb46a9b9566fe',1,'main(void):&#160;main.cpp'],['../_d_s3231_2_tests_2main_8cpp.html#a840291bc02cba5474a4cb46a9b9566fe',1,'main(void):&#160;main.cpp']]],
+  ['minutes',['minutes',['../classradio_data_system.html#a108db6002a337a43f09465a4fd5e8975',1,'radioDataSystem']]]
 ];

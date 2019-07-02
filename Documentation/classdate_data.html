@@ -124,8 +124,12 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Date ADT. </p>
-<p>This is an ADT that is able to store the Day of Week, Daynumber, Month and Year. It is also possible to do simple operations and change or get the stored values. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<p>This is an ADT that is able to store the Day of Week, Daynumber, Month and Year. It is also possible to do simple operations and change or get the stored values. All supported operations are:</p><ul>
+<li>Get Day of Week, Day of Month, Month and Year</li>
+<li>Set Day of Week, Day of Month, Month and Year</li>
+<li>Arithmetics: +, +=, -, -=, == and !=</li>
+</ul>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> clock = <a class="code" href="class_d_s3231.html">DS3231</a>(i2c_bus);</div><div class="line"><span class="keyword">auto</span> curTime = clock.getTime();</div><div class="line"><a class="code" href="classtime_data.html">timeData</a> time;</div><div class="line"><a class="code" href="classdate_data.html">dateData</a> date;</div><div class="line"></div><div class="line"><span class="keywordflow">for</span>(;;){</div><div class="line">    time = clock.getTime();</div><div class="line">    date = clock.getDate();</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Time: &quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a356a36cca13287b3cb624dba59b34f3f">getHours</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#aa5dd8f6e338ab880852430614a1803a1">getMinutes</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a39a2df9c9993837bc6d6bee182486a07">getSeconds</a>() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Temperature: &quot;</span> &lt;&lt; clock.getTemperature() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Date: &quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a61e1644a21e8badecce076787c0debd4">getMonthDay</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#aa2064d5f382f66c8d57113bb6d2c6284">getMonth</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a23f2a970f86e66d161bd0b8be36a2be9">getYear</a>() &lt;&lt; hwlib::endl &lt;&lt; hwlib::endl;</div><div class="line">    curTime = clock.getTime();</div><div class="line">    curTime.setSeconds(curTime.getSeconds() + 10);</div><div class="line">    clock.changeFirstAlarm(curTime, <a class="code" href="classdate_data.html#a67c1d6ea3fc0d9829f9045ac577546a1">dateData</a>(0, 0, 1, 2019));</div><div class="line">    clock.setFirstAlarm(14);</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Alarm set, should go in 10 seconds: &quot;</span>;</div><div class="line"></div><div class="line">    hwlib::wait_ms(30);</div><div class="line"></div><div class="line">    <span class="keywordflow">while</span>(clock.checkAlarms() == 0){</div><div class="line">        hwlib::wait_ms(200);</div><div class="line">    }</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; curTime - clock.getTime() &lt;&lt; <span class="stringliteral">&quot;seconds have passed&quot;</span> &lt;&lt; hwlib::endl;</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Triggered!&quot;</span> &lt;&lt; hwlib::endl;</div><div class="line">}</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a67c1d6ea3fc0d9829f9045ac577546a1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a67c1d6ea3fc0d9829f9045ac577546a1">&#9670;&nbsp;</a></span>dateData()</h2>
 
@@ -510,7 +514,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jul 1 2019 11:46:21 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jul 2 2019 12:04:42 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

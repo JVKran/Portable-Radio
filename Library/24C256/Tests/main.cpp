@@ -1,6 +1,12 @@
+/// @file
+
 #include "hwlib.hpp"
 #include "A24C256.hpp"
 
+/// \brief
+/// Test
+/// \details
+/// This program tests ALL functionality from the I2C EEPROM memory chips.
 int main( void ){
   namespace target = hwlib::target; 
 

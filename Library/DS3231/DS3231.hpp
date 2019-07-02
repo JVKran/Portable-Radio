@@ -8,6 +8,41 @@
 /// \details
 /// This is an ADT that is able to store hours, minutes and seconds. It is also possible to do simple operations
 /// and change or get the stored values.
+///	All supported operations are:
+///		- Get Hours, Minutes or seconds
+///		- Set Hours, Minutes or seconds
+///		- Arithmetics: +, +=, -, -=, == and !=
+///
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto clock = DS3231(i2c_bus);
+/// auto curTime = clock.getTime();
+/// timeData time;
+/// dateData date;
+/// 
+/// for(;;){
+///     time = clock.getTime();
+///     date = clock.getDate();
+///     
+///     hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
+///     hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
+///     hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
+///     curTime = clock.getTime();
+///     curTime.setSeconds(curTime.getSeconds() + 10);
+///   	clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+///   	clock.setFirstAlarm(14);
+///  	hwlib::cout << "Alarm set, should go in 10 seconds: ";
+/// 
+///   	hwlib::wait_ms(30);
+/// 
+///   	while(clock.checkAlarms() == 0){
+///     	hwlib::wait_ms(200);
+///	  	}
+///		
+///		hwlib::cout << curTime - clock.getTime() << "seconds have passed" << hwlib::endl;
+/// 
+///   	hwlib::cout << "Triggered!" << hwlib::endl;
+///	}
+/// ~~~~~~~~~~~~~~~
 class timeData{
 	private:
 		unsigned int hours;
@@ -40,6 +75,41 @@ class timeData{
 /// \details
 /// This is an ADT that is able to store the Day of Week, Daynumber, Month and Year. It is also possible to do simple operations
 /// and change or get the stored values.
+///	All supported operations are:
+///		- Get Day of Week, Day of Month, Month and Year
+///		- Set Day of Week, Day of Month, Month and Year
+///		- Arithmetics: +, +=, -, -=, == and !=
+///
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto clock = DS3231(i2c_bus);
+/// auto curTime = clock.getTime();
+/// timeData time;
+/// dateData date;
+/// 
+/// for(;;){
+///     time = clock.getTime();
+///     date = clock.getDate();
+///     
+///     hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
+///     hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
+///     hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
+///     curTime = clock.getTime();
+///     curTime.setSeconds(curTime.getSeconds() + 10);
+///   	clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+///   	clock.setFirstAlarm(14);
+///  	hwlib::cout << "Alarm set, should go in 10 seconds: ";
+/// 
+///   	hwlib::wait_ms(30);
+/// 
+///   	while(clock.checkAlarms() == 0){
+///     	hwlib::wait_ms(200);
+///	  	}
+///		
+///		hwlib::cout << curTime - clock.getTime() << "seconds have passed" << hwlib::endl;
+/// 
+///   	hwlib::cout << "Triggered!" << hwlib::endl;
+///	}
+/// ~~~~~~~~~~~~~~~
 class dateData{
 	private:
 		unsigned int weekDay;
@@ -75,6 +145,41 @@ class dateData{
 /// \details
 /// This is a class that keeps track of the set alarm; managing when it should be triggered and how it should be triggered.
 /// It is also possible to determine if the output (SKW-pin) should be set high if the alarm triggers.
+///	All supported operations are:
+///		- Get Match Condition
+///		- Set Match Condition or Output Signal
+///		- Arithmetics: +, +=, -, -=, == and !=
+///
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto clock = DS3231(i2c_bus);
+/// auto curTime = clock.getTime();
+/// timeData time;
+/// dateData date;
+/// 
+/// for(;;){
+///     time = clock.getTime();
+///     date = clock.getDate();
+///     
+///     hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
+///     hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
+///     hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
+///     curTime = clock.getTime();
+///     curTime.setSeconds(curTime.getSeconds() + 10);
+///   	clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+///   	clock.setFirstAlarm(14);
+///  	hwlib::cout << "Alarm set with matchconditions (" << firstAlarm.getMatchConditions() << ", should go in 10 seconds: ";
+/// 
+///   	hwlib::wait_ms(30);
+/// 
+///   	while(clock.checkAlarms() == 0){
+///     	hwlib::wait_ms(200);
+///	  	}
+///		
+///		hwlib::cout << curTime - clock.getTime() << "seconds have passed" << hwlib::endl;
+/// 
+///   	hwlib::cout << "Triggered!" << hwlib::endl;
+///	}
+/// ~~~~~~~~~~~~~~~
 class alarm{
 	private:
 		unsigned int matchConditions;
@@ -108,6 +213,10 @@ class alarm{
 ///
 /// ~~~~~~~~~~~~~~~{.cpp}
 /// auto clock = DS3231(i2c_bus);
+///	clock.setTime(23, 59, 0);
+/// clock.setDate(1, 31, 12, 1999);	//Century change is taken care of
+///	
+/// auto curTime = clock.getTime();
 /// timeData time;
 /// dateData date;
 /// 
@@ -118,8 +227,21 @@ class alarm{
 ///     hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
 ///     hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
 ///     hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
-///     hwlib::wait_ms(10000);
-///   }
+///	
+///     curTime = clock.getTime();
+///     curTime.setSeconds(curTime.getSeconds() + 10);
+///   	clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+///   	clock.setFirstAlarm(14);
+///  	hwlib::cout << "Alarm set, should go in 10 seconds: ";
+/// 
+///   	hwlib::wait_ms(30);
+/// 
+///   	while(clock.checkAlarms() == 0){
+///     	hwlib::wait_ms(200);
+///	  	}
+/// 
+///   	hwlib::cout << "Triggered!" << hwlib::endl;
+///	}
 /// ~~~~~~~~~~~~~~~
 class DS3231{
 	private:

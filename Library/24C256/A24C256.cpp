@@ -31,7 +31,7 @@ A24C256::A24C256(hwlib::i2c_bus_bit_banged_scl_sda & bus, unsigned int givenMemo
 			memorySize = 1024;
 		}
 	}
-	memorySize *= 128;									//Verify how many addresses are available
+	memorySize *= 128;									//Verify how many addresses (locations) are available
 }
 
 /// \brief
@@ -79,12 +79,12 @@ uint8_t A24C256::read(unsigned int location){
 /// at location) and largeBuffer defines if the buffer is 64 or 32 bytes. If the location
 /// is valid, the data will be written.
 /// 
-///						Buffer
+///	Buffer
 /// A Buffer-size of 64 bytes is faster and more efficient.
 /// Though not all microcontrollers or I2C libraries can handle this.
 /// To make this library user-friendly you can choose which one to use.
 /// 
-///						Pages
+///	Pages
 /// The memory consists of pages of 64 bytes each. When an
 ///	edge of a page is reached, the write process will continue
 ///	at the beginning of this current page; thus overwriting data.
