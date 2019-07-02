@@ -91,19 +91,21 @@ auto SW = hwlib::target::pin_in( hwlib::target::pins::d26 );
 auto button = KY040(CLK, DT, SW);
 
 for(;;){
-	button.update();
-	hwlib::cout << button.getPos() << hwlib::endl;
-	while(button.isPressed()){
-		button.update();
-		hwlib::wait_ms(5);
-		hwlib::cout << "Pressed" << hwlib::endl;
-	}
+    button.update();
+    hwlib::cout << button.getPos() << hwlib::endl;
+    while(button.isPressed()){
+        button.update();
+        hwlib::wait_ms(5);
+        hwlib::cout << "Pressed" << hwlib::endl;
+    }
 }
 ```
 ### DS3231 Realtime-Clock
 This Realtime-Clock is well known about its perfectly tuned clock; it is rated to drift no more than 2 minutes per year. It also supports the setting of alarms and keeping the time up-to-date with its button-cell.
 ```C++
 auto clock = DS3231(i2c_bus);
+
+auto curTime = clock.getTime();
 timeData time;
 dateData date;
 
@@ -114,6 +116,20 @@ for(;;){
     hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
     hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
     hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
-    hwlib::wait_ms(10000);
+    
+    curTime = clock.getTime();
+    curTime.setSeconds(curTime.getSeconds() + 10);
+    clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+    clock.setFirstAlarm(14);
+    hwlib::cout << "Alarm set, should go in 10 seconds: ";
+
+    hwlib::wait_ms(30);
+
+    while(clock.checkAlarms() == 0){
+      hwlib::wait_ms(200);
+    }
+
+    hwlib::cout << "Triggered!" << hwlib::endl;
+  
   }
   ```
