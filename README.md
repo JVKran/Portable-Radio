@@ -19,7 +19,7 @@ If you really want it to be portable, you'll also need the following:
 - Switch
 
 All of the above components need to be rated at least 2A since the Amplifier can draw that large amount of current. The wiring is as shown below:
-![alt text](/Deliverables/Wiring Diagram.png "Wiring Diagram")
+![alt text](/Deliverables/WiringDiagram.png "Wiring Diagram")
 
 ### Documentation
 All code is provided with Doxygen Documentation so there is a general platform to do research after possibilities. When the repository is cloned, one can find the already generated documentation in the [Documentation Folder](/Documentation).
