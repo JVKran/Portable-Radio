@@ -4,6 +4,8 @@
 #include "A24C256.hpp"
 #include "DS3231.hpp"
 #include "KY040.hpp"
+#include "TEA5767.hpp"
+#include "RDA5807.hpp"
 
 /// \brief
 /// Operator<<
@@ -28,6 +30,16 @@ hwlib::ostream & operator<<(hwlib::ostream & lhs, const dateData & rhs){
 /// \details
 /// This program can be used to execute all tests at once.
 int main( void ){
+
+  hwlib::wait_ms(2000);
+  hwlib::cout << "The order of the tests is: EEPROM, DS3231, Rotary Encoder, RDA5807 or TEA5767 (can't be tested at the same time since they can operate at the same address). It is starting in 5 seconds.";
+
+  for(unsigned int i = 0; i < 5; i++){
+    hwlib::cout << "- ";
+    hwlib::wait_ms(1000);
+  }
+  hwlib::cout << hwlib::endl;
+
   namespace target = hwlib::target; 
 
   auto scl = target::pin_oc( target::pins::d8 );
@@ -200,7 +212,8 @@ int main( void ){
   clock.setFirstAlarm(14);
   hwlib::cout << "Alarm set, should go in 10 seconds: ";
 
-
+  clock.clearAlarm(1);
+  
   hwlib::wait_ms(30);
 
   while(clock.checkAlarms() == 0){
@@ -313,7 +326,7 @@ int main( void ){
   hwlib::cout << "Tuning to 98.9FM (NPO-R2): ";
   radio.setFrequency(98.9);
   hwlib::wait_ms(1000);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << (radio.getIntFrequency() == 1007) << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
+  hwlib::cout << "DONE: " << hwlib::boolalpha << (radio.getIntFrequency() == 989) << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
   for(unsigned int i = 0; i < 10; i++){
     hwlib::cout << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
     hwlib::wait_ms(1000);
@@ -363,12 +376,14 @@ int main( void ){
 
   hwlib::cout << "Setting Stereo Signal: ";
   radio.setStereo(true);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(1000);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStereo() << " doesn't work, but corresponding with datasheet" << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Muting: ";
   radio.setMute(true);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isMuted() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(1000);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isMuted() << " doesn't work, but corresponding with datasheet" << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Unmuting: ";
@@ -440,14 +455,11 @@ int main( void ){
   }
 
   radio.setFrequency(107.5);    //No station Supports RDS-A, this one is RDS-A but doesn't send time...
-  for(;;){
-    hwlib::wait_ms(50);
-    radio.radioData.update();
-    hwlib::cout << radio.radioData.hours() << ":" << radio.radioData.minutes() << hwlib::endl;
-  }
+  radio.radioData.update();
+  hwlib::cout << radio.radioData.hours() << ":" << radio.radioData.minutes() << hwlib::endl;
 
 // <<<----------------------------------------------------------------------------------------------------->>>
-  
+/*
   auto radio = TEA5767(i2c_bus);
 
   hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
@@ -553,5 +565,8 @@ int main( void ){
     hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
     hwlib::wait_ms(4000);
   }
+*/
 
+
+  hwlib::cout << hwlib::endl << hwlib::endl << "Test ended" << hwlib::endl;
 }

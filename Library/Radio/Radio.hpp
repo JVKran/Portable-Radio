@@ -23,6 +23,7 @@
 /// radio.setFrequency(100.7);
 /// radio = *oldRadio;
 /// radio.setFrequency(100.7);
+/// ~~~~~~~~~~~~~~~
 class Radio{
 	protected:
 		//I2C Communication

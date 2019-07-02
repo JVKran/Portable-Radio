@@ -265,7 +265,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>bandLimit</b></td></tr
 <li>Automatic Search</li>
 <li>Set/Get Stand By</li>
 <li>Enable/Receive <a class="el" href="class_radio.html" title="Abstract Base Class Radio. ">Radio</a> Data</li>
+<li>More to be seen in test</li>
 </ul>
+<p>Some possibilities are shown below. For other functions and examples you can take a look at the tests.</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> scl = target::pin_oc( target::pins::d8 );</div><div class="line"><span class="keyword">auto</span> sda = target::pin_oc( target::pins::d9 );</div><div class="line"><span class="keyword">auto</span> i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);</div><div class="line"></div><div class="line"><span class="keyword">auto</span> radio = <a class="code" href="class_r_d_a5807.html#a86c592244035b83f8c6601b94999c87a">RDA5807</a>(i2c_bus);</div><div class="line">radio.begin();</div><div class="line">hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Tuning to 100.7FM: &quot;</span>;</div><div class="line">radio.setFrequency(100.7);</div><div class="line"><span class="keywordflow">for</span>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i = 0; i &lt; 8; i++){</div><div class="line">    hwlib::wait_ms(5000);</div><div class="line">    radio.radioData.update();</div><div class="line">    hwlib::cout &lt;&lt; hwlib::left &lt;&lt; hwlib::setw(30) &lt;&lt; <span class="stringliteral">&quot;Frequency: &quot;</span> &lt;&lt; radio.getIntFrequency() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; hwlib::left &lt;&lt; hwlib::setw(30) &lt;&lt; <span class="stringliteral">&quot;Station Name: &quot;</span> &lt;&lt; radio.radioData.stationName() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::wait_ms(3000);</div><div class="line">    radio.seekChannel(1);</div><div class="line">}</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a86c592244035b83f8c6601b94999c87a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a86c592244035b83f8c6601b94999c87a">&#9670;&nbsp;</a></span>RDA5807()</h2>
@@ -1499,7 +1501,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>bandLimit</b></td></tr
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 2 2019 12:04:42 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jul 2 2019 14:09:16 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

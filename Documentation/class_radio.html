@@ -169,8 +169,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>bandLimit</b></td></tr
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Abstract Base Class <a class="el" href="class_radio.html" title="Abstract Base Class Radio. ">Radio</a>. </p>
-<p>This is an abstract base class which supports all basic functions radios have. In pariticular, it supports the <a class="el" href="class_t_e_a5767.html" title="TEA5767 Interface. ">TEA5767</a> and RDA58XX Series. RDA58XX Chips also have a compatibility mode in which they support basic functionality of the <a class="el" href="class_t_e_a5767.html" title="TEA5767 Interface. ">TEA5767</a> (addres: 0x60). Thus the <a class="el" href="class_t_e_a5767.html" title="TEA5767 Interface. ">TEA5767</a> Methods are alco compatible with the RDA58XX Series. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<p>This is an abstract base class which supports all basic functions radios have. In pariticular, it supports the <a class="el" href="class_t_e_a5767.html" title="TEA5767 Interface. ">TEA5767</a> and RDA58XX Series. RDA58XX Chips also have a compatibility mode in which they support basic functionality of the <a class="el" href="class_t_e_a5767.html" title="TEA5767 Interface. ">TEA5767</a> (addres: 0x60). Thus the <a class="el" href="class_t_e_a5767.html" title="TEA5767 Interface. ">TEA5767</a> Methods are alco compatible with the RDA58XX Series chips.</p>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> scl = target::pin_oc( target::pins::d8 );</div><div class="line"><span class="keyword">auto</span> sda = target::pin_oc( target::pins::d9 );</div><div class="line"><span class="keyword">auto</span> i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);</div><div class="line"></div><div class="line"><span class="keyword">auto</span> newRadio = <a class="code" href="class_r_d_a5807.html">RDA5807</a>(i2c_bus);</div><div class="line"><span class="keyword">auto</span> oldRadio = <a class="code" href="class_t_e_a5767.html">TEA5767</a>(i2c_bus);</div><div class="line"></div><div class="line"><a class="code" href="class_radio.html">Radio</a> &amp;radio = *newRadio</div><div class="line">radio.setFrequency(100.7);</div><div class="line">radio = *oldRadio;</div><div class="line">radio.setFrequency(100.7);</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a64213418e25ff175ac7ddc9b7f2f7393"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a64213418e25ff175ac7ddc9b7f2f7393">&#9670;&nbsp;</a></span>Radio()</h2>
 
@@ -228,7 +228,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>bandLimit</b></td></tr
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 2 2019 12:04:42 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jul 2 2019 14:09:16 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

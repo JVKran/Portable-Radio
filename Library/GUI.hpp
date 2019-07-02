@@ -3,6 +3,7 @@
 
 #include "KY040.hpp"
 #include "RDA5807.hpp"
+#include "DS3231.hpp"
 
 class signalBars{
 	private:
@@ -68,7 +69,7 @@ class GUI{
 		void displayStationName(const char & stationName);
 		void displayFrequency(const unsigned int frequency, const bool change);
 		void displayMenuArea(const unsigned int menuArea);
-		void displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const char* stationName, const bool curMute, const bool force = false);
+		void displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const char* stationName, const bool curMute, const dateData & date, const bool force = false);
 		void displaySettings();
 		void showSettings(KY040 & button, Radio & radio, unsigned int & menuArea);
 };

@@ -68,6 +68,15 @@ class timeData{
 
 		bool operator==(const timeData & rhs) const;
 		bool operator!=(const timeData & rhs) const;
+
+		/// \brief
+		/// Operator<<
+		/// \details
+		/// This operator makes it possible to print the time in format "hour:minutes:seconds".
+		friend hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
+		  lhs << rhs.getHours() << ":" << rhs.getMinutes() << ":" << rhs.getSeconds();
+		  return lhs;
+		}
 };
 
 /// \brief
@@ -138,6 +147,15 @@ class dateData{
 
 		bool operator==(const dateData & rhs) const;
 		bool operator!=(const dateData & rhs) const;
+
+		/// \brief
+		/// Operator<<
+		/// \details
+		/// This operator makes it possible to print the date in format "monthDay-Month-Year".
+		friend hwlib::ostream & operator<<(hwlib::ostream & lhs, const dateData & rhs){
+		  lhs << rhs.getMonthDay() << "-" << rhs.getMonth() << "-" << rhs.getYear();
+		  return lhs;
+		}
 };
 
 /// \brief

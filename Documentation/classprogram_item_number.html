@@ -79,17 +79,24 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afa829f98fa221c2bc9e401ab16470e54"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classprogram_item_number.html#afa829f98fa221c2bc9e401ab16470e54">setData</a> (unsigned int day, unsigned int hours, unsigned int minutes)</td></tr>
 <tr class="memdesc:afa829f98fa221c2bc9e401ab16470e54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Data.  <a href="#afa829f98fa221c2bc9e401ab16470e54">More...</a><br /></td></tr>
 <tr class="separator:afa829f98fa221c2bc9e401ab16470e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9bf130f0c939ce568c793c6df1dd460"><td class="memItemLeft" align="right" valign="top"><a id="ac9bf130f0c939ce568c793c6df1dd460"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getHours</b> ()</td></tr>
-<tr class="separator:ac9bf130f0c939ce568c793c6df1dd460"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d1718c6aedf742a68b630ff4ced5d25"><td class="memItemLeft" align="right" valign="top"><a id="a7d1718c6aedf742a68b630ff4ced5d25"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>getMins</b> ()</td></tr>
-<tr class="separator:a7d1718c6aedf742a68b630ff4ced5d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8d7b2bd507aa0cc9ff1cb0bea8b61b5"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classprogram_item_number.html#aa8d7b2bd507aa0cc9ff1cb0bea8b61b5">getHours</a> ()</td></tr>
+<tr class="memdesc:aa8d7b2bd507aa0cc9ff1cb0bea8b61b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Hours.  <a href="#aa8d7b2bd507aa0cc9ff1cb0bea8b61b5">More...</a><br /></td></tr>
+<tr class="separator:aa8d7b2bd507aa0cc9ff1cb0bea8b61b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a1b327709aefcf8445f3f5b0f813884"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classprogram_item_number.html#a3a1b327709aefcf8445f3f5b0f813884">getMinutes</a> ()</td></tr>
+<tr class="memdesc:a3a1b327709aefcf8445f3f5b0f813884"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Minutes.  <a href="#a3a1b327709aefcf8445f3f5b0f813884">More...</a><br /></td></tr>
+<tr class="separator:a3a1b327709aefcf8445f3f5b0f813884"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a076f3adab29462889bb081e2ffb96bc9"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classprogram_item_number.html#a076f3adab29462889bb081e2ffb96bc9">getDay</a> ()</td></tr>
+<tr class="memdesc:a076f3adab29462889bb081e2ffb96bc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Day.  <a href="#a076f3adab29462889bb081e2ffb96bc9">More...</a><br /></td></tr>
+<tr class="separator:a076f3adab29462889bb081e2ffb96bc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Program Item Number. </p>
-<p>This class stores the data provided by the PIN-Part of RDS-data. This part contains info about when the broadcast started en when it is ought to stop. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<p>This class stores the data provided by the PIN-Part of RDS-data. This part contains info about when the broadcast started en when it is ought to stop.</p>
+<p>All supported operations are:</p><ul>
+<li>Set hours, minutes and seconds</li>
+<li>Get hours, minutes and seconds</li>
+</ul>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;hwlib.hpp&quot;</span></div><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="_a24_c256_8hpp.html">A24C256.hpp</a>&quot;</span></div><div class="line"></div><div class="line"><span class="keyword">auto</span> scl = target::pin_oc( target::pins::d8 );</div><div class="line"><span class="keyword">auto</span> sda = target::pin_oc( target::pins::d9 );</div><div class="line"><span class="keyword">auto</span> i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);</div><div class="line"></div><div class="line"><span class="keyword">auto</span> radio = <a class="code" href="class_r_d_a5807.html">RDA5807</a>(i2c_bus);</div><div class="line">radio.begin();</div><div class="line">hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Tuning to 100.7FM: &quot;</span>;</div><div class="line">radio.setFrequency(100.7);</div><div class="line"></div><div class="line"><span class="keyword">auto</span> pin = radio.radioData.getProgramItemNumber();</div><div class="line">hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Broadcast started at: day &quot;</span> &lt;&lt; pin.getDay() &lt;&lt; <span class="stringliteral">&quot;, hour &quot;</span> &lt;&lt; pin.getHours() &lt;&lt; <span class="stringliteral">&quot; and minute &quot;</span> &lt;&lt; pin.getMinutes() &lt;&lt; hwlib::endl;</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ad76e6d2a6f207dfe1d9e235d36e8f989"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad76e6d2a6f207dfe1d9e235d36e8f989">&#9670;&nbsp;</a></span>programItemNumber()</h2>
 
@@ -128,6 +135,66 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getMins</b> ()</td></t
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a076f3adab29462889bb081e2ffb96bc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a076f3adab29462889bb081e2ffb96bc9">&#9670;&nbsp;</a></span>getDay()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int programItemNumber::getDay </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get Day. </p>
+<p>This function returns the starting day of the current broadcast. </p>
+
+</div>
+</div>
+<a id="aa8d7b2bd507aa0cc9ff1cb0bea8b61b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8d7b2bd507aa0cc9ff1cb0bea8b61b5">&#9670;&nbsp;</a></span>getHours()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int programItemNumber::getHours </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get Hours. </p>
+<p>This function returns the starting day of the current broadcast. </p>
+
+</div>
+</div>
+<a id="a3a1b327709aefcf8445f3f5b0f813884"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a1b327709aefcf8445f3f5b0f813884">&#9670;&nbsp;</a></span>getMinutes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int programItemNumber::getMinutes </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get Minutes. </p>
+<p>This function returns the starting day of the current broadcast. </p>
+
+</div>
+</div>
 <a id="afa829f98fa221c2bc9e401ab16470e54"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afa829f98fa221c2bc9e401ab16470e54">&#9670;&nbsp;</a></span>setData()</h2>
 
@@ -172,7 +239,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>getMins</b> ()</td></t
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 2 2019 12:04:42 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jul 2 2019 14:09:16 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
