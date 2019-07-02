@@ -11,6 +11,7 @@ There's actually quite a lot of hardware needed for this project. In basic form 
 - Rotary encoder (EC11 or KY040)
 - PAM8403 (or other kind of AMP)
 - SSD1306 OLED
+
 If you really want it to be portable, you'll also need the following:
 - TP4056 Charger
 - MT3608 Step-up converter
