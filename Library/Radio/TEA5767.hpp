@@ -21,6 +21,9 @@
 ///		- Automatic Search
 ///		- Set/Get Stand By
 ///		- Set/Get Software Programmable Ports
+///		- More to be seen in tests
+///
+///	Some functionality is shown below. The rest can be seen in the tests.
 ///
 /// ~~~~~~~~~~~~~~~{.cpp}
 /// auto scl = target::pin_oc( target::pins::d8 );

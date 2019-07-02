@@ -23,6 +23,10 @@ hwlib::ostream & operator<<(hwlib::ostream & lhs, const dateData & rhs){
   return lhs;
 }
 
+/// \brief
+/// All-in-one TEST
+/// \details
+/// This program can be used to execute all tests at once.
 int main( void ){
   namespace target = hwlib::target; 
 
@@ -85,6 +89,8 @@ int main( void ){
 
   memory.write(32760, data);
   hwlib::cout << hwlib::setw(100) << hwlib::left << "Multi-Byte values are not written if they exceed maximum memory-address: " << hwlib::boolalpha << (char(memory.read(32760)) != 'A') << hwlib::endl;
+
+// <<<----------------------------------------------------------------------------------------->>>
 
   namespace target = hwlib::target;
 
@@ -299,5 +305,253 @@ int main( void ){
   }
 
   hwlib::cout << hwlib::endl << "Test Succeeded" << hwlib::endl;
+
+// <<<----------------------------------------------------------------------------------------->>>
+
+  auto radio = RDA5807(i2c_bus);
+  radio.begin();
+  hwlib::cout << "Tuning to 98.9FM (NPO-R2): ";
+  radio.setFrequency(98.9);
+  hwlib::wait_ms(1000);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << (radio.getIntFrequency() == 1007) << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
+  for(unsigned int i = 0; i < 10; i++){
+    hwlib::cout << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    hwlib::wait_ms(1000);
+  }
+
+  hwlib::cout << "Powering Down RDA5807: ";
+  radio.standBy(true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStandBy() << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Powering Up RDA5807: ";
+  radio.standBy(false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStandBy() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Tuning to 100.7FM (Q-Music)" << hwlib::endl;
+  radio.setFrequency(100.7);
+  hwlib::wait_ms(1000);
+
+  hwlib::cout << "Slowly de- and increasing volume:" << hwlib::endl;
+  hwlib::wait_ms(2000);
+   for(unsigned int i = 15; i > 0; i--){
+    radio.setVolume(i);
+    hwlib::cout << i << hwlib::endl;
+    hwlib::wait_ms(250);
+  }
+  for(unsigned int i = 0; i < 15; i++){
+    radio.setVolume(i);
+    hwlib::cout << i << hwlib::endl;
+    hwlib::wait_ms(250);
+  }
+
+  hwlib::cout << "New Demodulate Method: ";
+  radio.demodulateMethod(true);
+  hwlib::cout << "Signal Strength: " << hwlib::boolalpha << radio.signalStrength() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Usual Demodulate Method: ";
+  radio.demodulateMethod(false);
+  hwlib::cout << "Signal Strength: " << hwlib::boolalpha << radio.signalStrength() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Setting Mono Signal: ";
+  radio.setStereo(false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Setting Stereo Signal: ";
+  radio.setStereo(true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Muting: ";
+  radio.setMute(true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isMuted() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Unmuting: ";
+  radio.setMute(false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isMuted() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Bass-Boost On: ";
+  radio.setBassBoost(true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.bassBoosted() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Bass-Boost Off: ";
+  radio.setBassBoost(false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.bassBoosted() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Starting Search-Up: ";
+  hwlib::wait_ms(2000);
+  for(unsigned int i = 0; i < 10; i++){
+    radio.seekChannel(1);
+    hwlib::cout << "FM-Frequency: " << int(radio.getFrequency()) << hwlib::endl;
+    hwlib::wait_ms(2000);
+    hwlib::cout << "Seek Completed: " << radio.seekCompleted() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << ", Station: " << radio.isStation() << ", Tuned: " << radio.isTuned() << hwlib::endl << hwlib::endl;    hwlib::wait_ms(3000);
+    hwlib::wait_ms(3000);
+  }
+
+  hwlib::cout << hwlib::endl << "Starting Search-Down: ";
+  hwlib::wait_ms(2000);
+  for(unsigned int i = 0; i < 10; i++){
+    radio.seekChannel(0);
+    hwlib::cout << "FM-Frequency: " << int(radio.getFrequency()) << hwlib::endl;
+    hwlib::wait_ms(2000);
+    hwlib::cout << "Seek Completed: " << radio.seekCompleted() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << ", Station: " << radio.isStation() << ", Tuned: " << radio.isTuned() << hwlib::endl << hwlib::endl;
+    hwlib::wait_ms(3000);
+  }
+
+  radio.setFrequency(100.7);
+  hwlib::cout << hwlib::endl << "Starting Reading of Radio Data System: ";
+  for(unsigned int i = 0; i < 8; i++){
+    hwlib::wait_ms(5000);
+    radio.radioData.update();
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Frequency: " << radio.getIntFrequency() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << radio.radioData.stationName() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Radio Text: " << radio.radioData.stationText() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << radio.radioData.getCountryCode() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << radio.radioData.getProgramArea() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << radio.radioData.getProgramRefrence() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: " << radio.radioData.getMessageGroupType() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << radio.radioData.trafficAnnouncement() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Music Playing: " << radio.radioData.currentMusic() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Clear Screen Request: " << radio.radioData.clearScreen() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << radio.radioData.getProgramType() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Static Program Type: " << radio.radioData.staticProgramType() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Stereo Broadcast: " << radio.radioData.stereo() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Compressed Broadcast: " << radio.radioData.compressed() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Emergency Warning: " << radio.radioData.emergencyWarning() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Received Time: " << radio.radioData.hours() << ":" << radio.radioData.minutes() << hwlib::endl;
+    hwlib::cout << hwlib::endl << hwlib::endl;
+    hwlib::wait_ms(3000);
+    radio.seekChannel(1);
+  }
+
+  for(unsigned int i = 0; i < 5; i++){
+    hwlib::wait_ms(5000);
+    radio.seekChannel(1);
+    hwlib::wait_ms(2000);   //Give time to complete tune process
+    radio.radioData.rawData();
+  }
+
+  radio.setFrequency(107.5);    //No station Supports RDS-A, this one is RDS-A but doesn't send time...
+  for(;;){
+    hwlib::wait_ms(50);
+    radio.radioData.update();
+    hwlib::cout << radio.radioData.hours() << ":" << radio.radioData.minutes() << hwlib::endl;
+  }
+
+// <<<----------------------------------------------------------------------------------------------------->>>
+  
+  auto radio = TEA5767(i2c_bus);
+
+  hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
+  radio.setFrequency(100.7);
+  hwlib::cout << "DONE" << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
+
+  for(unsigned int i = 0; i < 5; i++){
+    hwlib::cout << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    hwlib::wait_ms(1000);
+  }
+
+  radio.setBandLimit();
+  hwlib::wait_ms(200);
+  hwlib::cout << "Setting Band Limit: " << radio.hasBandLimit() << hwlib::endl;
+  radio.setFrequency(100.7);
+  hwlib::wait_ms(5000);
+  hwlib::cout << "Blocking of tuning to frequency out of range: " << !(radio.getFrequency() == 100.7) << hwlib::endl;
+  radio.setBandLimit(0);
+  radio.setFrequency(100.7);
+  hwlib::cout << "Unsetting of Band Limit: " << (radio.getFrequency() == 100.7) << hwlib::endl << hwlib::endl;
+
+  hwlib::cout << "Turning All Audio Optimizers On 1 by 1: ";
+  radio.audioSettings(true, false, false);
+  hwlib::cout << "SNC" << hwlib::endl;
+  hwlib::wait_ms(2000);
+  radio.audioSettings(true, true, false);
+  hwlib::cout << "HCC" << hwlib::endl;
+  hwlib::wait_ms(2000);
+  radio.audioSettings(true, true, true);
+  hwlib::cout << "SM" << hwlib::endl;
+  hwlib::wait_ms(2000);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Setting Mono Signal: ";
+  radio.setStereo(false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Setting Stereo Signal: ";
+  radio.setStereo(true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << hwlib::endl << hwlib::endl;
+  hwlib::cout << "Tuning to 100.7FM with Low Side Injection: ";
+  radio.setFrequency(100.7, 0);
+  hwlib::cout << !radio.highSide() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Tuning to 100.7FM with High Side Injection: ";
+  radio.setFrequency(100.7, 1);
+  hwlib::cout << radio.highSide() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Muting Left Speaker: ";
+  radio.setMute('l', true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isMuted('l') << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Unmuting Left Speaker: ";
+  radio.setMute('l', false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isMuted('l') << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Turning to Stand-By: ";
+  radio.standBy();
+  hwlib::cout << hwlib::boolalpha << radio.isStandBy() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Turning back on: ";
+  radio.standBy(false);
+  hwlib::cout << hwlib::boolalpha << !radio.isStandBy() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+
+  hwlib::cout << "Starting Circulair Search-Up: ";
+  radio.searchLoop(88, 1, 3);
+  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+  for(unsigned int i = 0; i < 10; i++){
+    radio.searchLoop(1, 3);
+    hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    hwlib::wait_ms(4000);
+  }
+  
+  hwlib::cout << "Starting Search-Up: ";
+  radio.singleSearch(88, 1, 2);
+  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+  hwlib::wait_ms(2000);
+  for(unsigned int i = 0; i < 15; i++){
+    radio.singleSearch(1, 3);
+    hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    hwlib::wait_ms(4000);
+  }
+
+  hwlib::cout << "Starting Alternative Search-Up: ";
+  radio.altSearch(88, 1, 3, 0.4);
+  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+  hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+  hwlib::wait_ms(4000);
+  for(unsigned int i = 0; i < 10; i++){
+    radio.altSearch(1, 3, 0.4);
+    hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    hwlib::wait_ms(4000);
+  }
 
 }

@@ -21,7 +21,11 @@
 ///		- Automatic Search
 ///		- Set/Get Stand By
 ///		- Enable/Receive Radio Data
+///		- More to be seen in test
 ///
+/// Some possibilities are shown below. For other functions and examples you can take a look
+/// at the tests.
+/// 
 /// ~~~~~~~~~~~~~~~{.cpp}
 /// auto scl = target::pin_oc( target::pins::d8 );
 /// auto sda = target::pin_oc( target::pins::d9 );

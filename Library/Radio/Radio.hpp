@@ -9,7 +9,20 @@
 /// This is an abstract base class which supports all basic functions radios have. In pariticular,
 /// it supports the TEA5767 and RDA58XX Series. RDA58XX Chips also have a compatibility mode in which 
 /// they support basic functionality of the TEA5767 (addres: 0x60). Thus the TEA5767 Methods are alco compatible with 
-/// the RDA58XX Series.
+/// the RDA58XX Series chips.
+///
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto scl = target::pin_oc( target::pins::d8 );
+/// auto sda = target::pin_oc( target::pins::d9 );
+/// auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
+/// 
+/// auto newRadio = RDA5807(i2c_bus);
+/// auto oldRadio = TEA5767(i2c_bus);
+///
+/// Radio &radio = *newRadio
+/// radio.setFrequency(100.7);
+/// radio = *oldRadio;
+/// radio.setFrequency(100.7);
 class Radio{
 	protected:
 		//I2C Communication

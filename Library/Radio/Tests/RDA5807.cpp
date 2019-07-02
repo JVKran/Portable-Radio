@@ -1,6 +1,12 @@
+/// @file
+
 #include "hwlib.hpp"
 #include "RDA5807.hpp"
 
+/// \brief
+/// Test
+/// \details
+/// This program tests ALL functionalities from the RDA58XX Series chips.
 int main( void ){
   namespace target = hwlib::target; 
     

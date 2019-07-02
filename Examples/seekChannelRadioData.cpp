@@ -12,6 +12,7 @@ int main( void ){
   radio.begin();
   hwlib::cout << "Tuning to 100.7FM: ";
   radio.setFrequency(100.7);
+  
   for(unsigned int i = 0; i < 8; i++){
     hwlib::wait_ms(5000);
     radio.radioData.update();

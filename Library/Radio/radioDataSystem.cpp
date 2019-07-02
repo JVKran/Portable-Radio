@@ -507,6 +507,30 @@ void programItemNumber::setData(unsigned int day, unsigned int hours, unsigned i
 }
 
 /// \brief
+/// Get Day
+/// \details
+/// This function returns the starting day of the current broadcast.
+unsigned int programItemNumber::getDay(){
+	return day;
+}
+
+/// \brief
+/// Get Hours
+/// \details
+/// This function returns the starting day of the current broadcast.
+unsigned int programItemNumber::getHours(){
+	return hours;
+}
+
+/// \brief
+/// Get Minutes
+/// \details
+/// This function returns the starting day of the current broadcast.
+unsigned int programItemNumber::getMinutes(){
+	return minutes;
+}
+
+/// \brief
 /// Constructor
 /// \details
 /// This constructor has no mandatory parameters and initializes a programItemNumber (composition).

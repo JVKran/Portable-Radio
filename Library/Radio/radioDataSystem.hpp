@@ -8,6 +8,27 @@
 /// \details
 /// This class stores the data provided by the PIN-Part of RDS-data. This part contains info about when the
 /// broadcast started en when it is ought to stop.
+/// 
+///	All supported operations are:
+///		- Set hours, minutes and seconds
+///		- Get hours, minutes and seconds
+/// 
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// #include "hwlib.hpp"
+/// #include "A24C256.hpp"
+/// 
+/// auto scl = target::pin_oc( target::pins::d8 );
+/// auto sda = target::pin_oc( target::pins::d9 );
+/// auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
+/// 
+/// auto radio = RDA5807(i2c_bus);
+/// radio.begin();
+/// hwlib::cout << "Tuning to 100.7FM: ";
+/// radio.setFrequency(100.7);
+/// 
+/// auto pin = radio.radioData.getProgramItemNumber();
+/// hwlib::cout << "Broadcast started at: day " << pin.getDay() << ", hour " << pin.getHours() << " and minute " << pin.getMinutes() << hwlib::endl;
+/// ~~~~~~~~~~~~~~~
 class programItemNumber{
 	private:
 		unsigned int day;
@@ -16,8 +37,9 @@ class programItemNumber{
 	public:
 		programItemNumber(unsigned int day = 0, unsigned int hours = 0, unsigned int minutes = 0);
 		void setData(unsigned int day, unsigned int hours, unsigned int minutes);
-		int getHours();
-		int getMins();
+		unsigned int getHours();
+		unsigned int getMinutes();
+		unsigned int getDay();
 };
 
 /// \brief
@@ -25,6 +47,11 @@ class programItemNumber{
 /// \details
 /// This struct contains all info needed to parse, decode, analyse and store the received data provided by the Radio
 /// Data System.
+/// 
+///	All supported operations are:
+///		- None (Just contains the Radio Data received by the Radio Data System)
+///
+/// Used internally to store, analyse and decode Radio Data.
 struct radioDataSystemData{
 	//Radio Data Received Blocks
 	uint16_t blockA;
@@ -96,6 +123,43 @@ struct radioDataSystemData{
 ///
 /// Since almost all channels support RDS-B and almost no channels support RDS-A (even if they do it often
 /// isn't complete) only RDS-B support has been tested.
+///
+/// All suported operations are visible below:
+/// 
+/// ~~~~~~~~~~~~~~~{.cpp}
+/// auto scl = target::pin_oc( target::pins::d8 );
+/// auto sda = target::pin_oc( target::pins::d9 );
+/// auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
+/// 
+/// auto radio = RDA5807(i2c_bus);
+/// radio.begin();
+/// hwlib::cout << "Tuning to 100.7FM: ";
+/// radio.setFrequency(100.7);
+/// 
+/// for(unsigned int i = 0; i < 8; i++){
+///   	hwlib::wait_ms(5000);
+///   	radio.radioData.update();
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Frequency: " << radio.getIntFrequency() << hwlib::endl;
+///		hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << radio.radioData.stationName() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Radio Text: " << radio.radioData.stationText() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << radio.radioData.getCountryCode() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << radio.radioData.getProgramArea() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << radio.radioData.getProgramRefrence() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: " << radio.radioData.getMessageGroupType() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Traffic Announcement: " << radio.radioData.trafficAnnouncement() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Music Playing: " << radio.radioData.currentMusic() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Clear Screen Request: " << radio.radioData.clearScreen() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Type: " << radio.radioData.getProgramType() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Static Program Type: " << radio.radioData.staticProgramType() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Stereo Broadcast: " << radio.radioData.stereo() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Compressed Broadcast: " << radio.radioData.compressed() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Emergency Warning: " << radio.radioData.emergencyWarning() << hwlib::endl;
+///   	hwlib::cout << hwlib::left << hwlib::setw(30) << "Received Time: " << radio.radioData.hours() << ":" << minutes() << hwlib::endl;
+///   	hwlib::cout << hwlib::endl << hwlib::endl;
+///   	hwlib::wait_ms(3000);
+///   	radio.seekChannel(1);
+/// }
+/// ~~~~~~~~~~~~~~~
 class radioDataSystem{
 	private:
 		hwlib::i2c_bus & bus;
