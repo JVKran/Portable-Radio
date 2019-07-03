@@ -8,24 +8,6 @@
 #include "RDA5807.hpp"
 
 /// \brief
-/// Operator<<
-/// \details
-/// This operator makes it possible to print the time in format "hour:minutes:seconds".
-hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
-  lhs << rhs.getHours() << ":" << rhs.getMinutes() << ":" << rhs.getSeconds();
-  return lhs;
-}
-
-/// \brief
-/// Operator<<
-/// \details
-/// This operator makes it possible to print the date in format "monthDay-Month-Year".
-hwlib::ostream & operator<<(hwlib::ostream & lhs, const dateData & rhs){
-  lhs << rhs.getMonthDay() << "-" << rhs.getMonth() << "-" << rhs.getYear();
-  return lhs;
-}
-
-/// \brief
 /// All-in-one TEST
 /// \details
 /// This program can be used to execute all tests at once.
