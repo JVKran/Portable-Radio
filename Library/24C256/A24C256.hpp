@@ -62,6 +62,28 @@
 /// 	memory.write(0, true);
 /// 	hwlib::cout << (bool(memory.read(0)) && 1);
 /// 
+	
+/// 	//Overwriting page-boundaries is taken care of.
+///		char data[]={"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio."};
+/// 	memory.write(0, data);
+/// 
+/// 	uint8_t receivedData[353];
+/// 	memory.read(0, 353, receivedData);
+/// 
+/// 	hwlib::cout << hwlib::endl << "Saved Text: " << hwlib::endl;
+/// 
+/// 	for(unsigned int i = 0; i < 353; i++){
+/// 		hwlib::cout << char(receivedData[i]);
+/// 	}
+/// 
+/// 	//Making pin WP high, disables its functionality to save given data; it protects saved data.
+/// 	memory.write(300, 'c');
+/// 	memory.setWriteProtect();
+/// 	hwlib::cout << hwlib::setw(100) << hwlib::left << "Write-Protect Enabled: " << memory.getWriteProtect() << hwlib::endl;
+/// 	memory.write(300, 'z');
+/// 	hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing impossible when Write Protection Enabled " << hwlib::boolalpha << (char(memory.read(300)) == 'c') << hwlib::endl;
+/// 
+/// 
 /// }
 /// ~~~~~~~~~~~~~~~
 class A24C256{

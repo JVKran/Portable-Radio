@@ -57,4 +57,12 @@ int main( void ){
 		hwlib::cout << char(receivedData[i]);
 	}
 
+	//Making pin WP high, disables its functionality to save given data; it protects saved data.
+	memory.write(300, 'c');
+	memory.setWriteProtect();
+	hwlib::cout << hwlib::setw(100) << hwlib::left << "Write-Protect Enabled: " << memory.getWriteProtect() << hwlib::endl;
+	memory.write(300, 'z');
+	hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing impossible when Write Protection Enabled " << hwlib::boolalpha << (char(memory.read(300)) == 'c') << hwlib::endl;
+
+
 }

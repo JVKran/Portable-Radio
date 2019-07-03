@@ -212,6 +212,79 @@ bool timeData::operator!=(const timeData & rhs) const{
 	return (hours != rhs.hours || minutes != rhs.minutes || seconds != rhs.seconds);
 }
 
+/// \brief
+/// Operator>
+/// \details
+/// This function returns true if the time object it is called upon is bigger than the compared object.
+/// All attributes; hours, minutes and seconds are compared. When hours and minutes are the same, it is up 
+/// to the seconds to determine which one is bigger.
+bool timeData::operator>(const timeData & rhs) const{
+	if(hours > rhs.hours){
+		return true;
+	} else if(hours == rhs.hours && minutes > rhs.minutes){
+		return true;
+	} else if (hours == rhs.hours && minutes == rhs.minutes && seconds > rhs.seconds){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/// \brief
+/// Operator>=
+/// \details
+/// This function returns true if the time object it is called upon is bigger than or equal to the compared object.
+/// All attributes; hours, minutes and seconds are compared. When hours and minutes are the same, it is up 
+/// to the seconds to determine which one is bigger.
+bool timeData::operator>=(const timeData & rhs) const{
+	if (hours == rhs.hours && minutes == rhs.minutes && seconds >= rhs.seconds){
+		return true;
+	} else if(hours == rhs.hours && minutes >= rhs.minutes){
+		return true;
+	} else if(hours >= rhs.hours){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/// \brief
+/// Operator<
+/// \details
+/// This function returns true if the time object it is called upon is smaller than the compared object.
+/// All attributes; hours, minutes and seconds are compared. When hours and minutes are the same, it is up 
+/// to the seconds to determine which one is bigger.
+bool timeData::operator<(const timeData & rhs) const{
+	if(hours < rhs.hours){
+		return true;
+	} else if(hours == rhs.hours && minutes < rhs.minutes){
+		return true;
+	} else if (hours == rhs.hours && minutes == rhs.minutes && seconds < rhs.seconds){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/// \brief
+/// Operator<=
+/// \details
+/// This function returns true if the time object it is called upon is smaller than or equal to the compared object.
+/// All attributes; hours, minutes and seconds are compared. When hours and minutes are the same, it is up 
+/// to the seconds to determine which one is bigger.
+bool timeData::operator<=(const timeData & rhs) const{
+	if (hours == rhs.hours && minutes == rhs.minutes && seconds <= rhs.seconds){
+		return true;
+	} else if(hours == rhs.hours && minutes <= rhs.minutes){
+		return true;
+	} else if(hours <= rhs.hours){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
 //<<<------------------------------------------------------------------------------------------>>>
 
 /// \brief
@@ -450,6 +523,79 @@ bool dateData::operator!=(const dateData & rhs) const{
 	return (weekDay != rhs.weekDay || monthDay != rhs.monthDay || month != rhs.month || year != rhs.year);
 }
 
+/// \brief
+/// Operator<
+/// \details
+/// This function compares two dateData objects and returns true if the object it is called upon is smaller
+/// than the object it is compared with. All attributes are compared; when year and month are the same, it is
+/// up to the day of month to determine which is smallest.
+bool dateData::operator<(const dateData & rhs) const{
+	if(year < rhs.year){
+		return true;
+	} else if (year == rhs.year && month < rhs.month){
+		return true;
+	} else if (year == rhs.year && month == rhs.month && monthDay < rhs.monthDay){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/// \brief
+/// Operator<=
+/// \details
+/// This function compares two dateData objects and returns true if the object it is called upon is smaller
+/// than or equal to the object it is compared with. All attributes are compared; when year and month are the same, it is
+/// up to the day of month to determine which is smallest.
+bool dateData::operator<=(const dateData & rhs) const{
+	if (year == rhs.year && month == rhs.month && monthDay <= rhs.monthDay){
+		return true;
+	} else if (year == rhs.year && month <= rhs.month){
+		return true;
+	} else if(year <= rhs.year){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/// \brief
+/// Operator>
+/// \details
+/// This function compares two dateData objects and returns true if the object it is called upon is bigger
+/// than the object it is compared with. All attributes are compared; when year and month are the same, it is
+/// up to the day of month to determine which is smallest.
+bool dateData::operator>(const dateData & rhs) const{
+	if(year > rhs.year){
+		return true;
+	} else if (year == rhs.year && month > rhs.month){
+		return true;
+	} else if (year == rhs.year && month == rhs.month && monthDay > rhs.monthDay){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/// \brief
+/// Operator>=
+/// \details
+/// This function compares two dateData objects and returns true if the object it is called upon is bigger
+/// than or equal to the object it is compared with. All attributes are compared; when year and month are the same, it is
+/// up to the day of month to determine which is smallest.
+bool dateData::operator>=(const dateData & rhs) const{
+	if (year == rhs.year && month == rhs.month && monthDay >= rhs.monthDay){
+		return true;
+	} else if (year == rhs.year && month >= rhs.month){
+		return true;
+	} else if(year >= rhs.year){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
 //<<<------------------------------------------------------------------------------------------->>>
 
 /// \brief
@@ -507,29 +653,15 @@ void alarm::enableOutputSignal(const bool enable){
 /// \details
 /// This constructor has one mandatory parameter; the I2C bus. The user can also provide the address. 
 /// The address defaults to 0x68.
-DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address):
+DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, hwlib::pin_in_out & resetPin):
 	bus(bus),
 	address(address),
+	resetPin(resetPin),
 	firstAlarm(alarm()),
 	secondAlarm(alarm()),
 	time(timeData()),
 	date(dateData())
 {}
-
-/*
-DS3231::DS3231(const DS3231 & clock){
-	bus = clock.bus;
-	address = clock.address;
-	data = clock.data;
-	status = clock.status;
-	bool firstAlarmState = false;
-	bool secondAlarmState = false;
-	alarm firstAlarm;
-	alarm secondAlarm;
-	timeData time;
-	dateData date;
-}
-*/
 
 /// \brief
 /// Get I2C Address
@@ -784,4 +916,24 @@ unsigned int DS3231::getTemperature(){
 	temperature = (temperature << 2);
 	temperature |= (transaction.read_byte() >> 6);
 	return temperature * 0.25;
+}
+
+/// \brief
+/// Set/Unset Reset
+/// \details
+/// This function makes the reset-pin high or low depending on the passed argument; defaults to true (reset).
+void DS3231::setReset(const bool reset){
+	resetPin.direction_set_output();
+	resetPin.write(reset);
+	resetPin.flush();
+}
+
+/// \brief
+/// Get Reset State
+/// \details
+/// This function returns true if reset pin has been made high; false if low.
+bool DS3231::getReset(){
+	resetPin.direction_set_input();
+	resetPin.refresh();
+	return resetPin.read();
 }

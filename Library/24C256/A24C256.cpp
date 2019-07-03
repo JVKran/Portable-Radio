@@ -180,6 +180,11 @@ uint8_t A24C256::read(unsigned int location, unsigned int length, uint8_t receiv
 	} else {
 		return 0;
 	}
+	/*
+	It would seem logical that creating a write transaction (auto transaction = bus.write(address);) would be faster.
+	Though tests have pointed out this does not work for some reason. It is also more consistent using the data array
+	since the location to save the data is always stored there.
+	*/
 }
 
 /// \brief
@@ -221,6 +226,7 @@ void A24C256::setMemorySize(const unsigned int newSize){
 /// \details
 /// This function returns true if the data is protected. False otherwise.
 bool A24C256::getWriteProtect(){
+	writeProtectPin.direction_set_output();
 	writeProtectPin.refresh();
 	return writeProtectPin.read();
 }
@@ -231,6 +237,7 @@ bool A24C256::getWriteProtect(){
 /// When this pin is set high, it is impossible to write to the memory; when low, it is possible again. When left empty
 /// it turns on writeProtect (defaults to true); off when false is passed.
 void A24C256::setWriteProtect(const bool protect){
+	writeProtectPin.direction_set_input();
 	writeProtectPin.write(protect);
 	writeProtectPin.flush();
 }

@@ -11,7 +11,7 @@
 ///	All supported operations are:
 ///		- Get Hours, Minutes or seconds
 ///		- Set Hours, Minutes or seconds
-///		- Arithmetics: +, +=, -, -=, == and !=
+///		- Arithmetics: +, +=, -, -=, ==, !=, <, <=, > and >=
 ///
 /// ~~~~~~~~~~~~~~~{.cpp}
 /// auto clock = DS3231(i2c_bus);
@@ -52,6 +52,7 @@ class timeData{
 		timeData(const unsigned int givenHours = 0, const unsigned int givenMinutes = 0, const unsigned int givenSeconds = 0);
 		timeData(const timeData & time);
 
+		//Setters because we don't want times of 99:99:99 possible; the max should be 23:59:95
 		void setHours(const unsigned int rgivenHours);
 		void setMinutes(const unsigned int givenMinutes);
 		void setSeconds(const unsigned int givenSeconds);
@@ -71,6 +72,12 @@ class timeData{
 
 		bool operator==(const timeData & rhs) const;
 		bool operator!=(const timeData & rhs) const;
+
+		bool operator>(const timeData & rhs) const;
+		bool operator>=(const timeData & rhs) const;
+
+		bool operator<(const timeData & rhs) const;
+		bool operator<=(const timeData & rhs) const;
 
 		/// \brief
 		/// Operator<<
@@ -132,6 +139,7 @@ class dateData{
 		dateData(const unsigned int givenWeekDay = 0, const unsigned int givenMonthDay = 0, const unsigned int givenMonth = 0, const unsigned int givenYear = 0);
 		dateData(const dateData & date);
 
+		//Setters because we don't want dates of 99-99-9999; the max should be 30-12-9999
 		void setWeekDay(const unsigned int givenWeekDay);
 		void setMonthDay(const unsigned int givenMonthDay);
 		void setMonth(const unsigned int givenMonth);
@@ -153,6 +161,12 @@ class dateData{
 
 		bool operator==(const dateData & rhs) const;
 		bool operator!=(const dateData & rhs) const;
+
+		bool operator<(const dateData & rhs) const;
+		bool operator<=(const dateData & rhs) const;
+
+		bool operator>(const dateData & rhs) const;
+		bool operator>=(const dateData & rhs) const;
 
 		/// \brief
 		/// Operator<<
@@ -272,6 +286,7 @@ class DS3231{
 	private:
 		hwlib::i2c_bus & bus;
 		const uint8_t address;
+		hwlib::pin_in_out & resetPin;
 		uint8_t data[13] = {};
 		uint8_t status[13] = {};
 		void setData();
@@ -285,8 +300,7 @@ class DS3231{
 		timeData time;
 		dateData date;
 	public:
-		DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x68);
-		//DS3231(const DS3231 & clock);
+		DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x68, hwlib::pin_in_out & resetPin = hwlib::pin_in_out_dummy);
 
 		void setTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds = 0);
 		void setDate(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year);
@@ -303,6 +317,9 @@ class DS3231{
 		void updateAlarms();
 		unsigned int checkAlarms();
 		void clearAlarm(const unsigned int alarmNumber);
+
+		void setReset(const bool reset = true);
+		bool getReset();
 
 		unsigned int getAddress();
 

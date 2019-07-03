@@ -28,9 +28,11 @@ int main( void ){
   auto sda = target::pin_oc( target::pins::d9 );
   auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
+  auto writeProtectPin = target::pin_in_out( target::pins::d3 );
+
   hwlib::wait_ms(1000);   //Wait for terminal
 
-  auto memory = A24C256(i2c_bus);
+  auto memory = A24C256(i2c_bus, 256, 0x50, writeProtectPin);
   auto largeMemory = A24C256(i2c_bus, 512);
   auto addressMemory = A24C256(i2c_bus, 256, 0x10);
   auto falseMemory = A24C256(i2c_bus, 230);
@@ -83,6 +85,16 @@ int main( void ){
 
   memory.write(32760, data);
   hwlib::cout << hwlib::setw(100) << hwlib::left << "Multi-Byte values are not written if they exceed maximum memory-address: " << hwlib::boolalpha << (char(memory.read(32760)) != 'A') << hwlib::endl;
+
+  memory.write(300, 'c');
+  memory.setWriteProtect();
+  hwlib::cout << hwlib::setw(100) << hwlib::left << "Write-Protect Enabled: " << memory.getWriteProtect() << hwlib::endl;
+  memory.write(300, 'z');
+  hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing impossible when Write Protection Enabled " << hwlib::boolalpha << (char(memory.read(300)) == 'c') << hwlib::endl;
+
+  memory.setWriteProtect(false);
+  memory.write(300, 'z');
+  hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing possible again when Write Protection Disabled " << hwlib::boolalpha << (char(memory.read(300)) == 'z') << hwlib::endl;
 
 // <<<----------------------------------------------------------------------------------------->>>
 

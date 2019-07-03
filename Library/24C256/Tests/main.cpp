@@ -18,7 +18,7 @@ int main( void ){
 
   hwlib::wait_ms(1000);   //Wait for terminal
 
-  auto memory = A24C256(i2c_bus, 256, 0x10, writeProtectPin);
+  auto memory = A24C256(i2c_bus, 256, 0x50, writeProtectPin);
   auto largeMemory = A24C256(i2c_bus, 512);
   auto addressMemory = A24C256(i2c_bus, 256, 0x10);
   auto falseMemory = A24C256(i2c_bus, 230);
@@ -74,10 +74,12 @@ int main( void ){
 
   memory.write(300, 'c');
   memory.setWriteProtect();
-  memory.write(300, 'z')
+  hwlib::cout << hwlib::setw(100) << hwlib::left << "Write-Protect Enabled: " << memory.getWriteProtect() << hwlib::endl;
+  memory.write(300, 'z');
   hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing impossible when Write Protection Enabled " << hwlib::boolalpha << (char(memory.read(300)) == 'c') << hwlib::endl;
 
   memory.setWriteProtect(false);
-  memory.write(300, 'z')
+  memory.write(300, 'z');
   hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing possible again when Write Protection Disabled " << hwlib::boolalpha << (char(memory.read(300)) == 'z') << hwlib::endl;
+
 }
