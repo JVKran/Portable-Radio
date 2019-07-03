@@ -10,11 +10,14 @@
 /// The memorysize defaults to 256Kb. Changing this makes the use of other 24CXXXX chips possible. If 
 /// an illegal amount of memory is given, the constructor will change the memory size to a valid
 /// size by determining which valid size is closest to the given one.
-A24C256::A24C256(hwlib::i2c_bus_bit_banged_scl_sda & bus, unsigned int givenMemorySize, uint8_t address):
+A24C256::A24C256(hwlib::i2c_bus_bit_banged_scl_sda & bus, unsigned int givenMemorySize, uint8_t address, hwlib::pin_in_out & writeProtectPin):
 	bus(bus),
 	memorySize(givenMemorySize),
-	address(address)
+	address(address),
+	writeProtectPin(writeProtectPin)
 {
+	writeProtectPin.write(0);
+	writeProtectPin.flush();
 	bool validSize = (memorySize & (memorySize - 1)) == 0;	//If it is a power of 2 and substract 1 all bits before that become 1.
 	if(!validSize){											// 10000000 & 0111111 = 0 while 10011010 & 01101101 = 4
 		if(memorySize < 45){
@@ -188,9 +191,46 @@ uint8_t A24C256::getAddress(){
 }
 
 /// \brief
+/// Set I2C address
+/// \details
+/// This function allows the user to change the address (That's also the mandatory parameter). Since the address of the chip can be changed
+/// by applying voltage at A1, A2 and A3 it might be useful to be able to change it.
+void A24C256::setAddress(const uint8_t newAddress){
+	address = newAddress;
+}
+
+/// \brief
 /// Get Memory Size
 /// \details
 /// This function returns the set memory size of the chip.
 unsigned int A24C256::getMemorySize(){
 	return memorySize / 128;
+}
+
+/// \brief
+/// Set Memory Size
+/// \details
+/// Since it is possible to change from selected chip by applying voltage at A1, A2 and A3, it might be useful
+/// to change the memory size of the object (which is the mandatory parameter).
+void A24C256::setMemorySize(const unsigned int newSize){
+	memorySize = newSize;
+}
+
+/// \brief
+/// Is Data Protected
+/// \details
+/// This function returns true if the data is protected. False otherwise.
+bool A24C256::getWriteProtect(){
+	writeProtectPin.refresh();
+	return writeProtectPin.read();
+}
+
+/// \brief
+/// Protect Stored Data
+/// \details
+/// When this pin is set high, it is impossible to write to the memory; when low, it is possible again. When left empty
+/// it turns on writeProtect (defaults to true); off when false is passed.
+void A24C256::setWriteProtect(const bool protect){
+	writeProtectPin.write(protect);
+	writeProtectPin.flush();
 }

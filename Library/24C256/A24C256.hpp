@@ -68,10 +68,11 @@ class A24C256{
 	private:
 		hwlib::i2c_bus & bus;
 		unsigned int memorySize;	//This library is also compatible with 24C24C32, 24C64, 24C65, 24C128, 24C256, 24C512, 24C1024
-		const uint8_t address;
+		uint8_t address;
+		hwlib::pin_in_out & writeProtectPin;
 		uint8_t data[65] = {};		//Two address bytes followed by data to save
 	public:
-		A24C256(hwlib::i2c_bus_bit_banged_scl_sda & bus, unsigned int givenMemorySize = 256, uint8_t address = 0x50);
+		A24C256(hwlib::i2c_bus_bit_banged_scl_sda & bus, unsigned int givenMemorySize = 256, uint8_t address = 0x50, hwlib::pin_in_out & writeProtectPin = hwlib::pin_in_out_dummy);
 
 		void write(unsigned int location, uint8_t value);
 		void write(unsigned int location, char* value, bool largeBuffer = true);
@@ -80,7 +81,13 @@ class A24C256{
 		uint8_t read(unsigned int location, unsigned int length, uint8_t receivedData[] = {});
 
 		uint8_t getAddress();
+		void setAddress(const uint8_t newAddress);
+
 		unsigned int getMemorySize();
+		void setMemorySize(const unsigned int newSize);
+
+		bool getWriteProtect();
+		void setWriteProtect(const bool protect = true);
 };
 
 #endif //__A24C256_HPP
