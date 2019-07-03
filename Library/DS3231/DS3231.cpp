@@ -77,6 +77,15 @@ void timeData::setTime(const unsigned int givenHours, const unsigned int givenMi
 	hours = givenHours;
 	minutes = givenMinutes;
 	seconds = givenSeconds;
+	if(hours > 23){
+		hours = 0;
+	}
+	if(minutes > 59){
+		minutes = 0;
+	}
+	if(seconds > 59){
+		seconds = 0;
+	}
 }
 
 /// \brief
@@ -299,13 +308,13 @@ dateData::dateData(const unsigned int givenWeekDay, const unsigned int givenMont
 	year(givenYear)
 {
 	if(weekDay > 7 || weekDay < 1){
-		weekDay = 7;
+		weekDay = 1;
 	}
 	if(monthDay > 31 || monthDay < 1){
-		monthDay = 31;
+		monthDay = 1;
 	}
 	if(month > 12 || month < 1){
-		month = 12;
+		month = 1;
 	}
 }
 
@@ -373,6 +382,15 @@ void dateData::setDate(const unsigned int givenWeekDay, const unsigned int given
 	monthDay = givenMonthDay;
 	month = givenMonth;
 	year = givenYear;
+	if(weekDay > 7 || weekDay < 1){
+		weekDay = 1;
+	}
+	if(monthDay > 31 || monthDay < 1){
+		monthDay = 1;
+	}
+	if(month > 12 || month < 1){
+		month = 1;
+	}
 }
 
 /// \brief
@@ -651,8 +669,8 @@ void alarm::enableOutputSignal(const bool enable){
 /// \brief
 /// Constructor
 /// \details
-/// This constructor has one mandatory parameter; the I2C bus. The user can also provide the address. 
-/// The address defaults to 0x68.
+/// This constructor has one mandatory parameter; the I2C bus. The user can also provide the address and resetPin.
+/// The address defaults to 0x68 and the resetPin defaults to a hwlib::pin_in_out_dummy (which always returns 0).
 DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address, hwlib::pin_in_out & resetPin):
 	bus(bus),
 	address(address),
@@ -773,7 +791,9 @@ dateData DS3231::getDate(){
 /// 	- 8 (alarm when hours, minutes and seconds match)
 ///		- 0 (alarm when weekDay, hours, minutes and seconds match)
 ///		- 16 (alarm when monthDay, hours, minutes and seconds match. 16 to enable easy and fast bit operation)
-/// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered.
+/// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered. The alarm-trigger-bit remains high
+/// though; it can be checked later. Unless the bit is cleared with clearAlarm(). For the made changes to have effect, setSecondAlarm() has also
+/// got to be called.
 void DS3231::setFirstAlarm(const unsigned int matchConditions, const bool dateCondition, const bool outputSignal){
 	clearAlarm(1);
 	firstAlarm.enableOutputSignal(outputSignal);
@@ -814,7 +834,9 @@ void DS3231::changeFirstAlarm(const timeData & alarmTime, const dateData & alarm
 ///		- 0 (alarm when weekDay, hours and minutes match)
 ///		- 16 (alarm when monthDay, hours and minutes match)
 /// When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered.
-/// Depending on the match conditions, the alarm should be checked every second, minute, hour or day.
+/// Depending on the match conditions, the alarm should be checked every second, minute, hour or day. The alarm-trigger-bit remains high
+/// though; it can be checked later. Unless the bit is cleared with clearAlarm(). For the made changes to have effect, setFirstAlarm() has also
+/// got to be called.
 void DS3231::setSecondAlarm(const unsigned int matchConditions, const bool dateCondition, const bool outputSignal){
 	clearAlarm(2);
 	secondAlarm.enableOutputSignal(outputSignal);
@@ -909,7 +931,7 @@ void DS3231::clearAlarm(const unsigned int alarmNumber){
 /// \details
 /// This function returns the current temperature of the surrounding area of the chip. Can reach accuracies of up to 
 /// 0.25 Degrees Celcius.
-unsigned int DS3231::getTemperature(){
+float DS3231::getTemperature(){
 	bus.write(address).write(0x11);
 	auto transaction = bus.read(address);
 	unsigned int temperature = transaction.read_byte();

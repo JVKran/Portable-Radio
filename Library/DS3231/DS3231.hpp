@@ -182,7 +182,8 @@ class dateData{
 /// Alarm Class
 /// \details
 /// This is a class that keeps track of the set alarm; managing when it should be triggered and how it should be triggered.
-/// It is also possible to determine if the output (SKW-pin) should be set high if the alarm triggers.
+/// It is also possible to determine if the output (SKW-pin) should be set high if the alarm triggers. The matchconditions default to 16
+/// (monthDay, hours, minutes and seconds match), which is the same for both alarms.
 ///	All supported operations are:
 ///		- Get Match Condition
 ///		- Set Match Condition or Output Signal
@@ -224,7 +225,7 @@ class alarm{
 		bool outputSignal;
 		unsigned int alarmNumber;
 	public:
-		alarm(const unsigned int matchConditions = 0, const bool outputSignal = 0);
+		alarm(const unsigned int matchConditions = 16, const bool outputSignal = 0);
 		alarm(const alarm & givenAlarm);
 
 		void setMatchConditions(const unsigned int condition = 0);
@@ -323,7 +324,7 @@ class DS3231{
 
 		unsigned int getAddress();
 
-		unsigned int getTemperature();
+		float getTemperature();
 };
 
 #endif //__DS3231_HPP

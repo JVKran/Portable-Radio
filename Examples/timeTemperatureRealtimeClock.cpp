@@ -12,20 +12,19 @@ int main( void ){
   auto clock = DS3231(i2c_bus);
 
   auto curTime = clock.getTime();
-  timeData time;
-  dateData date;
+  
   for(;;){
-    time = clock.getTime();
-    date = clock.getDate();
-    hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
-    hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
-    hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
+    hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
+    hwlib::cout << "Temperature: " << int(clock.getTemperature() * 10) << hwlib::endl;
+    hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
     
     curTime = clock.getTime();
-    curTime.setSeconds(curTime.getSeconds() + 10);
+    curTime.setSeconds(curTime.getSeconds() + 15);
+
+    clock.setSecondAlarm(16);   //The alarm other than the one you want to set and activate first has to be set; puts user more in control and slightens chance of undefined behaviour according to datasheet
     clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
     clock.setFirstAlarm(14);
-    hwlib::cout << "Alarm set, should go in 10 seconds: ";
+    hwlib::cout << "Alarm set, should go in 15 seconds: ";
 
     hwlib::wait_ms(30);
 
@@ -34,6 +33,5 @@ int main( void ){
     }
 
     hwlib::cout << "Triggered!" << hwlib::endl;
-  
-
+  }
 }

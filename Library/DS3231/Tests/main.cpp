@@ -31,7 +31,7 @@ int main( void ){
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Setting: " << ((time.getHours() == 11) && time.getMinutes() == 40 && time.getSeconds() == 55) << hwlib::endl;
 
   time.setTime(80, 90, 100);
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << ((time.getHours() == 11) && time.getMinutes() == 40 && time.getSeconds() == 55) << hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << (time == timeData(0, 0, 0)) << hwlib::endl;
 
   time.setTime(10, 30);
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Addition: " << time << " + " << lastTime << " = " << (time + lastTime) <<  hwlib::boolalpha << " " << ((time + lastTime) == timeData(16, 0, 0)) <<  hwlib::endl;
@@ -51,6 +51,12 @@ int main( void ){
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " < " << lastTime << " = " << (time < lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << timeData(11, 30) << " < " << timeData(11, 30, 10) << " = " << (timeData(11, 30) < timeData(11, 30, 10)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " <= " << lastTime << " = " << (time <= lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " > " << lastTime << " = " << (time > lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " >= " << lastTime << " = " << (time >= lastTime) <<  hwlib::endl;
+
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << time << " == " << lastTime << " = " << (time == lastTime) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << lastTime << " != " << time << " = " << (lastTime != time) <<  hwlib::endl << hwlib::endl;
 
@@ -61,13 +67,13 @@ int main( void ){
 
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Initialization: " << (date.getWeekDay() == 7 && date.getMonthDay() == 30 && date.getMonth() == 6 && date.getYear() == 2019) << hwlib::endl;
 
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Initialization Handling: " << (lastDate.getWeekDay() == 7 && lastDate.getMonthDay() == 31 && lastDate.getMonth() == 12 && lastDate.getYear() == 2019) << hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Initialization Handling: " << (lastDate.getWeekDay() == 1 && lastDate.getMonthDay() == 1 && lastDate.getMonth() == 1 && lastDate.getYear() == 2019) << hwlib::endl;
 
   lastDate.setDate(7, 30, 6, 2019);
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Setting: " << (lastDate.getWeekDay() == 7 && lastDate.getMonthDay() == 30 && lastDate.getMonth() == 6 && lastDate.getYear() == 2019) << hwlib::endl;
 
   lastDate.setDate(80, 90, 100, 2019);
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << (lastDate.getWeekDay() == 7 && lastDate.getMonthDay() == 30 && lastDate.getMonth() == 6 && lastDate.getYear() == 2019) << hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << (lastDate.getWeekDay() == 1 && lastDate.getMonthDay() == 1 && lastDate.getMonth() == 1 && lastDate.getYear() == 2019) << hwlib::endl;
 
   date.setDate(1, 1, 1, 2019);
   lastDate.setDate(7, 30, 6, 0);
@@ -90,6 +96,14 @@ int main( void ){
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
+  
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " < " << lastDate << " = " << (date < lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " <= " << lastDate << " = " << (date <= lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << dateData(1, 1, 12, 2019) << " <= " << dateData(1, 1, 12, 2019) << " = " << (dateData(1, 1, 12, 2019) <= dateData(1, 1, 12, 2019)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " > " << lastDate << " = " << (date > lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << dateData(1, 1, 12, 2019) << " > " << dateData(1, 1, 12, 2019) << " = " << (dateData(1, 1, 12, 2019) > dateData(1, 1, 12, 2019)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " >= " << lastDate << " = " << (date >= lastDate) <<  hwlib::endl;
+
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << date.getWeekDay() << ", " << date << " == " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date == lastDate) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << date.getWeekDay() << ", " << date << " != " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date != lastDate) <<  hwlib::endl << hwlib::endl;
 
@@ -103,7 +117,7 @@ int main( void ){
     time = clock.getTime();
     date = clock.getDate();
     hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
-    hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
+    hwlib::cout << "Temperature: " << int(clock.getTemperature() * 10) << hwlib::endl;
     hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
     hwlib::wait_ms(3000);
   }
@@ -114,14 +128,15 @@ int main( void ){
   //clock.setTime(0, 0, 0);
   //hwlib::cout << (clock.getTime() == timeData(0, 0, 0)) << hwlib::endl;
 
+  //The alarm other than the one you want to change and activate first has to be set; puts user more in control.
+  clock.setSecondAlarm(16);
+
   auto curTime = clock.getTime();
   curTime.setSeconds(curTime.getSeconds() + 10);
   clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
   clock.setFirstAlarm(14);
   hwlib::cout << "Alarm set, should go in 10 seconds: ";
 
-
-  hwlib::wait_ms(30);
 
   while(clock.checkAlarms() == 0){
     hwlib::wait_ms(200);
