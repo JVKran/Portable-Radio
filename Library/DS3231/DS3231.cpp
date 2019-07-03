@@ -25,6 +25,16 @@ timeData::timeData(const unsigned int givenHours, const unsigned int givenMinute
 }
 
 /// \brief
+/// Constructor
+/// \details
+/// This constructor has one mandatory parameter; a timeData object. It copies the values of the given object.
+timeData::timeData(const timeData & time){
+	hours = time.hours;
+	minutes = time.minutes;
+	seconds = time.seconds;
+}
+
+/// \brief
 /// Set Hours
 /// \details
 /// This function has one mandatory parameter; the current amount of hours. This function sets the hours to the
@@ -64,9 +74,19 @@ void timeData::setSeconds(const unsigned int givenSeconds){
 /// is irrelevant; it defaults to 0. This function sets the amount of hours, minutes and seconds at once, instead of
 /// one by one. Alternative to setHours(), setMinutes() and setSeconds() all together.
 void timeData::setTime(const unsigned int givenHours, const unsigned int givenMinutes, const unsigned int givenSeconds){
-	setHours(givenHours);
-	setMinutes(givenMinutes);
-	setSeconds(givenSeconds);
+	hours = givenHours;
+	minutes = givenMinutes;
+	seconds = givenSeconds;
+}
+
+/// \brief
+/// Set Time
+/// \details
+/// This function has one mandatory parameter; a timeData object. It copies the given values.
+void timeData::setTime(const timeData & time){
+	hours = time.hours;
+	minutes = time.minutes;
+	seconds = time.seconds;
 }
 
 /// \brief
@@ -217,6 +237,17 @@ dateData::dateData(const unsigned int givenWeekDay, const unsigned int givenMont
 }
 
 /// \brief
+/// Constructor
+/// \details
+/// This constructor has one mandatory parameter; an object of type dateData. It copies the given values.
+dateData::dateData(const dateData & date){
+	weekDay = date.weekDay;
+	monthDay = date.monthDay;
+	month = date.month;
+	year = date.year;
+}
+
+/// \brief
 /// Set Day of Week
 /// \details
 /// This constructor has one mandatory parameter; the day of week. This function sets the Day of Week
@@ -265,10 +296,21 @@ void dateData::setYear(const unsigned int givenYear){
 /// of setting these values one by one, which is the case with setWeekDay(), setMonthDay(), setMonth() and setYear(), 
 /// this function sets these values all in one.
 void dateData::setDate(const unsigned int givenWeekDay, const unsigned int givenMonthDay, const unsigned int givenMonth, const unsigned int givenYear){
-	setWeekDay(givenWeekDay);
-	setMonthDay(givenMonthDay);
-	setMonth(givenMonth);
-	setYear(givenYear);
+	weekDay = givenWeekDay;
+	monthDay = givenMonthDay;
+	month = givenMonth;
+	year = givenYear;
+}
+
+/// \brief
+/// Set Date
+/// \details
+/// This function has one mandatory parameter; a dateData object. It copies the given values.
+void dateData::setDate(const dateData & date){
+	weekDay = date.weekDay;
+	monthDay = date.monthDay;
+	month = date.month;
+	year = date.year;
 }
 
 /// \brief
@@ -424,6 +466,16 @@ alarm::alarm(const unsigned int matchConditions, const bool outputSignal):
 {}
 
 /// \brief
+/// Constructor
+/// \details
+/// This constructor has one mandatory parameter; an object of type alarm. It copies the given values.
+alarm::alarm(const alarm & givenAlarm){
+	matchConditions = givenAlarm.matchConditions;
+	outputSignal = givenAlarm.outputSignal;
+	alarmNumber = givenAlarm.alarmNumber;
+}
+
+/// \brief
 /// Set Match Conditions
 /// \details
 /// This function has one mandatory parameter; the match condition the alarm has to meet before it gets triggered.
@@ -463,6 +515,21 @@ DS3231::DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address):
 	time(timeData()),
 	date(dateData())
 {}
+
+/*
+DS3231::DS3231(const DS3231 & clock){
+	bus = clock.bus;
+	address = clock.address;
+	data = clock.data;
+	status = clock.status;
+	bool firstAlarmState = false;
+	bool secondAlarmState = false;
+	alarm firstAlarm;
+	alarm secondAlarm;
+	timeData time;
+	dateData date;
+}
+*/
 
 /// \brief
 /// Get I2C Address

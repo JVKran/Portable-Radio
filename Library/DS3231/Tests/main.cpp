@@ -4,24 +4,6 @@
 #include "DS3231.hpp"
 
 /// \brief
-/// Operator<<
-/// \details
-/// This operator makes it possible to print the time in format "hour:minutes:seconds".
-hwlib::ostream & operator<<(hwlib::ostream & lhs, const timeData & rhs){
-  lhs << rhs.getHours() << ":" << rhs.getMinutes() << ":" << rhs.getSeconds();
-  return lhs;
-}
-
-/// \brief
-/// Operator<<
-/// \details
-/// This operator makes it possible to print the date in format "monthDay-Month-Year".
-hwlib::ostream & operator<<(hwlib::ostream & lhs, const dateData & rhs){
-  lhs << rhs.getMonthDay() << "-" << rhs.getMonth() << "-" << rhs.getYear();
-  return lhs;
-}
-
-/// \brief
 /// Test
 /// \details
 /// This program tests ALL functionality of the DS3231 Real Time clock.

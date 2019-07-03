@@ -50,10 +50,13 @@ class timeData{
 		unsigned int seconds;
 	public:
 		timeData(const unsigned int givenHours = 0, const unsigned int givenMinutes = 0, const unsigned int givenSeconds = 0);
+		timeData(const timeData & time);
 
 		void setHours(const unsigned int rgivenHours);
 		void setMinutes(const unsigned int givenMinutes);
 		void setSeconds(const unsigned int givenSeconds);
+
+		void setTime(const timeData & time);
 		void setTime(const unsigned int givenHours = 0, const unsigned int givenMinutes = 0, const unsigned int givenSeconds = 0);
 
 		unsigned int getHours() const;
@@ -127,11 +130,14 @@ class dateData{
 		unsigned int year;
 	public:
 		dateData(const unsigned int givenWeekDay = 0, const unsigned int givenMonthDay = 0, const unsigned int givenMonth = 0, const unsigned int givenYear = 0);
+		dateData(const dateData & date);
 
 		void setWeekDay(const unsigned int givenWeekDay);
 		void setMonthDay(const unsigned int givenMonthDay);
 		void setMonth(const unsigned int givenMonth);
 		void setYear(const unsigned int givenYear);
+
+		void setDate(const dateData & date);
 		void setDate(const unsigned int givenWeekDay = 0, const unsigned int givenMonthDay = 0, const unsigned int givenMonth = 0, const unsigned int givenYear = 0);
 
 		unsigned int getWeekDay() const;
@@ -205,6 +211,7 @@ class alarm{
 		unsigned int alarmNumber;
 	public:
 		alarm(const unsigned int matchConditions = 0, const bool outputSignal = 0);
+		alarm(const alarm & givenAlarm);
 
 		void setMatchConditions(const unsigned int condition = 0);
 		unsigned int getMatchConditions();
@@ -279,6 +286,7 @@ class DS3231{
 		dateData date;
 	public:
 		DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x68);
+		//DS3231(const DS3231 & clock);
 
 		void setTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds = 0);
 		void setDate(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year);
