@@ -1,8 +1,5 @@
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=6c8df05tsIs
-" target="_blank"><img src="http://img.youtube.com/vi/6c8df05tsIs/0.jpg" 
-alt="Portable Radio Showcase" width="800" height="450" border="" /></a>
 # Portable Radio
-This repository contains several Libraries for a couple of different chips and components. Four in total. They all combine in a very nice way and are perfect to make a Portable Radio with.
+This repository contains several Libraries for a couple of different chips and components. Four in total. They all combine in a very nice way and are perfect to make a Portable Radio with. A [video](https://www.youtube.com/watch?v=6c8df05tsIs "Portable Radio Showcase") in which I showcase the basic functioning can be found through the given hyperlink.
 ### Prerequisites
 These libraries are written on top of [HWLIB](https://github.com/wovo/hwlib) and [BMPTK](https://github.com/wovo/bmptk). So before you will be able to use these libraries you will have to clone these repositories and set them up. After that you could take a look at the included examples or go straight to programming yourself. It's up to you!
 ### Hardware
