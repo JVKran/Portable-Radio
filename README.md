@@ -1,6 +1,6 @@
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=6c8df05tsIs
 " target="_blank"><img src="http://img.youtube.com/vi/6c8df05tsIs/0.jpg" 
-alt="Portable Radio Showcase" width="800" height="450" border="10" /></a>
+alt="Portable Radio Showcase" width="800" height="450" border="" /></a>
 # Portable Radio
 This repository contains several Libraries for a couple of different chips and components. Four in total. They all combine in a very nice way and are perfect to make a Portable Radio with.
 ### Prerequisites
