@@ -72,6 +72,7 @@ auto sda = target::pin_oc( target::pins::d9 );
 auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
 auto memory = A24C256(i2c_bus);
+memory.setWriteProtect(false);  //Make it possible to save values
 
 char data[]={"Hello World!"};
 
@@ -82,6 +83,8 @@ memory.read(0, 12, receivedData);
 for(unsigned int i = 0; i < 12; i++){
     hwlib::cout << char(receivedData[i]);
 }
+
+memory.setWriteProtect();       //Protect the stored data
 ```
 ### KY040 Rotary Encoder
 The famous well known Rotary Encoder is also perfect for a Portable Radio; changing of settings has never been easier. Can be a little tricky without interrupts though.
@@ -104,35 +107,44 @@ for(;;){
 ### DS3231 Realtime-Clock
 This Realtime-Clock is well known about its perfectly tuned clock; it is rated to drift no more than 2 minutes per year. It also supports the setting of alarms and keeping the time up-to-date with its button-cell.
 ```C++
+namespace target = hwlib::target;
+
+auto scl = target::pin_oc( target::pins::d8 );
+auto sda = target::pin_oc( target::pins::d9 );
+auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
+
 auto clock = DS3231(i2c_bus);
 
+//Comment if time is not allowed to get overwritten.
+clock.setTime(timeData(9, 45));   //Through timeData object
+clock.setDate(4, 4, 7, 2019);     //Or just by passing values
+
 auto curTime = clock.getTime();
-timeData time;
-dateData date;
+
 
 for(;;){
-    time = clock.getTime();
-    date = clock.getDate();
-    
-    hwlib::cout << "Time: " << time.getHours() << ":" << time.getMinutes() << ":" << time.getSeconds() << hwlib::endl;
-    hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
-    hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
-    
+    hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
+    hwlib::cout << "Temperature: " << int(clock.getTemperature() * 10) << hwlib::endl;
+    hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
+
     curTime = clock.getTime();
     curTime.setSeconds(curTime.getSeconds() + 10);
-    clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
-    clock.setFirstAlarm(14);
+
+    hwlib::cout << "Time: " << curTime << hwlib::endl;
+
+    clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));   //Set moment when alarm should trigger
+    clock.setFirstAlarm(14);                                    //Set what values have to match; specified in documentation.
     hwlib::cout << "Alarm set, should go in 10 seconds: ";
 
     hwlib::wait_ms(30);
 
     while(clock.checkAlarms() == 0){
-      hwlib::wait_ms(200);
+      hwlib::wait_ms(1000);
+      hwlib::cout << clock.getTime() << hwlib::endl;
     }
 
     hwlib::cout << "Triggered!" << hwlib::endl;
-  
-  }
+}
   ```
 ### License
 (c) Jochem van Kanenburg 2019
