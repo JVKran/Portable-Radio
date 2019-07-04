@@ -1,5 +1,4 @@
 #include "hwlib.hpp"
-#include "TEA5767.hpp"
 #include "KY040.hpp"
 
 int main( void ){
