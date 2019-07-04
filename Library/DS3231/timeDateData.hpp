@@ -99,7 +99,7 @@ class timeData{
 ///	All supported operations are:
 ///		- Get Day of Week, Day of Month, Month and Year
 ///		- Set Day of Week, Day of Month, Month and Year
-///		- Arithmetics: +, +=, -, -=, == and !=
+///		- Arithmetics: +, +=, -, -=, ==, !=, <, <=, > and >=
 ///
 /// ~~~~~~~~~~~~~~~{.cpp}
 /// auto clock = DS3231(i2c_bus);
