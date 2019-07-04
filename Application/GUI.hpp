@@ -15,11 +15,9 @@
 /// amount of bars and spacing between bars.
 /// 
 /// ~~~~~~~~~~~~~~~{.cpp}
-/// auto radio = RDA5807(i2c_bus);
 ///	auto signalWindow = hwlib::window_part(oled, hwlib::xy(108, 0), hwlib::xy(128, 15));
 /// auto signalIndicator = signalBars(hwlib::xy(110, 8), 2, 2);
 /// signalIndicator.print(window, radio.signalStrenght() / 12);
-///	}
 /// ~~~~~~~~~~~~~~~
 class signalBars{
 	private:
@@ -44,7 +42,6 @@ class signalBars{
 /// auto battery = hwlib::target::pin_adc(0);
 /// auto voltage = battery.read();
 /// batteryIndicator.print(window, (voltage - 32) * 10));
-///	}
 /// ~~~~~~~~~~~~~~~
 class batteryBars{
 	private:
@@ -62,9 +59,17 @@ class batteryBars{
 /// \details
 /// This is a class which makes it possible to display the entire GUI with the given values.
 /// ~~~~~~~~~~~~~~~{.cpp}
-///	display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, battery.read(), radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0], curMute, clock.getDate());
-/// 
-///	}
+///	display.displayMenuUpdate(radio.signalStrength(), 
+///		radio.getFrequency() * 10, 
+/// 	inPressedArea, battery.read(), 
+/// 	radio.stereoReception(), 
+/// 	menuArea, 
+/// 	radio, 
+/// 	showRadioDataStationName, 
+/// 	(char*)&stationName[0], 
+/// 	curMute, 
+/// 	clock.getDate()
+/// );
 /// ~~~~~~~~~~~~~~~
 class GUI{
 	private:
@@ -109,7 +114,6 @@ class GUI{
 		void displayFrequency(const unsigned int frequency, const bool change);
 		void displayMenuArea(const unsigned int menuArea);
 		void displayMenuUpdate(const unsigned int signalStrength, const float frequency, const bool change, const unsigned int voltage,const bool stereo, const unsigned int menuArea, Radio & radio, const bool showRadioDataStationName, const char* stationName, const bool curMute, const dateData & date, const bool force = false);
-		void displaySettings();
 		void showSettings(KY040 & button, Radio & radio, unsigned int & menuArea);
 };
 

@@ -37,6 +37,8 @@ void setTestPresets(A24C256 & memory){
 
 
 int main( void ){
+  bool displayDebugInfo = true;
+
   namespace target = hwlib::target;
 
 //                        Interfaces
@@ -142,7 +144,7 @@ int main( void ){
   //Display first stationName
   memory.read(curTunedPreset * 10 + 2, 8, newData);
   char* stationName = (char*)newData;
-  display.displayMenuUpdate(30, radio.getFrequency() * 10, inPressedArea, battery.read(), false, 1, radio, showRadioDataStationName, (char*)newData, false, clock.getDate());   //Force updates
+  display.displayMenuUpdate(30, radio.getFrequency() * 10, inPressedArea, 38, false, 1, radio, showRadioDataStationName, (char*)newData, false, clock.getDate());   //Force updates
 
 
   time = clock.getTime();
@@ -160,12 +162,25 @@ int main( void ){
       if(menuArea < 3){
         inPressedArea = !inPressedArea;
       }
+      if(displayDebugInfo){
+        if(inPressedArea){
+          hwlib::cout << "Button has been pressed to change settings in Menu Area " << menuArea << hwlib::endl;
+        } else {
+          hwlib::cout << "Button has been pressed to stop changing settings in Menu Area " << menuArea << hwlib::endl;
+        }
+      }
     }
     if(button.getPos() != lastKnownPos){
       needToUpdate = true;
       //Tuned clockwise in Pressed Area
       if(button.getPos() > lastKnownPos && inPressedArea){
+        if(displayDebugInfo){
+          hwlib::cout << "Turned Clockwise ";
+        }
         if(menuArea == 0){    //Auto search
+          if(displayDebugInfo){
+            hwlib::cout << "to perform Auto Search Up" << hwlib::endl;
+          }
           radio.seekChannel(1);
           firstTimeFrequency = true;
           showRadioDataStationName = true;
@@ -175,6 +190,9 @@ int main( void ){
           auto newFrequency = radio.getFrequency() + 0.12;      //Instead of 0.1 to compensate for autotune
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
+          if(displayDebugInfo){
+            hwlib::cout << "to perform Manual Search Up to " << int(newFrequency * 10) << hwlib::endl;
+          }
         } else if (menuArea == 2){  //Preset select
           showRadioDataStationName = false;
           curTunedPreset++;
@@ -183,10 +201,19 @@ int main( void ){
           }
           hwlib::wait_ms(30);
           radio.setFrequency(stations[curTunedPreset]);
+          if(displayDebugInfo){
+            hwlib::cout << "to select next preset: " << int(stations[curTunedPreset] * 10)<< hwlib::endl;
+          }
         }
         //Turned counter clockwise in pressed area
       } else if (inPressedArea){    //Auto search
+        if(displayDebugInfo){
+          hwlib::cout << "Turned Counter Clockwise ";
+        }
         if(menuArea == 0){
+          if(displayDebugInfo){
+            hwlib::cout << "to perform Auto Search Down" << hwlib::endl;
+          }
           firstTimeFrequency = true;
           showRadioDataStationName = true;
           radio.seekChannel(0);
@@ -196,6 +223,9 @@ int main( void ){
           auto newFrequency = radio.getFrequency() - 0.1;
           hwlib::wait_ms(30);
           radio.setFrequency(newFrequency);
+          if(displayDebugInfo){
+            hwlib::cout << "to perform Manual Search Down to " << int(newFrequency * 10) << hwlib::endl;
+          }
         } else if (menuArea == 2){  //Preset select
           showRadioDataStationName = false;
           curTunedPreset--;
@@ -204,6 +234,9 @@ int main( void ){
           }
           hwlib::wait_ms(30);
           radio.setFrequency(stations[curTunedPreset]);
+          if(displayDebugInfo){
+            hwlib::cout << "to select previous preset: " << int(stations[curTunedPreset] * 10)<< hwlib::endl;
+          }
         }
         //Not in Pressed Area
       }
@@ -211,17 +244,26 @@ int main( void ){
       //If not in pressed area, and the button has been turned, we want to change menuArea
       if(!inPressedArea) {
         if(button.getPos() > lastKnownPos){
+          if(displayDebugInfo){
+            hwlib::cout << "Turned Clockwise to select Menu Area ";
+          }
           if(menuArea == 7){
             menuArea = 0;
           } else {
             menuArea++;
           }
         } else {
+          if(displayDebugInfo){
+            hwlib::cout << "Turned Counter Clockwise to select Menu Area ";
+          }
           if (menuArea == 0){
             menuArea = 7;
           } else{
             menuArea--;
           }
+        }
+        if(displayDebugInfo){
+          hwlib::cout << menuArea << hwlib::endl;
         }
       }
       lastKnownPos = button.getPos();
@@ -233,21 +275,33 @@ int main( void ){
       bassBoost = !bassBoost;
       hwlib::wait_ms(30);
       radio.setBassBoost(bassBoost);
+      if(displayDebugInfo){
+        hwlib::cout << hwlib::boolalpha << "Pressed button to set Bass Boost to: " << bassBoost << hwlib::endl;
+      }
     }
 
     if(menuArea == 4 && wasPressed){
       curMute = !curMute;
       radio.setMute(curMute);
+      if(displayDebugInfo){
+        hwlib::cout << hwlib::boolalpha << "Pressed button to set Mute to: " << curMute << hwlib::endl;
+      }
     }
 
     if(menuArea == 5 && wasPressed){
       auto curRadioData = radio.radioDataEnabled();
       hwlib::wait_ms(30);
       radio.enableRadioData(!curRadioData);
+      if(displayDebugInfo){
+        hwlib::cout << hwlib::boolalpha << "Pressed button to set Radio Data Decoding to: " << curRadioData << hwlib::endl;
+      }
     }
 
     if(menuArea == 6 && wasPressed){
       showRadioDataStationName = !showRadioDataStationName;
+      if(displayDebugInfo){
+        hwlib::cout << hwlib::boolalpha << "Pressed button to set Radio Data Station Name to: " << showRadioDataStationName << hwlib::endl;
+      }
     }
 
     wasPressed = false;
@@ -263,11 +317,14 @@ int main( void ){
         if(firstTimeFrequency){
           //Retrieve the name and display it
           stationName = &radio.radioData.getStationName()[0];
-          display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, battery.read(), radio.stereoReception(), menuArea, radio, showRadioDataStationName, stationName, curMute, clock.getDate());
+          display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, stationName, curMute, clock.getDate());
           firstTimeFrequency = false;
+          if(displayDebugInfo){
+            hwlib::cout << "Retrieved Station Name through the Radio Data System: " << stationName << hwlib::endl;
+          }
         } else {
           //Just print the already received stationname.
-          display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, battery.read(), radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0], curMute,clock.getDate());
+          display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0], curMute,clock.getDate());
        }
       } else {
         //If it is a preset, read stationName from memory
@@ -276,7 +333,10 @@ int main( void ){
           stationName = (char*)newData;
           lastCheckedPreset = curTunedPreset;
         }
-        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, battery.read(), radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0], curMute, clock.getDate());
+        if(displayDebugInfo){
+          hwlib::cout << "Retrieved Station Name from memory: " << stationName << hwlib::endl;
+        }
+        display.displayMenuUpdate(radio.signalStrength(), radio.getFrequency() * 10, inPressedArea, 38, radio.stereoReception(), menuArea, radio, showRadioDataStationName, (char*)&stationName[0], curMute, clock.getDate());
       }
       time = clock.getTime();
       if(time.getMinutes() != lastMinutes){
@@ -290,6 +350,9 @@ int main( void ){
           timeField << ":0" << time.getMinutes() << hwlib::flush;
         } else {
           timeField << ":" << time.getMinutes() << hwlib::flush;
+        }
+        if(displayDebugInfo){
+          hwlib::cout << hwlib::boolalpha << "Time has been updated to: " << time << hwlib::endl;
         }
       }
     }

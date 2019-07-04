@@ -1,7 +1,7 @@
 #include "hwlib.hpp"
 #include "TEA5767.hpp"
 #include "RDA5807.hpp"
-#include "GUI.hpp"
+#include "../Application/GUI.hpp"
 #include "KY040.hpp"
 #include "A24C256.hpp"
 #include "DS3231.hpp"

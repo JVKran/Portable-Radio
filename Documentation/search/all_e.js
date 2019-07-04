@@ -16,5 +16,6 @@ var searchData=
   ['rda5807_2ecpp',['RDA5807.cpp',['../_r_d_a5807_8cpp.html',1,'']]],
   ['rda5807_2ehpp',['RDA5807.hpp',['../_r_d_a5807_8hpp.html',1,'']]],
   ['read',['read',['../class_a24_c256.html#ac48b05010340adcfcf11e103336463d7',1,'A24C256::read(unsigned int location)'],['../class_a24_c256.html#a90c838b32fe083964150970637986a5a',1,'A24C256::read(unsigned int location, unsigned int length, uint8_t receivedData[]={})']]],
+  ['receptionstrength',['receptionStrength',['../class_g_u_i.html#a61c39821e73814552983820532207fcf',1,'GUI']]],
   ['reset',['reset',['../classradio_data_system.html#af3a94c8d33ed183b52f211c7d4d32f0f',1,'radioDataSystem::reset()'],['../class_r_d_a5807.html#afb6020229aaa8c64050a8eaa263a6f2f',1,'RDA5807::reset()']]]
 ];

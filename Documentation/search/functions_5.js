@@ -30,5 +30,6 @@ var searchData=
   ['getvolume',['getVolume',['../class_r_d_a5807.html#a624308edf9695d5e485815f4d505cead',1,'RDA5807::getVolume()'],['../class_t_e_a5767.html#a019d8bee5761a85feabc898466e6b5d9',1,'TEA5767::getVolume()']]],
   ['getweekday',['getWeekDay',['../classdate_data.html#a9640c1c25f702e007aa37e758b722244',1,'dateData']]],
   ['getwriteprotect',['getWriteProtect',['../class_a24_c256.html#a019f1918532d0a9a753a1182cb1deae0',1,'A24C256']]],
-  ['getyear',['getYear',['../classdate_data.html#a23f2a970f86e66d161bd0b8be36a2be9',1,'dateData']]]
+  ['getyear',['getYear',['../classdate_data.html#a23f2a970f86e66d161bd0b8be36a2be9',1,'dateData']]],
+  ['gui',['GUI',['../class_g_u_i.html#a951960eb270571ea71699d8851a3505c',1,'GUI']]]
 ];
