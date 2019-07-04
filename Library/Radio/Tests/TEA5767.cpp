@@ -6,7 +6,7 @@
 /// \brief
 /// Test
 /// \details
-/// This program tests ALL functionalities from the RDA58XX Series chips.
+/// This program tests most of the functionalities from the TEA5767 FM radio module.
 int main( void ){
   namespace target = hwlib::target; 
     

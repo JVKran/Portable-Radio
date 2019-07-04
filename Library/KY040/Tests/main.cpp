@@ -1,7 +1,12 @@
+/// @file
+
 #include "hwlib.hpp"
-#include "TEA5767.hpp"
 #include "KY040.hpp"
 
+/// \brief
+/// Test
+/// \details
+/// This program tests ALL functionality of the Rotary Encoder (tested with KY040 and EC11).
 int main( void ){
     namespace target = hwlib::target; 
 

@@ -6,7 +6,7 @@
 /// \brief
 /// Test
 /// \details
-/// This program tests ALL functionality of the DS3231 Real Time clock.
+/// This program tests most of the functionality of the DS3231 Real Time clock.
 int main( void ){
   namespace target = hwlib::target;
 
