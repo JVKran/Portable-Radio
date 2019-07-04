@@ -1,4 +1,4 @@
-![alt text](/Deliverables/ThumbnailVideo.jpg)
+[![Showcase Video](/Deliverables/ThumbnailVideo.jpg)](https://www.youtube.com/watch?v=6c8df05tsIs)
 # Portable Radio
 This repository contains several Libraries for a couple of different chips and components. Five in total. They all combine in a very nice way and are perfect to make a Portable Radio with. A [video](https://www.youtube.com/watch?v=6c8df05tsIs "Portable Radio Showcase") in which I showcase the basic functioning can be found through the given hyperlink.
 ### Prerequisites
