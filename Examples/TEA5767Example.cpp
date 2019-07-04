@@ -1,12 +1,12 @@
 /// @file
 
 #include "hwlib.hpp"
-#include "DS3231.hpp"
+#include "TEA5767.hpp"
 
 /// \brief
 /// Test
 /// \details
-/// This program tests ALL functionality of the DS3231 Real Time clock.
+/// This program tests some functionality of the TEA5767 FM radio module.
 /// Take a look in the tests folder for even more examples
 int main( void ){
   namespace target = hwlib::target;
