@@ -981,3 +981,20 @@ bool DS3231::getReset(){
 	resetPin.refresh();
 	return resetPin.read();
 }
+
+/// \brief
+/// Test Correct Functioning
+/// \details
+/// This function performs a quick test to figure out if the chip is working.
+bool DS3231::testCorrectFunctioning(){
+	auto storedTime = getTime();
+	auto checkTime = timeData(11, 11, 11);
+	setTime(checkTime);
+	if(getTime() == checkTime){
+		setTime(storedTime);
+		return true;
+	} else {
+		setTime(storedTime);
+		return false;
+	}
+}

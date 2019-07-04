@@ -112,6 +112,8 @@ class A24C256{
 
 		bool getWriteProtect();
 		void setWriteProtect(const bool protect = true);
+
+		bool testCorrectFunctioning();
 };
 
 #endif //__A24C256_HPP

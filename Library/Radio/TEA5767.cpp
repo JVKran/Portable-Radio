@@ -748,3 +748,23 @@ bool TEA5767::radioDataEnabled(){
 bool TEA5767::bassBoosted(){
 	return false;
 }
+
+/// \brief
+/// Test Correct Functioning
+/// \details
+/// This function performs a quick test to figure out if the chip is working.
+bool TEA5767::testCorrectFunctioning(){
+	bool startMute = isMuted();
+	setMute(true);
+	float startFrequency = getFrequency();
+	setFrequency(105);
+	if(getFrequency() == 105){
+		setMute(startMute);
+		setFrequency(startFrequency);
+		return true;
+	} else {
+		setMute(startMute);
+		setFrequency(startFrequency);
+		return false;
+	}
+}

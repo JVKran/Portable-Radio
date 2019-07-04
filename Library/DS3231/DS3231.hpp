@@ -330,6 +330,8 @@ class DS3231{
 		unsigned int getAddress();
 
 		float getTemperature();
+
+		bool testCorrectFunctioning();
 };
 
 #endif //__DS3231_HPP

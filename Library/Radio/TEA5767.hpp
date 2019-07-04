@@ -106,6 +106,8 @@ class TEA5767 : public Radio {
 
 		//Radio Data Settings
 		bool radioDataEnabled() override;
+
+		bool testCorrectFunctioning();
 };
 
 #endif //__TEA5767_HPP

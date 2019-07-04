@@ -140,6 +140,8 @@ class RDA5807 : public Radio {
 		//Raw Radio Data System
 		void printRawRadioData();
 		void updateRadioData();
+
+		bool testCorrectFunctioning();
 };
 
 #endif //__RDA5807_HPP

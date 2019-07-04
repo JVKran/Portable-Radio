@@ -49,6 +49,8 @@ class KY040{
 	    int getPos();
 	    void setPos(const int newPos);
 	    bool isPressed();
+
+	    bool testCorrectFunctioning();
 };
 
 #endif //__KY040_HPP

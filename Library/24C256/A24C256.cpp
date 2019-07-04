@@ -241,3 +241,17 @@ void A24C256::setWriteProtect(const bool protect){
 	writeProtectPin.write(protect);
 	writeProtectPin.flush();
 }
+
+/// \brief
+/// Test Correct Functioning
+/// \details
+/// This function performs a quick test to figure out if the chip is working.
+bool A24C256::testCorrectFunctioning(){
+  	write(300, 'c');
+  	if(read(300) == 'c'){
+  		return true;
+  	} else {
+  		return false;
+  	}
+
+}
