@@ -93,6 +93,8 @@ void timeData::setTime(const unsigned int givenHours, const unsigned int givenMi
 /// \details
 /// This function has one mandatory parameter; a timeData object. It copies the given values.
 void timeData::setTime(const timeData & time){
+	//Since the object given has already been checked for validity when it was created, we
+	//do not have to do so again.
 	hours = time.hours;
 	minutes = time.minutes;
 	seconds = time.seconds;
@@ -323,6 +325,8 @@ dateData::dateData(const unsigned int givenWeekDay, const unsigned int givenMont
 /// \details
 /// This constructor has one mandatory parameter; an object of type dateData. It copies the given values.
 dateData::dateData(const dateData & date){
+	//Since the object given has already been checked for validity when it was created, we
+	//do not have to do so again.
 	weekDay = date.weekDay;
 	monthDay = date.monthDay;
 	month = date.month;
@@ -406,6 +410,8 @@ void DS3231::setDate(const dateData & date){
 /// \details
 /// This function has one mandatory parameter; a dateData object. It copies the given values.
 void dateData::setDate(const dateData & date){
+	//Since the object given has already been checked for validity when it was created, we
+	//do not have to do so again.
 	weekDay = date.weekDay;
 	monthDay = date.monthDay;
 	month = date.month;

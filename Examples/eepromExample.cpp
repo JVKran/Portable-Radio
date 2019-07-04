@@ -2,15 +2,19 @@
 #include "A24C256.hpp"
 
 int main( void ){
-    namespace target = hwlib::target; 
+  namespace target = hwlib::target; 
 
-    auto scl = target::pin_oc( target::pins::d8 );
-    auto sda = target::pin_oc( target::pins::d9 );
+  auto scl = target::pin_oc( target::pins::d8 );
+  auto sda = target::pin_oc( target::pins::d9 );
   auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
-  auto memory = A24C256(i2c_bus);
+  auto writeProtectPin = hwlib::target::pin_in_out ( target::pins::d3 );
+
+  auto memory = A24C256(i2c_bus, 256, 0x50, writeProtectPin);
   auto largeMemory = A24C256(i2c_bus, 512);
   auto repairedMemory = A24C256(i2c_bus, 1000);   //Is automatically resized to 1024.
+
+  hwlib::wait_ms(2000);   //Wait for Terminal
 
   //Write one single byte at location 0 and retrieve it
   memory.write(0, 'c');
@@ -60,7 +64,7 @@ int main( void ){
   //Making pin WP high, disables its functionality to save given data; it protects saved data.
   memory.write(300, 'c');
   memory.setWriteProtect();
-  hwlib::cout << hwlib::setw(100) << hwlib::left << "Write-Protect Enabled: " << memory.getWriteProtect() << hwlib::endl;
+  hwlib::cout << hwlib::setw(100) << hwlib::left << hwlib::boolalpha << "Write-Protect Enabled: " << memory.getWriteProtect() << hwlib::endl;
   memory.write(300, 'z');
   hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing impossible when Write Protection Enabled " << hwlib::boolalpha << (char(memory.read(300)) == 'c') << hwlib::endl;
 

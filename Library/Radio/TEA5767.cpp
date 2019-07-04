@@ -728,7 +728,7 @@ unsigned int TEA5767::hasBandLimit(){
 /// mean it is also receiving stereo audio. This can be determined with function
 /// stereoReception().
 bool TEA5767::isStereo(){
-	return (data[2] >> 3) & 0;		//Yes, 0 is stereo
+	return !(data[2] >> 3) & 1;		//Yes, 0 is stereo
 }
 
 /// \brief

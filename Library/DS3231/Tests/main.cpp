@@ -20,6 +20,9 @@ int main( void ){
   auto lastTime = timeData(5, 30);
   auto bigTime = timeData(50, 60, 80);
 
+  //Uncomment is time is allowed to get overwritten
+  //clock.setTime(14, 20);
+  //clock.setDate(5, 7, 7, 2019);
   hwlib::wait_ms(1000);
 
   hwlib::cout << "---------------------------------TIME------------------------------" << hwlib::endl << hwlib::endl;
@@ -44,7 +47,7 @@ int main( void ){
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << time << " - " << lastTime << " = " << (time - lastTime) << hwlib::boolalpha << "  " << ((time - lastTime) == timeData(5, 0, 0)) <<  hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Setting and Substraction: " << time << " - " << lastTime << " = " << (time - lastTime) << hwlib::boolalpha << "  " << ((time - lastTime) == timeData(5, 0, 0)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastTime << " - " << time << " = " << (lastTime - time) << hwlib::boolalpha << " " << ((lastTime - time) == timeData(19, 0, 0)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << timeData(23, 59) << " - " << timeData(23, 59) << " = " << (timeData(23, 59) - timeData(23, 59)) << " true" << hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << timeData(0, 15) << " - " << timeData(0, 30) << " = " << (timeData(0, 15) - timeData(0, 30)) << " true" <<  hwlib::endl;
@@ -56,6 +59,9 @@ int main( void ){
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " <= " << lastTime << " = " << (time <= lastTime) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " > " << lastTime << " = " << (time > lastTime) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " >= " << lastTime << " = " << (time >= lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << timeData(11, 30) << " >= " << timeData(11, 30) << " = " << (timeData(11, 30) >= timeData(11, 30)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << timeData(11, 30) << " <= " << timeData(11, 30) << " = " << (timeData(11, 30) <= timeData(11, 30)) <<  hwlib::endl;
+
 
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << time << " == " << lastTime << " = " << (time == lastTime) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << lastTime << " != " << time << " = " << (lastTime != time) <<  hwlib::endl << hwlib::endl;
@@ -89,7 +95,7 @@ int main( void ){
 
   date.setDate(5, 8, 10, 2019);
   lastDate.setDate(4, 30, 8, 2000);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << date.getWeekDay() << ", " << date << " - " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date - lastDate) << hwlib::boolalpha << "  " << ((date - lastDate) == dateData(1, 8, 1, 19)) <<  hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Setting and Substraction: " << date.getWeekDay() << ", " << date << " - " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date - lastDate) << hwlib::boolalpha << "  " << ((date - lastDate) == dateData(1, 8, 1, 19)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastDate.getWeekDay() << ", " << lastDate << " - " << date.getWeekDay() << ", " << date << " = " << (lastDate - date) << hwlib::boolalpha << " " << ((lastDate - date) == dateData(6, 22, 10, 0)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << dateData(6, 20, 12, 2019) << " - " << dateData(6, 20, 5, 0) << " = " << (dateData(6, 20, 12, 0) -  dateData(6, 20, 5, 2019)) <<  hwlib::boolalpha << " true" <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << dateData(6, 1, 1, 2019) << " - " << dateData(6, 6, 6, 0) << " = " << (dateData(6, 1, 1, 2019) -  dateData(6, 6, 6, 0)) <<  hwlib::boolalpha << " true" <<  hwlib::endl;
@@ -103,6 +109,8 @@ int main( void ){
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " > " << lastDate << " = " << (date > lastDate) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << dateData(1, 1, 12, 2019) << " > " << dateData(1, 1, 12, 2019) << " = " << (dateData(1, 1, 12, 2019) > dateData(1, 1, 12, 2019)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " >= " << lastDate << " = " << (date >= lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << dateData(1, 1, 12, 2019) << " > " << dateData(1, 1, 12, 2019) << " = " << (dateData(1, 1, 12, 2019) > dateData(1, 1, 12, 2019)) <<  hwlib::endl;
+
 
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << date.getWeekDay() << ", " << date << " == " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date == lastDate) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << date.getWeekDay() << ", " << date << " != " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date != lastDate) <<  hwlib::endl << hwlib::endl;
@@ -127,6 +135,7 @@ int main( void ){
   //hwlib::cout << hwlib::left << hwlib::setw(45) << "Set time to 0:0:0 : ";
   //clock.setTime(0, 0, 0);
   //hwlib::cout << (clock.getTime() == timeData(0, 0, 0)) << hwlib::endl;
+  auto curTime = timeData();
 
   for(unsigned int i = 0; i < 3; i++){
     hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
@@ -136,8 +145,9 @@ int main( void ){
     curTime = clock.getTime();
     curTime.setSeconds(curTime.getSeconds() + 10);
 
-    hwlib::cout << "Time: " << curTime << hwlib::endl;
+    hwlib::cout << "Time to Trigger: " << curTime << hwlib::endl;
 
+    clock.clearAlarm(1);
     clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
     clock.setFirstAlarm(14);
     hwlib::cout << "Alarm set, should go in 10 seconds: ";

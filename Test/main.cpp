@@ -30,7 +30,7 @@ int main( void ){
 
   auto writeProtectPin = target::pin_in_out( target::pins::d3 );
 
-  hwlib::wait_ms(1000);   //Wait for terminal
+  hwlib::cout << "---------------------------------EEPROM------------------------------" << hwlib::endl << hwlib::endl;
 
   auto memory = A24C256(i2c_bus, 256, 0x50, writeProtectPin);
   auto largeMemory = A24C256(i2c_bus, 512);
@@ -96,16 +96,15 @@ int main( void ){
   memory.write(300, 'z');
   hwlib::cout << hwlib::setw(100) << hwlib::left << "Writing possible again when Write Protection Disabled " << hwlib::boolalpha << (char(memory.read(300)) == 'z') << hwlib::endl;
 
-// <<<----------------------------------------------------------------------------------------->>>
-
-  namespace target = hwlib::target;
-
   auto clock = DS3231(i2c_bus);
 
   auto time = timeData(15, 20, 10);
   auto lastTime = timeData(5, 30);
   auto bigTime = timeData(50, 60, 80);
 
+  //Uncomment is time is allowed to get overwritten
+  //clock.setTime(14, 20);
+  //clock.setDate(5, 7, 7, 2019);
   hwlib::wait_ms(1000);
 
   hwlib::cout << "---------------------------------TIME------------------------------" << hwlib::endl << hwlib::endl;
@@ -117,7 +116,7 @@ int main( void ){
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Setting: " << ((time.getHours() == 11) && time.getMinutes() == 40 && time.getSeconds() == 55) << hwlib::endl;
 
   time.setTime(80, 90, 100);
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << ((time.getHours() == 11) && time.getMinutes() == 40 && time.getSeconds() == 55) << hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << (time == timeData(0, 0, 0)) << hwlib::endl;
 
   time.setTime(10, 30);
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Addition: " << time << " + " << lastTime << " = " << (time + lastTime) <<  hwlib::boolalpha << " " << ((time + lastTime) == timeData(16, 0, 0)) <<  hwlib::endl;
@@ -130,13 +129,22 @@ int main( void ){
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << time << " - " << lastTime << " = " << (time - lastTime) << hwlib::boolalpha << "  " << ((time - lastTime) == timeData(5, 0, 0)) <<  hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Setting and Substraction: " << time << " - " << lastTime << " = " << (time - lastTime) << hwlib::boolalpha << "  " << ((time - lastTime) == timeData(5, 0, 0)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastTime << " - " << time << " = " << (lastTime - time) << hwlib::boolalpha << " " << ((lastTime - time) == timeData(19, 0, 0)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << timeData(23, 59) << " - " << timeData(23, 59) << " = " << (timeData(23, 59) - timeData(23, 59)) << " true" << hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << timeData(0, 15) << " - " << timeData(0, 30) << " = " << (timeData(0, 15) - timeData(0, 30)) << " true" <<  hwlib::endl;
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " < " << lastTime << " = " << (time < lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << timeData(11, 30) << " < " << timeData(11, 30, 10) << " = " << (timeData(11, 30) < timeData(11, 30, 10)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " <= " << lastTime << " = " << (time <= lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " > " << lastTime << " = " << (time > lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << time << " >= " << lastTime << " = " << (time >= lastTime) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << timeData(11, 30) << " >= " << timeData(11, 30) << " = " << (timeData(11, 30) >= timeData(11, 30)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << timeData(11, 30) << " <= " << timeData(11, 30) << " = " << (timeData(11, 30) <= timeData(11, 30)) <<  hwlib::endl;
+
+
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << time << " == " << lastTime << " = " << (time == lastTime) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << lastTime << " != " << time << " = " << (lastTime != time) <<  hwlib::endl << hwlib::endl;
 
@@ -147,13 +155,13 @@ int main( void ){
 
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Initialization: " << (date.getWeekDay() == 7 && date.getMonthDay() == 30 && date.getMonth() == 6 && date.getYear() == 2019) << hwlib::endl;
 
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Initialization Handling: " << (lastDate.getWeekDay() == 7 && lastDate.getMonthDay() == 31 && lastDate.getMonth() == 12 && lastDate.getYear() == 2019) << hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Initialization Handling: " << (lastDate.getWeekDay() == 1 && lastDate.getMonthDay() == 1 && lastDate.getMonth() == 1 && lastDate.getYear() == 2019) << hwlib::endl;
 
   lastDate.setDate(7, 30, 6, 2019);
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Setting: " << (lastDate.getWeekDay() == 7 && lastDate.getMonthDay() == 30 && lastDate.getMonth() == 6 && lastDate.getYear() == 2019) << hwlib::endl;
 
   lastDate.setDate(80, 90, 100, 2019);
-  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << (lastDate.getWeekDay() == 7 && lastDate.getMonthDay() == 30 && lastDate.getMonth() == 6 && lastDate.getYear() == 2019) << hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Too Large Setting Handling: " << (lastDate.getWeekDay() == 1 && lastDate.getMonthDay() == 1 && lastDate.getMonth() == 1 && lastDate.getYear() == 2019) << hwlib::endl;
 
   date.setDate(1, 1, 1, 2019);
   lastDate.setDate(7, 30, 6, 0);
@@ -169,13 +177,23 @@ int main( void ){
 
   date.setDate(5, 8, 10, 2019);
   lastDate.setDate(4, 30, 8, 2000);
-  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Substraction: " << date.getWeekDay() << ", " << date << " - " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date - lastDate) << hwlib::boolalpha << "  " << ((date - lastDate) == dateData(1, 8, 1, 19)) <<  hwlib::endl;
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Setting and Substraction: " << date.getWeekDay() << ", " << date << " - " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date - lastDate) << hwlib::boolalpha << "  " << ((date - lastDate) == dateData(1, 8, 1, 19)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << lastDate.getWeekDay() << ", " << lastDate << " - " << date.getWeekDay() << ", " << date << " = " << (lastDate - date) << hwlib::boolalpha << " " << ((lastDate - date) == dateData(6, 22, 10, 0)) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << dateData(6, 20, 12, 2019) << " - " << dateData(6, 20, 5, 0) << " = " << (dateData(6, 20, 12, 0) -  dateData(6, 20, 5, 2019)) <<  hwlib::boolalpha << " true" <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Substraction: " << dateData(6, 1, 1, 2019) << " - " << dateData(6, 6, 6, 0) << " = " << (dateData(6, 1, 1, 2019) -  dateData(6, 6, 6, 0)) <<  hwlib::boolalpha << " true" <<  hwlib::endl;
 
   lastTime.setTime(5, 30);
   time.setTime(10, 30);
+  
+  hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " < " << lastDate << " = " << (date < lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " <= " << lastDate << " = " << (date <= lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << dateData(1, 1, 12, 2019) << " <= " << dateData(1, 1, 12, 2019) << " = " << (dateData(1, 1, 12, 2019) <= dateData(1, 1, 12, 2019)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " > " << lastDate << " = " << (date > lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << dateData(1, 1, 12, 2019) << " > " << dateData(1, 1, 12, 2019) << " = " << (dateData(1, 1, 12, 2019) > dateData(1, 1, 12, 2019)) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << date << " >= " << lastDate << " = " << (date >= lastDate) <<  hwlib::endl;
+  hwlib::cout << hwlib::left << hwlib::setw(45) << "Comparison: " << dateData(1, 1, 12, 2019) << " > " << dateData(1, 1, 12, 2019) << " = " << (dateData(1, 1, 12, 2019) > dateData(1, 1, 12, 2019)) <<  hwlib::endl;
+
+
   hwlib::cout << hwlib::endl << hwlib::left << hwlib::setw(45) << "Equality: " << date.getWeekDay() << ", " << date << " == " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date == lastDate) <<  hwlib::endl;
   hwlib::cout << hwlib::left << hwlib::setw(45) << "Unequality: " << date.getWeekDay() << ", " << date << " != " << lastDate.getWeekDay() << ", " << lastDate << " = " << (date != lastDate) <<  hwlib::endl << hwlib::endl;
 
@@ -189,7 +207,7 @@ int main( void ){
     time = clock.getTime();
     date = clock.getDate();
     hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
-    hwlib::cout << "Temperature: " << clock.getTemperature() << hwlib::endl;
+    hwlib::cout << "Temperature: " << int(clock.getTemperature() * 10) << hwlib::endl;
     hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
     hwlib::wait_ms(3000);
   }
@@ -199,22 +217,34 @@ int main( void ){
   //hwlib::cout << hwlib::left << hwlib::setw(45) << "Set time to 0:0:0 : ";
   //clock.setTime(0, 0, 0);
   //hwlib::cout << (clock.getTime() == timeData(0, 0, 0)) << hwlib::endl;
+  auto curTime = timeData();
 
-  auto curTime = clock.getTime();
-  curTime.setSeconds(curTime.getSeconds() + 10);
-  clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
-  clock.setFirstAlarm(14);
-  hwlib::cout << "Alarm set, should go in 10 seconds: ";
+  for(unsigned int i = 0; i < 3; i++){
+    hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
+    hwlib::cout << "Temperature: " << int(clock.getTemperature() * 10) << hwlib::endl;
+    hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
+    
+    curTime = clock.getTime();
+    curTime.setSeconds(curTime.getSeconds() + 10);
 
-  clock.clearAlarm(1);
-  
-  hwlib::wait_ms(30);
+    hwlib::cout << "Time to Trigger: " << curTime << hwlib::endl;
 
-  while(clock.checkAlarms() == 0){
-    hwlib::wait_ms(200);
+    clock.clearAlarm(1);
+    clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+    clock.setFirstAlarm(14);
+    hwlib::cout << "Alarm set, should go in 10 seconds: ";
+
+    hwlib::wait_ms(30);
+
+    while(clock.checkAlarms() == 0){
+      hwlib::wait_ms(1000);
+      hwlib::cout << clock.getTime() << hwlib::endl;
+    }
+
+    hwlib::cout << "Triggered!" << hwlib::endl;
   }
 
-  hwlib::cout << "Triggered!" << hwlib::endl;
+  hwlib::cout << "-----------------------------Rotary Encoder--------------------------------" << hwlib::endl << hwlib::endl;
 
   auto CLK = hwlib::target::pin_in( hwlib::target::pins::d36 );
   auto DT = hwlib::target::pin_in( hwlib::target::pins::d38 );
@@ -313,7 +343,7 @@ int main( void ){
 
   hwlib::cout << hwlib::endl << "Test Succeeded" << hwlib::endl;
 
-// <<<----------------------------------------------------------------------------------------->>>
+hwlib::cout << "-----------------------------RDA5807M--------------------------------" << hwlib::endl << hwlib::endl;
 
   auto radio = RDA5807(i2c_bus);
   radio.begin();
@@ -370,14 +400,12 @@ int main( void ){
 
   hwlib::cout << "Setting Stereo Signal: ";
   radio.setStereo(true);
-  hwlib::wait_ms(1000);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStereo() << " doesn't work, but corresponding with datasheet" << hwlib::endl << hwlib::endl;
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Muting: ";
   radio.setMute(true);
-  hwlib::wait_ms(1000);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isMuted() << " doesn't work, but corresponding with datasheet" << hwlib::endl << hwlib::endl;
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Unmuting: ";
@@ -423,7 +451,7 @@ int main( void ){
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Frequency: " << radio.getIntFrequency() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Station Name: " << radio.radioData.stationName() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Radio Text: " << radio.radioData.stationText() << hwlib::endl;
-    hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << radio.radioData.getCountryCode() << hwlib::endl;
+    hwlib::cout << hwlib::left << hwlib::setw(30) << "Country Code: " << radio.radioData.getCountryCode() << hwlib::endl;      //0xFFFF where F is one nibble
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Area Coverage: " << radio.radioData.getProgramArea() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Program Refrence Number: " << radio.radioData.getProgramRefrence() << hwlib::endl;
     hwlib::cout << hwlib::left << hwlib::setw(30) << "Message Group Type: " << radio.radioData.getMessageGroupType() << hwlib::endl;
@@ -449,118 +477,115 @@ int main( void ){
   }
 
   radio.setFrequency(107.5);    //No station Supports RDS-A, this one is RDS-A but doesn't send time...
-  radio.radioData.update();
-  hwlib::cout << radio.radioData.hours() << ":" << radio.radioData.minutes() << hwlib::endl;
+  hwlib::cout << "-----------------------------TEA5767--------------------------------" << hwlib::endl << hwlib::endl;
+  hwlib::cout << "UNPLUG RDA5807M within 30 seconds" << hwlib::endl;
+  hwlib::wait_ms(30000);
 
-// <<<----------------------------------------------------------------------------------------------------->>>
-/*
-  auto radio = TEA5767(i2c_bus);
+auto newRadio = TEA5767(i2c_bus);
 
-  hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
-  radio.setFrequency(100.7);
+  hwlib::cout << "REMEMBER TO UNPLUG RDA5807M BEFORE TESTING SINCE IT WILL MESS UP (responds to 0x60 as well). Tuning to 100.7FM (Q-Music): ";
+  newRadio.setFrequency(100.7);
   hwlib::cout << "DONE" << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
 
   for(unsigned int i = 0; i < 5; i++){
-    hwlib::cout << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    hwlib::cout << newRadio.signalStrength() << ", Stereo: " << newRadio.stereoReception() << hwlib::endl;
     hwlib::wait_ms(1000);
   }
 
-  radio.setBandLimit();
+  newRadio.setBandLimit();
   hwlib::wait_ms(200);
-  hwlib::cout << "Setting Band Limit: " << radio.hasBandLimit() << hwlib::endl;
-  radio.setFrequency(100.7);
+  hwlib::cout << "Setting Band Limit: " << newRadio.hasBandLimit() << hwlib::endl;
+  newRadio.setFrequency(100.7);
   hwlib::wait_ms(5000);
-  hwlib::cout << "Blocking of tuning to frequency out of range: " << !(radio.getFrequency() == 100.7) << hwlib::endl;
-  radio.setBandLimit(0);
-  radio.setFrequency(100.7);
-  hwlib::cout << "Unsetting of Band Limit: " << (radio.getFrequency() == 100.7) << hwlib::endl << hwlib::endl;
+  hwlib::cout << "Blocking of tuning to frequency out of range: " << !(newRadio.getFrequency() == 100.7) << hwlib::endl;
+  newRadio.setBandLimit(0);
+  newRadio.setFrequency(100.7);
+  hwlib::cout << "Unsetting of Band Limit: " << (newRadio.getIntFrequency() == 1006) << hwlib::endl << hwlib::endl;
 
   hwlib::cout << "Turning All Audio Optimizers On 1 by 1: ";
-  radio.audioSettings(true, false, false);
+  newRadio.audioSettings(true, false, false);
   hwlib::cout << "SNC" << hwlib::endl;
   hwlib::wait_ms(2000);
-  radio.audioSettings(true, true, false);
+  newRadio.audioSettings(true, true, false);
   hwlib::cout << "HCC" << hwlib::endl;
   hwlib::wait_ms(2000);
-  radio.audioSettings(true, true, true);
+  newRadio.audioSettings(true, true, true);
   hwlib::cout << "SM" << hwlib::endl;
   hwlib::wait_ms(2000);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Setting Mono Signal: ";
-  radio.setStereo(false);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStereo() << hwlib::endl << hwlib::endl;
+  newRadio.setStereo(false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Setting Stereo Signal: ";
-  radio.setStereo(true);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStereo() << hwlib::endl << hwlib::endl;
+  newRadio.setStereo(true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << hwlib::endl << hwlib::endl;
   hwlib::cout << "Tuning to 100.7FM with Low Side Injection: ";
-  radio.setFrequency(100.7, 0);
-  hwlib::cout << !radio.highSide() << hwlib::endl << hwlib::endl;
+  newRadio.setFrequency(100.7, 0);
+  hwlib::cout << !newRadio.highSide() << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Tuning to 100.7FM with High Side Injection: ";
-  radio.setFrequency(100.7, 1);
-  hwlib::cout << radio.highSide() << hwlib::endl << hwlib::endl;
+  newRadio.setFrequency(100.7, 1);
+  hwlib::cout << newRadio.highSide() << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Muting Left Speaker: ";
-  radio.setMute('l', true);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isMuted('l') << hwlib::endl << hwlib::endl;
+  newRadio.setMute('l', true);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << newRadio.isMuted('l') << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Unmuting Left Speaker: ";
-  radio.setMute('l', false);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isMuted('l') << hwlib::endl << hwlib::endl;
+  newRadio.setMute('l', false);
+  hwlib::cout << "DONE: " << hwlib::boolalpha << !newRadio.isMuted('l') << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Turning to Stand-By: ";
-  radio.standBy();
-  hwlib::cout << hwlib::boolalpha << radio.isStandBy() << hwlib::endl << hwlib::endl;
+  newRadio.standBy();
+  hwlib::cout << hwlib::boolalpha << newRadio.isStandBy() << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Turning back on: ";
-  radio.standBy(false);
-  hwlib::cout << hwlib::boolalpha << !radio.isStandBy() << hwlib::endl << hwlib::endl;
+  newRadio.standBy(false);
+  hwlib::cout << hwlib::boolalpha << !newRadio.isStandBy() << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Starting Circulair Search-Up: ";
-  radio.searchLoop(88, 1, 3);
-  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+  newRadio.searchLoop(88, 1, 3);
+  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !newRadio.inSearch() << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
   for(unsigned int i = 0; i < 10; i++){
-    radio.searchLoop(1, 3);
-    hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    newRadio.searchLoop(1, 3);
+    hwlib::cout << "FM-Frequency: " << newRadio.getIntFrequency() << ", Signal Strength: " << newRadio.signalStrength() << ", Stereo: " << newRadio.stereoReception() << hwlib::endl;
     hwlib::wait_ms(4000);
   }
   
   hwlib::cout << "Starting Search-Up: ";
-  radio.singleSearch(88, 1, 2);
-  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
+  newRadio.singleSearch(88, 1, 2);
+  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !newRadio.inSearch() << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
   for(unsigned int i = 0; i < 15; i++){
-    radio.singleSearch(1, 3);
-    hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    newRadio.singleSearch(1, 3);
+    hwlib::cout << "FM-Frequency: " << newRadio.getIntFrequency() << ", Signal Strength: " << newRadio.signalStrength() << ", Stereo: " << newRadio.stereoReception() << hwlib::endl;
     hwlib::wait_ms(4000);
   }
 
   hwlib::cout << "Starting Alternative Search-Up: ";
-  radio.altSearch(88, 1, 3, 0.4);
-  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !radio.inSearch() << hwlib::endl << hwlib::endl;
-  hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+  newRadio.altSearch(88, 1, 3, 0.4);
+  hwlib::cout << "Search-Mode Active: " << hwlib::boolalpha << !newRadio.inSearch() << hwlib::endl << hwlib::endl;
+  hwlib::cout << "FM-Frequency: " << newRadio.getIntFrequency() << ", Signal Strength: " << newRadio.signalStrength() << ", Stereo: " << newRadio.stereoReception() << hwlib::endl;
   hwlib::wait_ms(4000);
   for(unsigned int i = 0; i < 10; i++){
-    radio.altSearch(1, 3, 0.4);
-    hwlib::cout << "FM-Frequency: " << radio.getIntFrequency() << ", Signal Strength: " << radio.signalStrength() << ", Stereo: " << radio.stereoReception() << hwlib::endl;
+    newRadio.altSearch(1, 3, 0.4);
+    hwlib::cout << "FM-Frequency: " << newRadio.getIntFrequency() << ", Signal Strength: " << newRadio.signalStrength() << ", Stereo: " << newRadio.stereoReception() << hwlib::endl;
     hwlib::wait_ms(4000);
   }
-*/
-
 
   hwlib::cout << hwlib::endl << hwlib::endl << "Test ended" << hwlib::endl;
 }

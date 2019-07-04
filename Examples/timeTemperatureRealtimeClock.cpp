@@ -12,13 +12,13 @@ int main( void ){
   auto clock = DS3231(i2c_bus);
 
   //Uncomment if time is allowed to get overwritten.
-  //clock.setTime(timeData(9, 45));
-  //clock.setDate(4, 4, 7, 2019);
+  //clock.setTime(timeData(9, 45));   //Through timeData object
+  //clock.setDate(4, 4, 7, 2019);     //Or just by passing values
 
   auto curTime = clock.getTime();
 
   
-  for(;;){
+  for(unsigned int i = 0; i < 3; i++){
     hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
     hwlib::cout << "Temperature: " << int(clock.getTemperature() * 10) << hwlib::endl;
     hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
@@ -26,10 +26,10 @@ int main( void ){
     curTime = clock.getTime();
     curTime.setSeconds(curTime.getSeconds() + 10);
 
-    hwlib::cout << "Time: " << curTime << hwlib::endl;
+    hwlib::cout << "Time to Trigger: " << curTime << hwlib::endl;
 
-    clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
-    clock.setFirstAlarm(14);
+    clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));   //Set moment when alarm should trigger
+    clock.setFirstAlarm(14);                                    //Set what values have to match; specified in documentation.
     hwlib::cout << "Alarm set, should go in 10 seconds: ";
 
     hwlib::wait_ms(30);

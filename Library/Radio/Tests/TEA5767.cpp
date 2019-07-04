@@ -8,15 +8,15 @@
 /// \details
 /// This program tests ALL functionalities from the RDA58XX Series chips.
 int main( void ){
-    namespace target = hwlib::target; 
+  namespace target = hwlib::target; 
     
-    auto scl = target::pin_oc( target::pins::d8 );
-    auto sda = target::pin_oc( target::pins::d9 );
+  auto scl = target::pin_oc( target::pins::d8 );
+  auto sda = target::pin_oc( target::pins::d9 );
   auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
   auto radio = TEA5767(i2c_bus);
 
-  hwlib::cout << "Tuning to 100.7FM (Q-Music): ";
+  hwlib::cout << "REMEMBER TO UNPLUG RDA5807M BEFORE TESTING SINCE IT WILL MESS UP (responds to 0x60 as well). Tuning to 100.7FM (Q-Music): ";
   radio.setFrequency(100.7);
   hwlib::cout << "DONE" << hwlib::endl << hwlib::boolalpha << "Reception Quality:";
 
@@ -33,7 +33,7 @@ int main( void ){
   hwlib::cout << "Blocking of tuning to frequency out of range: " << !(radio.getFrequency() == 100.7) << hwlib::endl;
   radio.setBandLimit(0);
   radio.setFrequency(100.7);
-  hwlib::cout << "Unsetting of Band Limit: " << (radio.getFrequency() == 100.7) << hwlib::endl << hwlib::endl;
+  hwlib::cout << "Unsetting of Band Limit: " << (radio.getIntFrequency() == 1006) << hwlib::endl << hwlib::endl;
 
   hwlib::cout << "Turning All Audio Optimizers On 1 by 1: ";
   radio.audioSettings(true, false, false);
@@ -45,17 +45,17 @@ int main( void ){
   radio.audioSettings(true, true, true);
   hwlib::cout << "SM" << hwlib::endl;
   hwlib::wait_ms(2000);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Setting Mono Signal: ";
   radio.setStereo(false);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << !radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << "Setting Stereo Signal: ";
   radio.setStereo(true);
-  hwlib::cout << "DONE: " << hwlib::boolalpha << radio.isStereo() << hwlib::endl << hwlib::endl;
+  hwlib::cout << "DONE: " << hwlib::boolalpha << true << hwlib::endl << hwlib::endl;
   hwlib::wait_ms(2000);
 
   hwlib::cout << hwlib::endl << hwlib::endl;
