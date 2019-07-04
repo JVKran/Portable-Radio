@@ -128,20 +128,27 @@ int main( void ){
   //clock.setTime(0, 0, 0);
   //hwlib::cout << (clock.getTime() == timeData(0, 0, 0)) << hwlib::endl;
 
-  //The alarm other than the one you want to change and activate first has to be set; puts user more in control.
-  clock.setSecondAlarm(16);
+  for(unsigned int i = 0; i < 3; i++){
+    hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
+    hwlib::cout << "Temperature: " << int(clock.getTemperature() * 10) << hwlib::endl;
+    hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
+    
+    curTime = clock.getTime();
+    curTime.setSeconds(curTime.getSeconds() + 10);
 
-  auto curTime = clock.getTime();
-  curTime.setSeconds(curTime.getSeconds() + 10);
-  clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
-  clock.setFirstAlarm(14);
-  hwlib::cout << "Alarm set, should go in 10 seconds: ";
+    hwlib::cout << "Time: " << curTime << hwlib::endl;
 
+    clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
+    clock.setFirstAlarm(14);
+    hwlib::cout << "Alarm set, should go in 10 seconds: ";
 
-  while(clock.checkAlarms() == 0){
-    hwlib::wait_ms(200);
+    hwlib::wait_ms(30);
+
+    while(clock.checkAlarms() == 0){
+      hwlib::wait_ms(1000);
+      hwlib::cout << clock.getTime() << hwlib::endl;
+    }
+
+    hwlib::cout << "Triggered!" << hwlib::endl;
   }
-
-  hwlib::cout << "Triggered!" << hwlib::endl;
-
 }

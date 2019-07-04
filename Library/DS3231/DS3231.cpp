@@ -396,6 +396,14 @@ void dateData::setDate(const unsigned int givenWeekDay, const unsigned int given
 /// \brief
 /// Set Date
 /// \details
+/// This function has only one mandatory parameter; a dateData object which to set the date to.
+void DS3231::setDate(const dateData & date){
+	setDate(date.getWeekDay(), date.getMonthDay(), date.getMonth(), date.getYear());
+}
+
+/// \brief
+/// Set Date
+/// \details
 /// This function has one mandatory parameter; a dateData object. It copies the given values.
 void dateData::setDate(const dateData & date){
 	weekDay = date.weekDay;
@@ -735,6 +743,14 @@ void DS3231::setTime(const unsigned int hours, const unsigned int minutes, const
 	transaction.write((((seconds / 10) & 0x07) << 4) + ((seconds % 10) & 0x0F));
 	transaction.write((((minutes / 10) & 0x07) << 4) + ((minutes % 10) & 0x0F));
 	transaction.write((((hours / 10) & 0x01) << 4) + ((hours % 10) & 0x0F));
+}
+
+/// \brief
+/// Set Time
+/// \details
+/// This function has one mandatory parameter; a timeData object to set the time to.
+void DS3231::setTime(const timeData & time){
+	setTime(time.getHours(), time.getMinutes(), time.getSeconds());
 }
 
 /// \brief

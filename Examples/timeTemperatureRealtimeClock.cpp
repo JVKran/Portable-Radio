@@ -11,7 +11,12 @@ int main( void ){
 
   auto clock = DS3231(i2c_bus);
 
+  //Uncomment if time is allowed to get overwritten.
+  //clock.setTime(timeData(9, 45));
+  //clock.setDate(4, 4, 7, 2019);
+
   auto curTime = clock.getTime();
+
   
   for(;;){
     hwlib::cout << "Time: " << clock.getTime() << hwlib::endl;
@@ -19,17 +24,19 @@ int main( void ){
     hwlib::cout << "Date: " << clock.getDate() << hwlib::endl << hwlib::endl;
     
     curTime = clock.getTime();
-    curTime.setSeconds(curTime.getSeconds() + 15);
+    curTime.setSeconds(curTime.getSeconds() + 10);
 
-    clock.setSecondAlarm(16);   //The alarm other than the one you want to set and activate first has to be set; puts user more in control and slightens chance of undefined behaviour according to datasheet
+    hwlib::cout << "Time: " << curTime << hwlib::endl;
+
     clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
     clock.setFirstAlarm(14);
-    hwlib::cout << "Alarm set, should go in 15 seconds: ";
+    hwlib::cout << "Alarm set, should go in 10 seconds: ";
 
     hwlib::wait_ms(30);
 
     while(clock.checkAlarms() == 0){
-      hwlib::wait_ms(200);
+      hwlib::wait_ms(1000);
+      hwlib::cout << clock.getTime() << hwlib::endl;
     }
 
     hwlib::cout << "Triggered!" << hwlib::endl;

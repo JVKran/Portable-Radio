@@ -304,7 +304,10 @@ class DS3231{
 		DS3231(hwlib::i2c_bus_bit_banged_scl_sda & bus, uint8_t address = 0x68, hwlib::pin_in_out & resetPin = hwlib::pin_in_out_dummy);
 
 		void setTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds = 0);
+		void setTime(const timeData & time);
+
 		void setDate(const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year);
+		void setDate(const dateData & date);
 
 		timeData getTime();
 		dateData getDate();
