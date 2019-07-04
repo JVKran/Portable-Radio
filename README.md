@@ -23,7 +23,10 @@ All of the above components need to be rated at least 2A since the Amplifier can
 ![alt text](/Deliverables/WiringDiagram.PNG "Wiring Diagram")
 
 ### Documentation
-All code is provided with Doxygen Documentation so there is a general platform to do research after possibilities. When the repository is cloned, one can find the already generated documentation in the [Documentation Folder](/Documentation).
+All code is provided with Doxygen Documentation so there is a general platform to do research after possibilities. When the repository is cloned, one can find the already generated documentation in the [Documentation Folder](/Documentation). Otherwise, one can generate the documenation by running ```bash
+doxygen
+```
+in the directory which also contains the 'doxyFile'.
 #### Examples
 All libraries are provided with [Examples](/Examples) where the basic functionality is shown. I strongly recommend to read the Doxygen Documentations and take a look at the examples for a complete image of the possibilities from this strong combination of libraries.
 #### Tests
