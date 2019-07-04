@@ -71,7 +71,9 @@ auto scl = target::pin_oc( target::pins::d8 );
 auto sda = target::pin_oc( target::pins::d9 );
 auto i2c_bus = hwlib::i2c_bus_bit_banged_scl_sda(scl, sda);
 
-auto memory = A24C256(i2c_bus);
+auto writeProtectPin = hwlib::target::pin_in_out ( target::pins::d3 );
+
+auto memory = A24C256(i2c_bus, 256, 0x50, writeProtectPin);
 memory.setWriteProtect(false);  //Make it possible to save values
 
 char data[]={"Hello World!"};
