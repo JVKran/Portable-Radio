@@ -37,6 +37,8 @@ void setTestPresets(A24C256 & memory){
 
 
 int main( void ){
+  //When set to true, enables output of what the application and user are doing. When disabled, nothing will be printed
+  //in the terminal.
   bool displayDebugInfo = true;
 
   namespace target = hwlib::target;

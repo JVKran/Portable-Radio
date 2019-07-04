@@ -362,7 +362,6 @@ void TEA5767::seek(const unsigned int direction){
 /// It can occur that one Frequency gets found more than once in one single search or a specific Frequency is found in one search, but not in another.
 /// This can occur because this function asks for realtime info every loop and thus, requires precise timing; You Absolutely should not change any
 /// timings. If you decide to do so be advised this takes large amounts of tuning.
-/// Somehow, this function is very unreliable with HWLIB, but not with Wire.h.
 void TEA5767::searchLoop(const unsigned int direction, const unsigned int qualityThreshold){
 	setMute(true);
 	float startFrequency = getFrequency();

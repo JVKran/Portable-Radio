@@ -8,9 +8,9 @@
 #include "RDA5807.hpp"
 
 /// \brief
-/// All-in-one TEST
+/// All-in-one Test
 /// \details
-/// This program can be used to execute all tests at once.
+/// This program can be used to execute all tests (also located in each libraries folder) at once.
 int main( void ){
 
   hwlib::wait_ms(2000);
