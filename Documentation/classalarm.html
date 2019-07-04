@@ -74,9 +74,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abd0d82cb265b213ccf5507247a993116"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classalarm.html#abd0d82cb265b213ccf5507247a993116">alarm</a> (const unsigned int matchConditions=0, const bool outputSignal=0)</td></tr>
-<tr class="memdesc:abd0d82cb265b213ccf5507247a993116"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#abd0d82cb265b213ccf5507247a993116">More...</a><br /></td></tr>
-<tr class="separator:abd0d82cb265b213ccf5507247a993116"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a839ff853352299aa7cecb96164cada09"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classalarm.html#a839ff853352299aa7cecb96164cada09">alarm</a> (const unsigned int matchConditions=16, const bool outputSignal=0)</td></tr>
+<tr class="memdesc:a839ff853352299aa7cecb96164cada09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#a839ff853352299aa7cecb96164cada09">More...</a><br /></td></tr>
+<tr class="separator:a839ff853352299aa7cecb96164cada09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b328dbd42ae3b9690d2d290d12d724d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classalarm.html#a4b328dbd42ae3b9690d2d290d12d724d">alarm</a> (const <a class="el" href="classalarm.html">alarm</a> &amp;givenAlarm)</td></tr>
+<tr class="memdesc:a4b328dbd42ae3b9690d2d290d12d724d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#a4b328dbd42ae3b9690d2d290d12d724d">More...</a><br /></td></tr>
+<tr class="separator:a4b328dbd42ae3b9690d2d290d12d724d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c9a71160416d883f2a23b6fd70cd0e1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classalarm.html#a4c9a71160416d883f2a23b6fd70cd0e1">setMatchConditions</a> (const unsigned int condition=0)</td></tr>
 <tr class="memdesc:a4c9a71160416d883f2a23b6fd70cd0e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Match Conditions.  <a href="#a4c9a71160416d883f2a23b6fd70cd0e1">More...</a><br /></td></tr>
 <tr class="separator:a4c9a71160416d883f2a23b6fd70cd0e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -98,14 +101,14 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Alarm Class. </p>
-<p>This is a class that keeps track of the set alarm; managing when it should be triggered and how it should be triggered. It is also possible to determine if the output (SKW-pin) should be set high if the alarm triggers. All supported operations are:</p><ul>
+<p>This is a class that keeps track of the set alarm; managing when it should be triggered and how it should be triggered. It is also possible to determine if the output (SKW-pin) should be set high if the alarm triggers. The matchconditions default to 16 (monthDay, hours, minutes and seconds match), which is the same for both alarms. All supported operations are:</p><ul>
 <li>Get Match Condition</li>
 <li>Set Match Condition or Output Signal</li>
 <li>Arithmetics: +, +=, -, -=, == and !=</li>
 </ul>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> clock = <a class="code" href="class_d_s3231.html">DS3231</a>(i2c_bus);</div><div class="line"><span class="keyword">auto</span> curTime = clock.getTime();</div><div class="line"><a class="code" href="classtime_data.html">timeData</a> time;</div><div class="line"><a class="code" href="classdate_data.html">dateData</a> date;</div><div class="line"></div><div class="line"><span class="keywordflow">for</span>(;;){</div><div class="line">    time = clock.getTime();</div><div class="line">    date = clock.getDate();</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Time: &quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a356a36cca13287b3cb624dba59b34f3f">getHours</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#aa5dd8f6e338ab880852430614a1803a1">getMinutes</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a39a2df9c9993837bc6d6bee182486a07">getSeconds</a>() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Temperature: &quot;</span> &lt;&lt; clock.getTemperature() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Date: &quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a61e1644a21e8badecce076787c0debd4">getMonthDay</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#aa2064d5f382f66c8d57113bb6d2c6284">getMonth</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a23f2a970f86e66d161bd0b8be36a2be9">getYear</a>() &lt;&lt; hwlib::endl &lt;&lt; hwlib::endl;</div><div class="line">    curTime = clock.getTime();</div><div class="line">    curTime.setSeconds(curTime.getSeconds() + 10);</div><div class="line">    clock.changeFirstAlarm(curTime, <a class="code" href="classdate_data.html">dateData</a>(0, 0, 1, 2019));</div><div class="line">    clock.setFirstAlarm(14);</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Alarm set with matchconditions (&quot;</span> &lt;&lt; firstAlarm.getMatchConditions() &lt;&lt; <span class="stringliteral">&quot;, should go in 10 seconds: &quot;</span>;</div><div class="line"></div><div class="line">    hwlib::wait_ms(30);</div><div class="line"></div><div class="line">    <span class="keywordflow">while</span>(clock.checkAlarms() == 0){</div><div class="line">        hwlib::wait_ms(200);</div><div class="line">    }</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; curTime - clock.getTime() &lt;&lt; <span class="stringliteral">&quot;seconds have passed&quot;</span> &lt;&lt; hwlib::endl;</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Triggered!&quot;</span> &lt;&lt; hwlib::endl;</div><div class="line">}</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="abd0d82cb265b213ccf5507247a993116"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abd0d82cb265b213ccf5507247a993116">&#9670;&nbsp;</a></span>alarm()</h2>
+<a id="a839ff853352299aa7cecb96164cada09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a839ff853352299aa7cecb96164cada09">&#9670;&nbsp;</a></span>alarm() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -114,7 +117,7 @@ Public Attributes</h2></td></tr>
           <td class="memname">alarm::alarm </td>
           <td>(</td>
           <td class="paramtype">const unsigned int&#160;</td>
-          <td class="paramname"><em>matchConditions</em> = <code>0</code>, </td>
+          <td class="paramname"><em>matchConditions</em> = <code>16</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -132,6 +135,27 @@ Public Attributes</h2></td></tr>
 
 <p>Constructor. </p>
 <p>This constructor has no mandatory parameters. Though the user can provide the matchconditions, as specified in the datasheet, and wether or not he wants to have the <a class="el" href="class_d_s3231.html" title="DS3231 Interface. ">DS3231</a> to output a high signal at (SKW) when the alarm triggers. </p>
+
+</div>
+</div>
+<a id="a4b328dbd42ae3b9690d2d290d12d724d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b328dbd42ae3b9690d2d290d12d724d">&#9670;&nbsp;</a></span>alarm() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">alarm::alarm </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classalarm.html">alarm</a> &amp;&#160;</td>
+          <td class="paramname"><em>givenAlarm</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Constructor. </p>
+<p>This constructor has one mandatory parameter; an object of type alarm. It copies the given values. </p>
 
 </div>
 </div>
@@ -205,7 +229,7 @@ Public Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 2 2019 14:09:16 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 4 2019 14:37:12 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

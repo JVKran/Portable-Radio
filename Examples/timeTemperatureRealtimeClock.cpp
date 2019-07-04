@@ -28,6 +28,7 @@ int main( void ){
 
     hwlib::cout << "Time to Trigger: " << curTime << hwlib::endl;
 
+    clock.clearAlarm(1);
     clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));   //Set moment when alarm should trigger
     clock.setFirstAlarm(14);                                    //Set what values have to match; specified in documentation.
     hwlib::cout << "Alarm set, should go in 10 seconds: ";

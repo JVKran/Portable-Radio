@@ -28,6 +28,8 @@
 ///     hwlib::cout << "Date: " << date.getMonthDay() << "-" << date.getMonth() << "-" << date.getYear() << hwlib::endl << hwlib::endl;
 ///     curTime = clock.getTime();
 ///     curTime.setSeconds(curTime.getSeconds() + 10);
+///
+///		clock.clearAlarm(1);
 ///   	clock.changeFirstAlarm(curTime, dateData(0, 0, 1, 2019));
 ///   	clock.setFirstAlarm(14);
 ///  	hwlib::cout << "Alarm set, should go in 10 seconds: ";

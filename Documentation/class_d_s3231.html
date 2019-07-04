@@ -73,15 +73,21 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4d8d83468bd672db87cd9056f44dcb4a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a4d8d83468bd672db87cd9056f44dcb4a">DS3231</a> (hwlib::i2c_bus_bit_banged_scl_sda &amp;bus, uint8_t address=0x68)</td></tr>
-<tr class="memdesc:a4d8d83468bd672db87cd9056f44dcb4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#a4d8d83468bd672db87cd9056f44dcb4a">More...</a><br /></td></tr>
-<tr class="separator:a4d8d83468bd672db87cd9056f44dcb4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af62ce4244f16688de9568d13bb74ed16"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#af62ce4244f16688de9568d13bb74ed16">DS3231</a> (hwlib::i2c_bus_bit_banged_scl_sda &amp;bus, uint8_t address=0x68, hwlib::pin_in_out &amp;resetPin=hwlib::pin_in_out_dummy)</td></tr>
+<tr class="memdesc:af62ce4244f16688de9568d13bb74ed16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#af62ce4244f16688de9568d13bb74ed16">More...</a><br /></td></tr>
+<tr class="separator:af62ce4244f16688de9568d13bb74ed16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98f1854dc1008b35076a7b5dc5396935"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a98f1854dc1008b35076a7b5dc5396935">setTime</a> (const unsigned int hours, const unsigned int minutes, const unsigned int seconds=0)</td></tr>
 <tr class="memdesc:a98f1854dc1008b35076a7b5dc5396935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Time.  <a href="#a98f1854dc1008b35076a7b5dc5396935">More...</a><br /></td></tr>
 <tr class="separator:a98f1854dc1008b35076a7b5dc5396935"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41c18df6538b32f9673ee89573009167"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a41c18df6538b32f9673ee89573009167">setTime</a> (const <a class="el" href="classtime_data.html">timeData</a> &amp;time)</td></tr>
+<tr class="memdesc:a41c18df6538b32f9673ee89573009167"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Time.  <a href="#a41c18df6538b32f9673ee89573009167">More...</a><br /></td></tr>
+<tr class="separator:a41c18df6538b32f9673ee89573009167"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53d56ca7e9dcbf1131b307f95eb6eed7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a53d56ca7e9dcbf1131b307f95eb6eed7">setDate</a> (const unsigned int weekDay, const unsigned int monthDay, const unsigned int month, const unsigned int year)</td></tr>
 <tr class="memdesc:a53d56ca7e9dcbf1131b307f95eb6eed7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Data.  <a href="#a53d56ca7e9dcbf1131b307f95eb6eed7">More...</a><br /></td></tr>
 <tr class="separator:a53d56ca7e9dcbf1131b307f95eb6eed7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ea5bc0146090d90940fc7694d181251"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a9ea5bc0146090d90940fc7694d181251">setDate</a> (const <a class="el" href="classdate_data.html">dateData</a> &amp;date)</td></tr>
+<tr class="memdesc:a9ea5bc0146090d90940fc7694d181251"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Date.  <a href="#a9ea5bc0146090d90940fc7694d181251">More...</a><br /></td></tr>
+<tr class="separator:a9ea5bc0146090d90940fc7694d181251"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa20f9e9eba6dc0eac389c7d693a0dea2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtime_data.html">timeData</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#aa20f9e9eba6dc0eac389c7d693a0dea2">getTime</a> ()</td></tr>
 <tr class="memdesc:aa20f9e9eba6dc0eac389c7d693a0dea2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Time.  <a href="#aa20f9e9eba6dc0eac389c7d693a0dea2">More...</a><br /></td></tr>
 <tr class="separator:aa20f9e9eba6dc0eac389c7d693a0dea2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -109,12 +115,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aeda84b7f4fabf95ff22d82c8392e893a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#aeda84b7f4fabf95ff22d82c8392e893a">clearAlarm</a> (const unsigned int alarmNumber)</td></tr>
 <tr class="memdesc:aeda84b7f4fabf95ff22d82c8392e893a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear / Unset Alarms.  <a href="#aeda84b7f4fabf95ff22d82c8392e893a">More...</a><br /></td></tr>
 <tr class="separator:aeda84b7f4fabf95ff22d82c8392e893a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a645ea533a6dcc32e943e049b4891e0d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a645ea533a6dcc32e943e049b4891e0d9">setReset</a> (const bool reset=true)</td></tr>
+<tr class="memdesc:a645ea533a6dcc32e943e049b4891e0d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set/Unset Reset.  <a href="#a645ea533a6dcc32e943e049b4891e0d9">More...</a><br /></td></tr>
+<tr class="separator:a645ea533a6dcc32e943e049b4891e0d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92536c4b48ae56439eba0f4948066481"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a92536c4b48ae56439eba0f4948066481">getReset</a> ()</td></tr>
+<tr class="memdesc:a92536c4b48ae56439eba0f4948066481"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Reset State.  <a href="#a92536c4b48ae56439eba0f4948066481">More...</a><br /></td></tr>
+<tr class="separator:a92536c4b48ae56439eba0f4948066481"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ed73c7213530f0d972825a3d57718b5"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a0ed73c7213530f0d972825a3d57718b5">getAddress</a> ()</td></tr>
 <tr class="memdesc:a0ed73c7213530f0d972825a3d57718b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get I2C Address.  <a href="#a0ed73c7213530f0d972825a3d57718b5">More...</a><br /></td></tr>
 <tr class="separator:a0ed73c7213530f0d972825a3d57718b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a409a5acf3fba9b8ec2d733f9c8369d05"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#a409a5acf3fba9b8ec2d733f9c8369d05">getTemperature</a> ()</td></tr>
-<tr class="memdesc:a409a5acf3fba9b8ec2d733f9c8369d05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Temperature.  <a href="#a409a5acf3fba9b8ec2d733f9c8369d05">More...</a><br /></td></tr>
-<tr class="separator:a409a5acf3fba9b8ec2d733f9c8369d05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe7226b298fe8ad4fb0e7b49a840db91"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_d_s3231.html#abe7226b298fe8ad4fb0e7b49a840db91">getTemperature</a> ()</td></tr>
+<tr class="memdesc:abe7226b298fe8ad4fb0e7b49a840db91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Temperature.  <a href="#abe7226b298fe8ad4fb0e7b49a840db91">More...</a><br /></td></tr>
+<tr class="separator:abe7226b298fe8ad4fb0e7b49a840db91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="class_d_s3231.html" title="DS3231 Interface. ">DS3231</a> Interface. </p>
@@ -126,9 +138,9 @@ Public Member Functions</h2></td></tr>
 <li>Unset Alarm</li>
 <li>Get Temperature</li>
 </ul>
-<div class="fragment"><div class="line"><span class="keyword">auto</span> clock = <a class="code" href="class_d_s3231.html#a4d8d83468bd672db87cd9056f44dcb4a">DS3231</a>(i2c_bus);</div><div class="line">clock.setTime(23, 59, 0);</div><div class="line">clock.setDate(1, 31, 12, 1999); <span class="comment">//Century change is taken care of</span></div><div class="line"></div><div class="line"><span class="keyword">auto</span> curTime = clock.getTime();</div><div class="line"><a class="code" href="classtime_data.html">timeData</a> time;</div><div class="line"><a class="code" href="classdate_data.html">dateData</a> date;</div><div class="line"></div><div class="line"><span class="keywordflow">for</span>(;;){</div><div class="line">    time = clock.getTime();</div><div class="line">    date = clock.getDate();</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Time: &quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a356a36cca13287b3cb624dba59b34f3f">getHours</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#aa5dd8f6e338ab880852430614a1803a1">getMinutes</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a39a2df9c9993837bc6d6bee182486a07">getSeconds</a>() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Temperature: &quot;</span> &lt;&lt; clock.getTemperature() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Date: &quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a61e1644a21e8badecce076787c0debd4">getMonthDay</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#aa2064d5f382f66c8d57113bb6d2c6284">getMonth</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a23f2a970f86e66d161bd0b8be36a2be9">getYear</a>() &lt;&lt; hwlib::endl &lt;&lt; hwlib::endl;</div><div class="line"></div><div class="line">    curTime = clock.getTime();</div><div class="line">    curTime.setSeconds(curTime.getSeconds() + 10);</div><div class="line">    clock.changeFirstAlarm(curTime, <a class="code" href="classdate_data.html">dateData</a>(0, 0, 1, 2019));</div><div class="line">    clock.setFirstAlarm(14);</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Alarm set, should go in 10 seconds: &quot;</span>;</div><div class="line"></div><div class="line">    hwlib::wait_ms(30);</div><div class="line"></div><div class="line">    <span class="keywordflow">while</span>(clock.checkAlarms() == 0){</div><div class="line">        hwlib::wait_ms(200);</div><div class="line">    }</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Triggered!&quot;</span> &lt;&lt; hwlib::endl;</div><div class="line">}</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a4d8d83468bd672db87cd9056f44dcb4a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4d8d83468bd672db87cd9056f44dcb4a">&#9670;&nbsp;</a></span>DS3231()</h2>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> clock = <a class="code" href="class_d_s3231.html#af62ce4244f16688de9568d13bb74ed16">DS3231</a>(i2c_bus);</div><div class="line">clock.setTime(23, 59, 0);</div><div class="line">clock.setDate(1, 31, 12, 1999); <span class="comment">//Century change is taken care of</span></div><div class="line"></div><div class="line"><span class="keyword">auto</span> curTime = clock.getTime();</div><div class="line"><a class="code" href="classtime_data.html">timeData</a> time;</div><div class="line"><a class="code" href="classdate_data.html">dateData</a> date;</div><div class="line"></div><div class="line"><span class="keywordflow">for</span>(;;){</div><div class="line">    time = clock.getTime();</div><div class="line">    date = clock.getDate();</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Time: &quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a356a36cca13287b3cb624dba59b34f3f">getHours</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#aa5dd8f6e338ab880852430614a1803a1">getMinutes</a>() &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; time.<a class="code" href="classtime_data.html#a39a2df9c9993837bc6d6bee182486a07">getSeconds</a>() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Temperature: &quot;</span> &lt;&lt; clock.getTemperature() &lt;&lt; hwlib::endl;</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Date: &quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a61e1644a21e8badecce076787c0debd4">getMonthDay</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#aa2064d5f382f66c8d57113bb6d2c6284">getMonth</a>() &lt;&lt; <span class="stringliteral">&quot;-&quot;</span> &lt;&lt; date.<a class="code" href="classdate_data.html#a23f2a970f86e66d161bd0b8be36a2be9">getYear</a>() &lt;&lt; hwlib::endl &lt;&lt; hwlib::endl;</div><div class="line"></div><div class="line">    curTime = clock.getTime();</div><div class="line">    curTime.setSeconds(curTime.getSeconds() + 10);</div><div class="line">    clock.changeFirstAlarm(curTime, <a class="code" href="classdate_data.html">dateData</a>(0, 0, 1, 2019));</div><div class="line">    clock.setFirstAlarm(14);</div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Alarm set, should go in 10 seconds: &quot;</span>;</div><div class="line"></div><div class="line">    hwlib::wait_ms(30);</div><div class="line"></div><div class="line">    <span class="keywordflow">while</span>(clock.checkAlarms() == 0){</div><div class="line">        hwlib::wait_ms(200);</div><div class="line">    }</div><div class="line"></div><div class="line">    hwlib::cout &lt;&lt; <span class="stringliteral">&quot;Triggered!&quot;</span> &lt;&lt; hwlib::endl;</div><div class="line">}</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="af62ce4244f16688de9568d13bb74ed16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af62ce4244f16688de9568d13bb74ed16">&#9670;&nbsp;</a></span>DS3231()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -143,7 +155,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>address</em> = <code>0x68</code>&#160;</td>
+          <td class="paramname"><em>address</em> = <code>0x68</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">hwlib::pin_in_out &amp;&#160;</td>
+          <td class="paramname"><em>resetPin</em> = <code>hwlib::pin_in_out_dummy</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -154,7 +172,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
-<p>This constructor has one mandatory parameter; the I2C bus. The user can also provide the address. The address defaults to 0x68. </p>
+<p>This constructor has one mandatory parameter; the I2C bus. The user can also provide the address and resetPin. The address defaults to 0x68 and the resetPin defaults to a hwlib::pin_in_out_dummy (which always returns 0). </p>
 
 </div>
 </div>
@@ -302,14 +320,34 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a409a5acf3fba9b8ec2d733f9c8369d05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a409a5acf3fba9b8ec2d733f9c8369d05">&#9670;&nbsp;</a></span>getTemperature()</h2>
+<a id="a92536c4b48ae56439eba0f4948066481"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92536c4b48ae56439eba0f4948066481">&#9670;&nbsp;</a></span>getReset()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned int DS3231::getTemperature </td>
+          <td class="memname">bool DS3231::getReset </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get Reset State. </p>
+<p>This function returns true if reset pin has been made high; false if low. </p>
+
+</div>
+</div>
+<a id="abe7226b298fe8ad4fb0e7b49a840db91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe7226b298fe8ad4fb0e7b49a840db91">&#9670;&nbsp;</a></span>getTemperature()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float DS3231::getTemperature </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -343,7 +381,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a53d56ca7e9dcbf1131b307f95eb6eed7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a53d56ca7e9dcbf1131b307f95eb6eed7">&#9670;&nbsp;</a></span>setDate()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a53d56ca7e9dcbf1131b307f95eb6eed7">&#9670;&nbsp;</a></span>setDate() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -382,6 +420,27 @@ Public Member Functions</h2></td></tr>
 
 <p>Set Data. </p>
 <p>This function has four mandatory parameters; day of week, day of month, month and year. The specified data will be written to the <a class="el" href="class_d_s3231.html" title="DS3231 Interface. ">DS3231</a>, from which it will keep track of the day, month and year. </p>
+
+</div>
+</div>
+<a id="a9ea5bc0146090d90940fc7694d181251"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ea5bc0146090d90940fc7694d181251">&#9670;&nbsp;</a></span>setDate() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DS3231::setDate </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classdate_data.html">dateData</a> &amp;&#160;</td>
+          <td class="paramname"><em>date</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set Date. </p>
+<p>This function has only one mandatory parameter; a <a class="el" href="classdate_data.html" title="Date ADT. ">dateData</a> object which to set the date to. </p>
 
 </div>
 </div>
@@ -424,8 +483,29 @@ Public Member Functions</h2></td></tr>
 <li>12 (alarm when minutes and seconds match; so at least once an hour)</li>
 <li>8 (alarm when hours, minutes and seconds match)</li>
 <li>0 (alarm when weekDay, hours, minutes and seconds match)</li>
-<li>16 (alarm when monthDay, hours, minutes and seconds match. 16 to enable easy and fast bit operation) When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered. </li>
+<li>16 (alarm when monthDay, hours, minutes and seconds match. 16 to enable easy and fast bit operation) When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered. The alarm-trigger-bit remains high though; it can be checked later. Unless the bit is cleared with <a class="el" href="class_d_s3231.html#aeda84b7f4fabf95ff22d82c8392e893a" title="Clear / Unset Alarms. ">clearAlarm()</a>. For the made changes to have effect, <a class="el" href="class_d_s3231.html#a539d44c97870336c3452d07af658cafc" title="Set Second Alarm. ">setSecondAlarm()</a> has also got to be called. </li>
 </ul>
+
+</div>
+</div>
+<a id="a645ea533a6dcc32e943e049b4891e0d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a645ea533a6dcc32e943e049b4891e0d9">&#9670;&nbsp;</a></span>setReset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DS3231::setReset </td>
+          <td>(</td>
+          <td class="paramtype">const bool&#160;</td>
+          <td class="paramname"><em>reset</em> = <code>true</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set/Unset Reset. </p>
+<p>This function makes the reset-pin high or low depending on the passed argument; defaults to true (reset). </p>
 
 </div>
 </div>
@@ -467,13 +547,13 @@ Public Member Functions</h2></td></tr>
 <li>6 (alarm when minutes match)</li>
 <li>8 (alarm when hours and minutes)</li>
 <li>0 (alarm when weekDay, hours and minutes match)</li>
-<li>16 (alarm when monthDay, hours and minutes match) When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered. Depending on the match conditions, the alarm should be checked every second, minute, hour or day. </li>
+<li>16 (alarm when monthDay, hours and minutes match) When the outputSignal boolean is true (which it doesn't default to) the SQW output becomes high when the signal is triggered. Depending on the match conditions, the alarm should be checked every second, minute, hour or day. The alarm-trigger-bit remains high though; it can be checked later. Unless the bit is cleared with <a class="el" href="class_d_s3231.html#aeda84b7f4fabf95ff22d82c8392e893a" title="Clear / Unset Alarms. ">clearAlarm()</a>. For the made changes to have effect, <a class="el" href="class_d_s3231.html#ad84eb7c1df84571af9dc0914f536a188" title="Set First Alarm. ">setFirstAlarm()</a> has also got to be called. </li>
 </ul>
 
 </div>
 </div>
 <a id="a98f1854dc1008b35076a7b5dc5396935"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a98f1854dc1008b35076a7b5dc5396935">&#9670;&nbsp;</a></span>setTime()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a98f1854dc1008b35076a7b5dc5396935">&#9670;&nbsp;</a></span>setTime() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -509,6 +589,27 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a41c18df6538b32f9673ee89573009167"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41c18df6538b32f9673ee89573009167">&#9670;&nbsp;</a></span>setTime() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void DS3231::setTime </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtime_data.html">timeData</a> &amp;&#160;</td>
+          <td class="paramname"><em>time</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set Time. </p>
+<p>This function has one mandatory parameter; a <a class="el" href="classtime_data.html" title="Time ADT. ">timeData</a> object to set the time to. </p>
+
+</div>
+</div>
 <a id="ac523f771056c7385b708f3f04e6a1113"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac523f771056c7385b708f3f04e6a1113">&#9670;&nbsp;</a></span>updateAlarms()</h2>
 
@@ -536,7 +637,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 2 2019 14:09:16 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jul 4 2019 14:37:12 for Portable Radio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

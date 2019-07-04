@@ -19,6 +19,7 @@
 ///		- Read Multiple Bytes
 /// 
 /// ~~~~~~~~~~~~~~~{.cpp}
+/// 
 /// #include "hwlib.hpp"
 /// #include "A24C256.hpp"
 /// 
@@ -62,7 +63,7 @@
 /// 	memory.write(0, true);
 /// 	hwlib::cout << (bool(memory.read(0)) && 1);
 /// 
-	
+///
 /// 	//Overwriting page-boundaries is taken care of.
 ///		char data[]={"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio."};
 /// 	memory.write(0, data);
@@ -85,6 +86,7 @@
 /// 
 /// 
 /// }
+///
 /// ~~~~~~~~~~~~~~~
 class A24C256{
 	private:

@@ -9,3 +9,4 @@ Makefile.*
 *.map
 bmptk_fixed_size_stack.c
 *.hex
+/Library/GUI.*

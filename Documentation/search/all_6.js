@@ -20,13 +20,15 @@ var searchData=
   ['getprogramitem',['getProgramItem',['../classradio_data_system.html#a156611be2225cc1f7a314d3996ae400c',1,'radioDataSystem']]],
   ['getprogramrefrence',['getProgramRefrence',['../classradio_data_system.html#a4ec39c9bedcaaf0fb5f81ebe81447ba5',1,'radioDataSystem']]],
   ['getprogramtype',['getProgramType',['../classradio_data_system.html#a5344e43cb2af8854e5d0334cd0f7795d',1,'radioDataSystem']]],
+  ['getreset',['getReset',['../class_d_s3231.html#a92536c4b48ae56439eba0f4948066481',1,'DS3231']]],
   ['getseconds',['getSeconds',['../classtime_data.html#a39a2df9c9993837bc6d6bee182486a07',1,'timeData']]],
   ['getspacing',['getSpacing',['../class_r_d_a5807.html#a3a13c5e3e5926e90d705a8b581257eba',1,'RDA5807']]],
   ['getstationname',['getStationName',['../classradio_data_system.html#afbaeb0681e8c96c1d9d921e691e4a8f8',1,'radioDataSystem']]],
   ['getstationtext',['getStationText',['../classradio_data_system.html#ab25206d6417ba37762d7dde7352d7d8f',1,'radioDataSystem::getStationText()'],['../class_r_d_a5807.html#a52f0880f5d15fb45ca67567c2921a19d',1,'RDA5807::getStationText()']]],
-  ['gettemperature',['getTemperature',['../class_d_s3231.html#a409a5acf3fba9b8ec2d733f9c8369d05',1,'DS3231']]],
+  ['gettemperature',['getTemperature',['../class_d_s3231.html#abe7226b298fe8ad4fb0e7b49a840db91',1,'DS3231']]],
   ['gettime',['getTime',['../class_d_s3231.html#aa20f9e9eba6dc0eac389c7d693a0dea2',1,'DS3231']]],
   ['getvolume',['getVolume',['../class_r_d_a5807.html#a624308edf9695d5e485815f4d505cead',1,'RDA5807::getVolume()'],['../class_t_e_a5767.html#a019d8bee5761a85feabc898466e6b5d9',1,'TEA5767::getVolume()']]],
   ['getweekday',['getWeekDay',['../classdate_data.html#a9640c1c25f702e007aa37e758b722244',1,'dateData']]],
+  ['getwriteprotect',['getWriteProtect',['../class_a24_c256.html#a019f1918532d0a9a753a1182cb1deae0',1,'A24C256']]],
   ['getyear',['getYear',['../classdate_data.html#a23f2a970f86e66d161bd0b8be36a2be9',1,'dateData']]]
 ];
